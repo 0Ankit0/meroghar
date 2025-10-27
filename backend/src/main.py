@@ -6,8 +6,11 @@ Implements T017 from tasks.md.
 import logging
 from datetime import datetime
 
+import sentry_sdk
 from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
+from sentry_sdk.integrations.fastapi import FastApiIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from .core.config import get_settings, setup_logging
 from .core.database import check_db_connection, close_db
@@ -20,6 +23,28 @@ logger = logging.getLogger(__name__)
 
 # Get settings
 settings = get_settings()
+
+# Initialize Sentry monitoring (T266)
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.environment,
+        release=f"{settings.app_name}@{settings.api_version}",
+        traces_sample_rate=1.0 if settings.environment == "development" else 0.2,
+        profiles_sample_rate=1.0 if settings.environment == "development" else 0.2,
+        integrations=[
+            FastApiIntegration(transaction_style="endpoint"),
+            LoggingIntegration(
+                level=logging.INFO,  # Capture info and above as breadcrumbs
+                event_level=logging.ERROR,  # Send errors as events
+            ),
+        ],
+        before_send=lambda event, hint: event if settings.environment != "test" else None,
+        send_default_pii=False,  # Don't send personally identifiable information
+    )
+    logger.info("Sentry monitoring initialized successfully")
+else:
+    logger.warning("Sentry DSN not configured - monitoring disabled")
 
 # Create FastAPI application
 app = FastAPI(

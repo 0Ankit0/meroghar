@@ -5,13 +5,35 @@ Implements T022 from tasks.md.
 
 import logging
 
+import sentry_sdk
 from celery import Celery
 from celery.schedules import crontab
+from sentry_sdk.integrations.celery import CeleryIntegration
+from sentry_sdk.integrations.logging import LoggingIntegration
 
 from ..core.config import get_settings
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
+
+# Initialize Sentry for Celery workers (T266)
+if settings.sentry_dsn:
+    sentry_sdk.init(
+        dsn=settings.sentry_dsn,
+        environment=settings.environment,
+        release=f"{settings.app_name}@{settings.api_version}",
+        traces_sample_rate=1.0 if settings.environment == "development" else 0.1,
+        integrations=[
+            CeleryIntegration(monitor_beat_tasks=True, propagate_traces=True),
+            LoggingIntegration(
+                level=logging.INFO,
+                event_level=logging.ERROR,
+            ),
+        ],
+        before_send=lambda event, hint: event if settings.environment != "test" else None,
+        send_default_pii=False,
+    )
+    logger.info("Sentry monitoring initialized for Celery workers")
 
 # Create Celery application
 celery_app = Celery(

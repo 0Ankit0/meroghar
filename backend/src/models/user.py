@@ -88,6 +88,12 @@ class User(Base):
         index=True,
         comment="User role (immutable after creation)",
     )
+    language_preference = Column(
+        String(10),
+        nullable=True,
+        default="en",
+        comment="User's preferred language (ISO 639-1 code: en, hi, es, ar)",
+    )
 
     # Status
     is_active = Column(
