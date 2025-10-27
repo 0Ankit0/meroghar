@@ -1,0 +1,75 @@
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Database
+sqlalchemy==2.0.23
+alembic==1.12.1
+psycopg2-binary==2.9.9
+redis==5.0.1
+
+# Authentication & Security
+pyjwt==2.8.0
+bcrypt==4.1.1
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+
+# Data Validation
+pydantic==2.5.0
+pydantic-settings==2.1.0
+email-validator==2.1.0
+
+# Background Tasks
+celery==5.3.4
+celery[redis]==5.3.4
+
+# HTTP Client & External APIs
+httpx==0.25.2
+requests==2.31.0
+
+# Payment Gateways
+stripe==7.7.0
+razorpay==1.4.1
+
+# Document Processing & Export
+reportlab==4.0.7
+openpyxl==3.1.2
+Pillow==10.1.0
+PyPDF2==3.0.1
+
+# Cloud Storage
+boto3==1.29.7
+python-magic==0.4.27
+
+# Messaging
+twilio==8.10.3
+
+# Push Notifications
+firebase-admin==6.3.0
+
+# CORS & Middleware
+python-cors==1.0.0
+
+# Environment & Configuration
+python-dotenv==1.0.0
+
+# Utilities
+python-dateutil==2.8.2
+pytz==2023.3
+
+# Monitoring & Logging
+sentry-sdk[fastapi]==1.38.0
+
+# Development & Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+pytest-mock==3.12.0
+httpx==0.25.2
+faker==20.1.0
+
+# Code Quality
+ruff==0.1.6
+black==23.11.0
+mypy==1.7.1

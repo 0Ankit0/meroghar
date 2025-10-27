@@ -1,0 +1,113 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: meroghar_postgres
+    environment:
+      POSTGRES_USER: meroghar
+      POSTGRES_PASSWORD: meroghar_dev_password
+      POSTGRES_DB: meroghar_dev
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./backend/scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U meroghar"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - meroghar_network
+
+  redis:
+    image: redis:7-alpine
+    container_name: meroghar_redis
+    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+    networks:
+      - meroghar_network
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meroghar_backend
+    environment:
+      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar_dev
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+      - ENVIRONMENT=development
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/src:/app/src
+      - ./backend/alembic:/app/alembic
+      - ./backend/tests:/app/tests
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - meroghar_network
+
+  celery_worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meroghar_celery_worker
+    environment:
+      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar_dev
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend/src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A src.tasks.celery_app worker --loglevel=info
+    networks:
+      - meroghar_network
+
+  celery_beat:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: meroghar_celery_beat
+    environment:
+      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar_dev
+      - REDIS_URL=redis://redis:6379/0
+      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+      - ENVIRONMENT=development
+    volumes:
+      - ./backend/src:/app/src
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    command: celery -A src.tasks.celery_app beat --loglevel=info
+    networks:
+      - meroghar_network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  meroghar_network:
+    driver: bridge
