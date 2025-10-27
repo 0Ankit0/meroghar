@@ -119,8 +119,8 @@ This is a Mobile + API project with:
 
 - [x] T056 [P] [US2] Create Payment model with tenant_id, amount, method in backend/src/models/payment.py
 - [x] T057 [P] [US2] Create Transaction model for payment gateway records in backend/src/models/payment.py
-- [ ] T058 [US2] Create Alembic migration for Payment and Transaction tables in backend/alembic/versions/
-- [ ] T059 [P] [US2] Create payment request/response schemas in backend/src/schemas/payment.py
+- [x] T058 [US2] Create Alembic migration for Payment and Transaction tables in backend/alembic/versions/
+- [x] T059 [P] [US2] Create payment request/response schemas in backend/src/schemas/payment.py
 - [ ] T060 [US2] Implement PaymentService with record_payment, calculate_balance methods in backend/src/services/payment_service.py
 - [ ] T061 [US2] Implement payment recording endpoint (POST /api/v1/payments) in backend/src/api/v1/payments.py
 - [ ] T062 [US2] Implement payment history endpoint (GET /api/v1/payments?tenant_id=) in backend/src/api/v1/payments.py
