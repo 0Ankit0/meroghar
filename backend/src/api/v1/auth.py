@@ -7,7 +7,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from ...core.database import get_db
+from ...core.database import get_async_db
 from ...schemas import (
     AuthResponse,
     LoginRequest,
@@ -23,7 +23,7 @@ router = APIRouter()
 
 
 def get_auth_service(
-    session: Annotated[AsyncSession, Depends(get_db)]
+    session: Annotated[AsyncSession, Depends(get_async_db)]
 ) -> AuthService:
     """Get auth service instance.
     
