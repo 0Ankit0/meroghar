@@ -480,11 +480,11 @@ This is a Mobile + API project with:
 - [x] T253 [P] Add comprehensive API documentation in backend/docs/api.md
 - [x] T254 [P] Create deployment guide in backend/docs/deployment.md
 - [x] T255 [P] Create mobile app user manual in mobile/docs/user-guide.md
-- [ ] T256 Code cleanup and refactoring across backend services
-- [ ] T257 Code cleanup and refactoring across mobile screens
+- [x] T256 Code cleanup and refactoring across backend services
+- [x] T257 Code cleanup and refactoring across mobile screens
 - [x] T258 [P] Performance optimization: add database indexes for frequent queries
 - [x] T259 [P] Performance optimization: implement response caching with Redis
-- [ ] T260 [P] Performance optimization: optimize mobile database queries
+- [x] T260 [P] Performance optimization: optimize mobile database queries
 - [x] T261 [P] Security audit: verify all RLS policies are correct
 - [x] T262 [P] Security audit: check for SQL injection vulnerabilities
 - [x] T263 [P] Security audit: verify JWT token validation everywhere
@@ -492,7 +492,7 @@ This is a Mobile + API project with:
 - [x] T265 [P] Add error logging to all exception handlers
 - [x] T266 [P] Setup monitoring and alerting with Sentry
 - [x] T267 Run through complete quickstart.md validation
-- [ ] T268 Test all 14 user stories end-to-end
+- [x] T268 Test all 14 user stories end-to-end
 - [x] T269 [P] Create demo data seeding script in backend/scripts/seed_demo_data.py
 - [x] T270 [P] Create backup and restore scripts
 

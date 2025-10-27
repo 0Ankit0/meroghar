@@ -221,22 +221,22 @@ class DatabaseService {
       await txn.execute('CREATE INDEX idx_users_email ON users(email)');
       await txn.execute('CREATE INDEX idx_users_role ON users(role)');
       await txn.execute('CREATE INDEX idx_users_is_active ON users(is_active)');
-      await txn.execute(
-          'CREATE INDEX idx_tenants_user_id ON tenants(user_id)');
+      await txn.execute('CREATE INDEX idx_tenants_user_id ON tenants(user_id)');
       await txn.execute(
           'CREATE INDEX idx_tenants_property_id ON tenants(property_id)');
-      await txn.execute(
-          'CREATE INDEX idx_tenants_is_active ON tenants(is_active)');
+      await txn
+          .execute('CREATE INDEX idx_tenants_is_active ON tenants(is_active)');
       await txn.execute(
           'CREATE INDEX idx_tenants_start_date ON tenants(start_date)');
       await txn.execute(
           'CREATE INDEX idx_payments_tenant_id ON payments(tenant_id)');
-      await txn.execute(
-          'CREATE INDEX idx_payments_status ON payments(status)');
+      await txn.execute('CREATE INDEX idx_payments_status ON payments(status)');
       await txn.execute(
           'CREATE INDEX idx_payments_payment_date ON payments(payment_date)');
-      await txn.execute('CREATE INDEX idx_bills_property_id ON bills(property_id)');
-      await txn.execute('CREATE INDEX idx_bills_billing_period ON bills(billing_period)');
+      await txn
+          .execute('CREATE INDEX idx_bills_property_id ON bills(property_id)');
+      await txn.execute(
+          'CREATE INDEX idx_bills_billing_period ON bills(billing_period)');
       await txn.execute('CREATE INDEX idx_bills_due_date ON bills(due_date)');
       await txn.execute(
           'CREATE INDEX idx_bill_allocations_bill_id ON bill_allocations(bill_id)');
@@ -246,10 +246,9 @@ class DatabaseService {
           'CREATE INDEX idx_bill_allocations_is_paid ON bill_allocations(is_paid)');
       await txn.execute(
           'CREATE INDEX idx_expenses_property_id ON expenses(property_id)');
-      await txn.execute(
-          'CREATE INDEX idx_expenses_category ON expenses(category)');
-      await txn.execute(
-          'CREATE INDEX idx_expenses_status ON expenses(status)');
+      await txn
+          .execute('CREATE INDEX idx_expenses_category ON expenses(category)');
+      await txn.execute('CREATE INDEX idx_expenses_status ON expenses(status)');
       await txn.execute(
           'CREATE INDEX idx_expenses_expense_date ON expenses(expense_date)');
       await txn.execute(
@@ -258,7 +257,8 @@ class DatabaseService {
           'CREATE INDEX idx_documents_property_id ON documents(property_id)');
       await txn.execute(
           'CREATE INDEX idx_documents_document_type ON documents(document_type)');
-      await txn.execute('CREATE INDEX idx_sync_queue_status ON sync_queue(status)');
+      await txn
+          .execute('CREATE INDEX idx_sync_queue_status ON sync_queue(status)');
       await txn.execute(
           'CREATE INDEX idx_sync_queue_entity ON sync_queue(entity_type, entity_id)');
       await txn.execute(
