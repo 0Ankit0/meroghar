@@ -169,10 +169,77 @@ class HealthCheckResponse(BaseModel):
 
 
 __all__ = [
+    # Base schemas (T018)
     "SuccessResponse",
     "ErrorResponse",
     "PaginationParams",
     "PaginatedResponse",
     "PaginationMeta",
     "HealthCheckResponse",
+    # Auth schemas (T029)
+    "RegisterRequest",
+    "LoginRequest",
+    "RefreshTokenRequest",
+    "TokenPair",
+    "AuthResponse",
+    "LogoutResponse",
+    # User schemas (T030)
+    "UserCreateRequest",
+    "UserUpdateRequest",
+    "PasswordChangeRequest",
+    "UserResponse",
+    "UserListResponse",
+    "UserProfileResponse",
+    # Property schemas (T031)
+    "PropertyCreateRequest",
+    "PropertyUpdateRequest",
+    "PropertyAssignIntermediaryRequest",
+    "PropertyRemoveIntermediaryRequest",
+    "PropertyResponse",
+    "PropertyListResponse",
+    "PropertyAssignmentResponse",
+    # Tenant schemas (T032)
+    "TenantCreateRequest",
+    "TenantUpdateRequest",
+    "TenantMoveOutRequest",
+    "TenantResponse",
+    "TenantListResponse",
+    "TenantWithUserResponse",
+    "TenantBalanceResponse",
 ]
+
+# Import schemas for convenient access
+from .auth import (
+    AuthResponse,
+    LoginRequest,
+    LogoutResponse,
+    RefreshTokenRequest,
+    RegisterRequest,
+    TokenPair,
+)
+from .property import (
+    PropertyAssignIntermediaryRequest,
+    PropertyAssignmentResponse,
+    PropertyCreateRequest,
+    PropertyListResponse,
+    PropertyRemoveIntermediaryRequest,
+    PropertyResponse,
+    PropertyUpdateRequest,
+)
+from .tenant import (
+    TenantBalanceResponse,
+    TenantCreateRequest,
+    TenantListResponse,
+    TenantMoveOutRequest,
+    TenantResponse,
+    TenantUpdateRequest,
+    TenantWithUserResponse,
+)
+from .user import (
+    PasswordChangeRequest,
+    UserCreateRequest,
+    UserListResponse,
+    UserProfileResponse,
+    UserResponse,
+    UserUpdateRequest,
+)
