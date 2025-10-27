@@ -354,15 +354,15 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 10
 
-- [ ] T191 [US10] Add rent_increment_policy JSON column to Tenant model in backend/src/models/tenant.py
-- [ ] T192 [US10] Add rent_history JSON column to Tenant model for historical rates in backend/src/models/tenant.py
-- [ ] T193 [US10] Create Alembic migration for rent increment columns in backend/alembic/versions/
-- [ ] T194 [US10] Implement rent increment calculation service in backend/src/services/rent_increment_service.py
-- [ ] T195 [US10] Implement rent increment policy endpoint (PUT /api/v1/tenants/{id}/rent-policy) in backend/src/api/v1/tenants.py
-- [ ] T196 [US10] Implement manual rent override endpoint (POST /api/v1/tenants/{id}/rent-override) in backend/src/api/v1/tenants.py
-- [ ] T197 [US10] Implement rent history endpoint (GET /api/v1/tenants/{id}/rent-history) in backend/src/api/v1/tenants.py
-- [ ] T198 [US10] Create Celery task for daily rent increment check in backend/src/tasks/rent_tasks.py
-- [ ] T199 [US10] Add rent increment notification 30 days before in backend/src/tasks/notification_tasks.py
+- [x] T191 [US10] Add rent_increment_policy JSON column to Tenant model in backend/src/models/tenant.py
+- [x] T192 [US10] Add rent_history JSON column to Tenant model for historical rates in backend/src/models/tenant.py
+- [x] T193 [US10] Create Alembic migration for rent increment columns in backend/alembic/versions/
+- [x] T194 [US10] Implement rent increment calculation service in backend/src/services/rent_increment_service.py
+- [x] T195 [US10] Implement rent increment policy endpoint (PUT /api/v1/tenants/{id}/rent-policy) in backend/src/api/v1/tenants.py
+- [x] T196 [US10] Implement manual rent override endpoint (POST /api/v1/tenants/{id}/rent-override) in backend/src/api/v1/tenants.py
+- [x] T197 [US10] Implement rent history endpoint (GET /api/v1/tenants/{id}/rent-history) in backend/src/api/v1/tenants.py
+- [x] T198 [US10] Create Celery task for daily rent increment check in backend/src/tasks/rent_tasks.py
+- [x] T199 [US10] Add rent increment notification 30 days before in backend/src/tasks/notification_tasks.py
 - [ ] T200 [US10] Create rent policy configuration screen in mobile/lib/screens/tenants/rent_policy_screen.dart
 - [ ] T201 [US10] Create rent history view in tenant detail screen in mobile/lib/screens/tenants/tenant_detail_screen.dart
 - [ ] T202 [US10] Add manual rent override UI in mobile/lib/screens/tenants/rent_override_screen.dart
