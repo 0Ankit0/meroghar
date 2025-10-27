@@ -53,6 +53,48 @@ async def create_user(
         500: If database error occurs
     """
     try:
+        # ==================== Enhanced Validation (T054) ====================
+        
+        # Validate email format (basic check - Pydantic also validates)
+        if not request.email or "@" not in request.email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid email format",
+            )
+        
+        # Validate password strength (minimum 8 characters)
+        if len(request.password) < 8:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password must be at least 8 characters long",
+            )
+        
+        # Validate full name is not empty
+        if not request.full_name or not request.full_name.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Full name is required",
+            )
+        
+        # Validate phone format if provided (basic check)
+        if request.phone:
+            # Remove common separators
+            phone_digits = ''.join(c for c in request.phone if c.isdigit() or c == '+')
+            if len(phone_digits) < 10:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Phone number must contain at least 10 digits",
+                )
+        
+        # Validate role is tenant or intermediary (not owner)
+        if request.role == UserRole.OWNER:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot create owner accounts through this endpoint",
+            )
+        
+        # ==================== Existing Validation ====================
+        
         # Check if email already exists
         result = await session.execute(
             select(User).where(User.email == request.email)

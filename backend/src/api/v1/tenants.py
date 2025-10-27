@@ -59,6 +59,45 @@ async def create_tenant(
         500: If database error occurs
     """
     try:
+        # ==================== Enhanced Validation (T054) ====================
+        
+        # Validate move_out_date is after move_in_date
+        if request.move_out_date and request.move_out_date <= request.move_in_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Move out date must be after move in date",
+            )
+        
+        # Validate financial fields are positive
+        if request.monthly_rent <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Monthly rent must be greater than 0",
+            )
+        
+        if request.security_deposit < 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Security deposit must be 0 or greater",
+            )
+        
+        if request.electricity_rate <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Electricity rate must be greater than 0",
+            )
+        
+        # Validate move_in_date is not in the distant past (more than 5 years)
+        from datetime import datetime, timedelta
+        five_years_ago = datetime.now().date() - timedelta(days=5*365)
+        if request.move_in_date < five_years_ago:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Move in date cannot be more than 5 years in the past",
+            )
+        
+        # ==================== Existing Validation ====================
+        
         # Verify property exists
         result = await session.execute(
             select(Property).where(Property.id == request.property_id)
@@ -124,6 +163,21 @@ async def create_tenant(
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"User {user.email} already has an active tenancy",
+            )
+        
+        # Validate property capacity (total_units)
+        result = await session.execute(
+            select(Tenant).where(
+                Tenant.property_id == request.property_id,
+                Tenant.status == TenantStatus.ACTIVE,
+            )
+        )
+        active_tenants_count = len(result.scalars().all())
+        
+        if active_tenants_count >= property_obj.total_units:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Property has reached maximum capacity ({property_obj.total_units} units)",
             )
         
         # Create tenant record

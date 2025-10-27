@@ -55,6 +55,49 @@ async def create_property(
         500: If database error occurs
     """
     try:
+        # ==================== Enhanced Validation (T054) ====================
+        
+        # Validate total_units is positive
+        if request.total_units <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Total units must be greater than 0",
+            )
+        
+        # Validate postal code format (basic validation)
+        if request.postal_code and len(request.postal_code.strip()) < 3:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Postal code must be at least 3 characters",
+            )
+        
+        # Validate required address fields are not empty
+        if not request.address_line1.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Address line 1 is required",
+            )
+        
+        if not request.city.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="City is required",
+            )
+        
+        if not request.state.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="State is required",
+            )
+        
+        if not request.country.strip():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Country is required",
+            )
+        
+        # ==================== Create Property ====================
+        
         # Create new property
         new_property = Property(
             owner_id=current_user.id,
@@ -79,6 +122,8 @@ async def create_property(
             data=PropertyResponse.model_validate(new_property),
         )
         
+    except HTTPException:
+        raise
     except IntegrityError as e:
         await session.rollback()
         raise HTTPException(
