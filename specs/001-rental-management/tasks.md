@@ -128,8 +128,8 @@ This is a Mobile + API project with:
 - [x] T064 [US2] Implement receipt generation endpoint (GET /api/v1/payments/{id}/receipt) with PDF in backend/src/api/v1/payments.py
 - [x] T065 [P] [US2] Create Payment model for mobile local storage in mobile/lib/models/payment.dart
 - [x] T066 [US2] Create payment provider with payment state in mobile/lib/providers/payment_provider.dart
-- [ ] T067 [US2] Create payment recording screen in mobile/lib/screens/payments/payment_form_screen.dart
-- [ ] T068 [US2] Create payment history screen in mobile/lib/screens/payments/payment_history_screen.dart
+- [x] T067 [US2] Create payment recording screen in mobile/lib/screens/payments/payment_form_screen.dart
+- [x] T068 [US2] Create payment history screen in mobile/lib/screens/payments/payment_history_screen.dart
 - [ ] T069 [US2] Add payment status indicator to tenant list cards in mobile/lib/widgets/tenant_card.dart
 - [ ] T070 [US2] Create receipt view/download widget in mobile/lib/screens/payments/receipt_view_screen.dart
 - [ ] T071 [US2] Implement overdue payment highlighting logic in mobile/lib/widgets/tenant_card.dart
