@@ -6,7 +6,8 @@ import logging
 import os
 import tempfile
 from datetime import date
-from typing import Annotated, Optional
+from decimal import Decimal
+from typing import Annotated, Dict, Optional
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
@@ -19,6 +20,7 @@ from ...api.dependencies import CommonQueryParams, get_current_user, require_rol
 from ...core.database import get_async_db
 from ...models.payment import Payment, PaymentStatus, PaymentType
 from ...models.property import PropertyAssignment
+from ...models.tenant import Tenant
 from ...models.user import User, UserRole
 from ...schemas.payment import (
     PaymentCreateRequest,
@@ -356,6 +358,126 @@ async def get_payment_receipt(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to generate receipt",
+        )
+
+
+@router.get(
+    "/calculate-prorated",
+    response_model=Dict[str, Decimal],
+    summary="Calculate pro-rated rent",
+    description="Calculate pro-rated rent for a tenant based on move-in date and period",
+)
+async def calculate_prorated_rent(
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+    tenant_id: UUID = Query(..., description="Tenant ID"),
+    period_start: date = Query(..., description="Payment period start date"),
+    period_end: date = Query(..., description="Payment period end date"),
+) -> Dict[str, Decimal]:
+    """Calculate pro-rated rent for a tenant.
+    
+    This endpoint helps calculate the correct rent amount when a tenant
+    moves in mid-month. The calculation is based on:
+    - Monthly rent from tenant record
+    - Tenant's move-in date
+    - The payment period
+    
+    Only intermediaries can access this endpoint.
+    
+    Args:
+        current_user: Authenticated intermediary user
+        session: Database session
+        tenant_id: Tenant to calculate rent for
+        period_start: Start of payment period
+        period_end: End of payment period
+        
+    Returns:
+        Dict with monthly_rent and prorated_rent amounts
+        
+    Raises:
+        403: If user is not an intermediary
+        404: If tenant not found
+        400: If period dates are invalid
+        500: If database error occurs
+    """
+    try:
+        # Only intermediaries can use this endpoint
+        if current_user.role != UserRole.INTERMEDIARY:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only intermediaries can calculate pro-rated rent",
+            )
+        
+        # Validate period dates
+        if period_end <= period_start:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Period end must be after period start",
+            )
+        
+        # Fetch tenant
+        result = await session.execute(
+            select(Tenant).where(Tenant.id == tenant_id)
+        )
+        tenant = result.scalar_one_or_none()
+        
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tenant not found",
+            )
+        
+        # Verify intermediary is assigned to the property
+        result = await session.execute(
+            select(PropertyAssignment).where(
+                and_(
+                    PropertyAssignment.property_id == tenant.property_id,
+                    PropertyAssignment.intermediary_id == current_user.id,
+                    PropertyAssignment.is_active == True,
+                )
+            )
+        )
+        assignment = result.scalar_one_or_none()
+        
+        if not assignment:
+            logger.warning(
+                f"Intermediary {current_user.id} attempted to calculate rent "
+                f"for tenant {tenant_id} on unassigned property {tenant.property_id}"
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="You are not assigned to manage this tenant's property",
+            )
+        
+        # Calculate pro-rated rent
+        payment_service = PaymentService(session)
+        prorated_amount = await payment_service.calculate_prorated_rent(
+            monthly_rent=tenant.monthly_rent,
+            move_in_date=tenant.move_in_date,
+            period_start=period_start,
+            period_end=period_end,
+        )
+        
+        logger.info(
+            f"Pro-rated rent calculated: tenant_id={tenant_id}, "
+            f"monthly={tenant.monthly_rent}, prorated={prorated_amount}"
+        )
+        
+        return {
+            "monthly_rent": tenant.monthly_rent,
+            "prorated_rent": prorated_amount,
+            "move_in_date": tenant.move_in_date.isoformat(),
+            "period_start": period_start.isoformat(),
+            "period_end": period_end.isoformat(),
+        }
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error calculating pro-rated rent: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate pro-rated rent",
         )
 
 

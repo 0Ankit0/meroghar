@@ -69,6 +69,49 @@ class PaymentService:
                 f"Cannot record payment for inactive tenant {request.tenant_id}"
             )
         
+        # T074: Validate payment date is not in the future
+        from datetime import date as date_class
+        if request.payment_date > date_class.today():
+            raise ValueError(
+                "Payment date cannot be in the future"
+            )
+        
+        # T074: Validate period dates if provided
+        if request.payment_period_start and request.payment_period_end:
+            if request.payment_period_end <= request.payment_period_start:
+                raise ValueError(
+                    "Payment period end must be after start date"
+                )
+        
+        # T074: Check for duplicate payments (same period for rent)
+        if request.payment_type == PaymentType.RENT and request.payment_period_start and request.payment_period_end:
+            result = await self.session.execute(
+                select(Payment).where(
+                    Payment.tenant_id == request.tenant_id,
+                    Payment.property_id == request.property_id,
+                    Payment.payment_type == PaymentType.RENT,
+                    Payment.payment_period_start == request.payment_period_start,
+                    Payment.payment_period_end == request.payment_period_end,
+                    Payment.status.in_([PaymentStatus.COMPLETED, PaymentStatus.PENDING]),
+                )
+            )
+            existing_payment = result.scalar_one_or_none()
+            
+            if existing_payment:
+                raise ValueError(
+                    f"Payment already exists for period {request.payment_period_start} to {request.payment_period_end}"
+                )
+        
+        # T074: Validate payment amount for rent type
+        if request.payment_type == PaymentType.RENT:
+            # Allow some flexibility (e.g., 120% of monthly rent for security)
+            max_rent_amount = tenant.monthly_rent * Decimal("1.20")
+            if request.amount > max_rent_amount:
+                raise ValueError(
+                    f"Payment amount {request.amount} exceeds maximum allowed rent {max_rent_amount} "
+                    f"(monthly rent: {tenant.monthly_rent})"
+                )
+        
         # Create payment record
         payment = Payment(
             tenant_id=request.tenant_id,
