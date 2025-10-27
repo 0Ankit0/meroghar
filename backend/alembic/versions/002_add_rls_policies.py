@@ -1,6 +1,6 @@
-"""Add RLS policies for users, properties, and tenants tables
+"""Add RLS policies for users, properties, tenants, and payments tables
 
-Implements T050-T052 from tasks.md.
+Implements T050-T052, T072 from tasks.md.
 
 Revision ID: 002_add_rls_policies
 Revises: 001_initial_schema
@@ -36,6 +36,12 @@ def upgrade() -> None:
     
     # Enable RLS on tenants table
     op.execute('ALTER TABLE tenants ENABLE ROW LEVEL SECURITY')
+    
+    # Enable RLS on payments table
+    op.execute('ALTER TABLE payments ENABLE ROW LEVEL SECURITY')
+    
+    # Enable RLS on transactions table
+    op.execute('ALTER TABLE transactions ENABLE ROW LEVEL SECURITY')
     
     # ==================== Users Table Policies (T050) ====================
     
@@ -276,10 +282,181 @@ def upgrade() -> None:
             )
         )
     """)
+    
+    # ==================== Payments Table Policies (T072) ====================
+    
+    # Policy: Owners can view all payments for their properties
+    op.execute("""
+        CREATE POLICY payments_select_owner ON payments
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM tenants
+                JOIN properties ON tenants.property_id = properties.id
+                WHERE tenants.id = payments.tenant_id
+                AND properties.owner_id::text = current_setting('app.current_user_id', true)
+            )
+        )
+    """)
+    
+    # Policy: Intermediaries can view payments for assigned properties
+    op.execute("""
+        CREATE POLICY payments_select_intermediary ON payments
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM tenants
+                JOIN property_assignments ON tenants.property_id = property_assignments.property_id
+                WHERE tenants.id = payments.tenant_id
+                AND property_assignments.intermediary_id::text = current_setting('app.current_user_id', true)
+                AND property_assignments.is_active = true
+            )
+        )
+    """)
+    
+    # Policy: Tenants can view their own payments
+    op.execute("""
+        CREATE POLICY payments_select_tenant ON payments
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM tenants
+                WHERE tenants.id = payments.tenant_id
+                AND tenants.user_id::text = current_setting('app.current_user_id', true)
+            )
+        )
+    """)
+    
+    # Policy: Owners can insert payments for their properties
+    op.execute("""
+        CREATE POLICY payments_insert_owner ON payments
+        FOR INSERT
+        WITH CHECK (
+            EXISTS (
+                SELECT 1 FROM tenants
+                JOIN properties ON tenants.property_id = properties.id
+                WHERE tenants.id = payments.tenant_id
+                AND properties.owner_id::text = current_setting('app.current_user_id', true)
+            )
+        )
+    """)
+    
+    # Policy: Intermediaries can insert payments for assigned properties
+    op.execute("""
+        CREATE POLICY payments_insert_intermediary ON payments
+        FOR INSERT
+        WITH CHECK (
+            EXISTS (
+                SELECT 1 FROM tenants
+                JOIN property_assignments ON tenants.property_id = property_assignments.property_id
+                WHERE tenants.id = payments.tenant_id
+                AND property_assignments.intermediary_id::text = current_setting('app.current_user_id', true)
+                AND property_assignments.is_active = true
+            )
+        )
+    """)
+    
+    # Policy: Owners can update payments for their properties
+    op.execute("""
+        CREATE POLICY payments_update_owner ON payments
+        FOR UPDATE
+        USING (
+            EXISTS (
+                SELECT 1 FROM tenants
+                JOIN properties ON tenants.property_id = properties.id
+                WHERE tenants.id = payments.tenant_id
+                AND properties.owner_id::text = current_setting('app.current_user_id', true)
+            )
+        )
+    """)
+    
+    # Policy: Intermediaries can update payments for assigned properties
+    op.execute("""
+        CREATE POLICY payments_update_intermediary ON payments
+        FOR UPDATE
+        USING (
+            EXISTS (
+                SELECT 1 FROM tenants
+                JOIN property_assignments ON tenants.property_id = property_assignments.property_id
+                WHERE tenants.id = payments.tenant_id
+                AND property_assignments.intermediary_id::text = current_setting('app.current_user_id', true)
+                AND property_assignments.is_active = true
+            )
+        )
+    """)
+    
+    # ==================== Transactions Table Policies (T072) ====================
+    
+    # Policy: Owners can view transactions for their properties
+    op.execute("""
+        CREATE POLICY transactions_select_owner ON transactions
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM payments
+                JOIN tenants ON payments.tenant_id = tenants.id
+                JOIN properties ON tenants.property_id = properties.id
+                WHERE payments.id = transactions.payment_id
+                AND properties.owner_id::text = current_setting('app.current_user_id', true)
+            )
+        )
+    """)
+    
+    # Policy: Intermediaries can view transactions for assigned properties
+    op.execute("""
+        CREATE POLICY transactions_select_intermediary ON transactions
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM payments
+                JOIN tenants ON payments.tenant_id = tenants.id
+                JOIN property_assignments ON tenants.property_id = property_assignments.property_id
+                WHERE payments.id = transactions.payment_id
+                AND property_assignments.intermediary_id::text = current_setting('app.current_user_id', true)
+                AND property_assignments.is_active = true
+            )
+        )
+    """)
+    
+    # Policy: Tenants can view their own transactions
+    op.execute("""
+        CREATE POLICY transactions_select_tenant ON transactions
+        FOR SELECT
+        USING (
+            EXISTS (
+                SELECT 1 FROM payments
+                JOIN tenants ON payments.tenant_id = tenants.id
+                WHERE payments.id = transactions.payment_id
+                AND tenants.user_id::text = current_setting('app.current_user_id', true)
+            )
+        )
+    """)
+    
+    # Policy: System can insert transactions (no user-based restriction)
+    op.execute("""
+        CREATE POLICY transactions_insert_all ON transactions
+        FOR INSERT
+        WITH CHECK (true)
+    """)
 
 
 def downgrade() -> None:
     """Remove RLS policies and disable RLS."""
+    
+    # ==================== Drop Transactions Policies ====================
+    op.execute('DROP POLICY IF EXISTS transactions_select_owner ON transactions')
+    op.execute('DROP POLICY IF EXISTS transactions_select_intermediary ON transactions')
+    op.execute('DROP POLICY IF EXISTS transactions_select_tenant ON transactions')
+    op.execute('DROP POLICY IF EXISTS transactions_insert_all ON transactions')
+    
+    # ==================== Drop Payments Policies ====================
+    op.execute('DROP POLICY IF EXISTS payments_select_owner ON payments')
+    op.execute('DROP POLICY IF EXISTS payments_select_intermediary ON payments')
+    op.execute('DROP POLICY IF EXISTS payments_select_tenant ON payments')
+    op.execute('DROP POLICY IF EXISTS payments_insert_owner ON payments')
+    op.execute('DROP POLICY IF EXISTS payments_insert_intermediary ON payments')
+    op.execute('DROP POLICY IF EXISTS payments_update_owner ON payments')
+    op.execute('DROP POLICY IF EXISTS payments_update_intermediary ON payments')
     
     # ==================== Drop Tenants Policies ====================
     op.execute('DROP POLICY IF EXISTS tenants_select_owner ON tenants')
@@ -311,6 +488,8 @@ def downgrade() -> None:
     op.execute('DROP POLICY IF EXISTS users_update_own ON users')
     
     # ==================== Disable RLS ====================
+    op.execute('ALTER TABLE transactions DISABLE ROW LEVEL SECURITY')
+    op.execute('ALTER TABLE payments DISABLE ROW LEVEL SECURITY')
     op.execute('ALTER TABLE tenants DISABLE ROW LEVEL SECURITY')
     op.execute('ALTER TABLE property_assignments DISABLE ROW LEVEL SECURITY')
     op.execute('ALTER TABLE properties DISABLE ROW LEVEL SECURITY')
