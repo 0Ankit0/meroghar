@@ -1,4 +1,5 @@
 # Meroghar Quick Start Guide
+
 # Getting Started with Development
 
 **Date**: 2025-10-26  
@@ -10,6 +11,7 @@
 ## Prerequisites
 
 ### System Requirements
+
 - **OS**: macOS 10.15+, Ubuntu 20.04+, or Windows 10+ with WSL2
 - **RAM**: Minimum 8GB (16GB recommended)
 - **Disk**: 10GB free space
@@ -17,6 +19,7 @@
 - **Git**: 2.30+
 
 ### Development Tools
+
 - **Python**: 3.11+ with pip and virtualenv
 - **Node.js**: 18+ with npm (for tooling)
 - **Flutter**: 3.10+ with Android SDK and/or Xcode
@@ -28,6 +31,7 @@
 ## Backend Setup
 
 ### 1. Clone Repository
+
 ```bash
 git clone https://github.com/meroghar/meroghar.git
 cd meroghar
@@ -35,6 +39,7 @@ git checkout 001-rental-management
 ```
 
 ### 2. Set Up Python Environment
+
 ```bash
 cd backend
 
@@ -49,6 +54,7 @@ pip install -r requirements-dev.txt  # Development dependencies
 ```
 
 ### 3. Configure Environment Variables
+
 ```bash
 # Copy example environment file
 cp .env.example .env
@@ -58,6 +64,7 @@ vim .env
 ```
 
 **Required Environment Variables**:
+
 ```bash
 # Database
 DATABASE_URL=postgresql://meroghar_user:password@localhost:5432/meroghar_db
@@ -98,6 +105,7 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 ```
 
 ### 4. Start Infrastructure Services
+
 ```bash
 # Start PostgreSQL, Redis, and pgAdmin using Docker Compose
 docker-compose up -d postgres redis pgadmin
@@ -113,6 +121,7 @@ docker-compose ps
 
 **pgAdmin Setup (Optional):**
 If you want to manage the database via web UI:
+
 1. Open http://localhost:5050
 2. Login with credentials above
 3. Click "Add New Server"
@@ -125,6 +134,7 @@ If you want to manage the database via web UI:
 6. Click "Save"
 
 ### 5. Run Database Migrations
+
 ```bash
 # Initialize Alembic (first time only)
 alembic upgrade head
@@ -134,6 +144,7 @@ python scripts/create_admin_user.py
 ```
 
 ### 6. Start Backend Server
+
 ```bash
 # Development server with auto-reload
 uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
@@ -143,6 +154,7 @@ uvicorn src.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### 7. Start Background Workers
+
 ```bash
 # In separate terminal (activate venv first)
 celery -A src.tasks.celery_app worker --loglevel=info
@@ -156,11 +168,13 @@ celery -A src.tasks.celery_app beat --loglevel=info
 ## Frontend (Mobile) Setup
 
 ### 1. Navigate to Mobile Directory
+
 ```bash
 cd mobile
 ```
 
 ### 2. Install Flutter Dependencies
+
 ```bash
 # Get Flutter packages
 flutter pub get
@@ -170,6 +184,7 @@ flutter doctor
 ```
 
 ### 3. Configure Environment
+
 ```bash
 # Copy example config
 cp lib/config/env.example.dart lib/config/env.dart
@@ -179,6 +194,7 @@ vim lib/config/env.dart
 ```
 
 **Example Configuration**:
+
 ```dart
 class Environment {
   static const String apiBaseUrl = 'http://localhost:8000/api/v1';
@@ -188,6 +204,7 @@ class Environment {
 ```
 
 ### 4. Generate Code (if needed)
+
 ```bash
 # Generate JSON serialization code
 flutter pub run build_runner build --delete-conflicting-outputs
@@ -199,6 +216,7 @@ flutter gen-l10n
 ### 5. Run Mobile App
 
 #### Android
+
 ```bash
 # List available devices
 flutter devices
@@ -211,6 +229,7 @@ flutter run
 ```
 
 #### iOS (macOS only)
+
 ```bash
 # Navigate to iOS directory
 cd ios
@@ -226,6 +245,7 @@ flutter run -d <ios-device-id>
 ```
 
 ### 6. Hot Reload
+
 Press `r` in terminal to hot reload, `R` to hot restart, or `q` to quit.
 
 ---
@@ -233,6 +253,7 @@ Press `r` in terminal to hot reload, `R` to hot restart, or `q` to quit.
 ## Running Tests
 
 ### Backend Tests
+
 ```bash
 cd backend
 source venv/bin/activate
@@ -254,6 +275,7 @@ pytest tests/contract/ -v
 ```
 
 ### Frontend Tests
+
 ```bash
 cd mobile
 
@@ -276,11 +298,13 @@ flutter pub run test_cov_console
 ## Development Workflow
 
 ### 1. Create Feature Branch
+
 ```bash
 git checkout -b feature/add-rent-increment
 ```
 
 ### 2. Make Changes Following TDD
+
 ```bash
 # 1. Write failing test
 vim tests/unit/test_rent_increment.py
@@ -298,12 +322,14 @@ pytest tests/unit/test_rent_increment.py
 ```
 
 ### 3. Commit Changes
+
 ```bash
 git add .
 git commit -m "feat(rent): implement automatic rent increment calculation"
 ```
 
 ### 4. Push and Create Pull Request
+
 ```bash
 git push origin feature/add-rent-increment
 # Then create PR on GitHub/GitLab
@@ -314,6 +340,7 @@ git push origin feature/add-rent-increment
 ## Common Tasks
 
 ### Create Database Migration
+
 ```bash
 cd backend
 source venv/bin/activate
@@ -332,6 +359,7 @@ alembic downgrade -1
 ```
 
 ### Access Database
+
 ```bash
 # Connect to PostgreSQL
 psql -h localhost -U meroghar_user -d meroghar_db
@@ -347,6 +375,7 @@ SELECT * FROM users LIMIT 10;
 ```
 
 ### View Logs
+
 ```bash
 # Backend logs
 tail -f logs/app.log
@@ -360,6 +389,7 @@ docker-compose logs -f redis
 ```
 
 ### Clear Redis Cache
+
 ```bash
 redis-cli
 > FLUSHALL
@@ -367,6 +397,7 @@ redis-cli
 ```
 
 ### Rebuild Docker Containers
+
 ```bash
 docker-compose down
 docker-compose up -d --build
@@ -377,7 +408,9 @@ docker-compose up -d --build
 ## Troubleshooting
 
 ### Issue: Database Connection Refused
+
 **Solution**:
+
 ```bash
 # Check if PostgreSQL is running
 docker-compose ps
@@ -390,7 +423,9 @@ docker-compose logs postgres
 ```
 
 ### Issue: Module Not Found (Python)
+
 **Solution**:
+
 ```bash
 # Ensure virtual environment is activated
 source venv/bin/activate
@@ -403,7 +438,9 @@ pwd  # Should be in backend/
 ```
 
 ### Issue: Flutter Build Fails
+
 **Solution**:
+
 ```bash
 # Clean build artifacts
 flutter clean
@@ -416,7 +453,9 @@ flutter run
 ```
 
 ### Issue: Tests Failing with Database Errors
+
 **Solution**:
+
 ```bash
 # Ensure test database is clean
 pytest --create-db
@@ -427,7 +466,9 @@ createdb meroghar_test_db
 ```
 
 ### Issue: Port Already in Use
+
 **Solution**:
+
 ```bash
 # Find process using port 8000
 lsof -i :8000
@@ -444,11 +485,13 @@ uvicorn src.main:app --port 8001
 ## Additional Resources
 
 ### API Documentation
+
 - **Swagger UI**: http://localhost:8000/docs
 - **ReDoc**: http://localhost:8000/redoc
 - **OpenAPI JSON**: http://localhost:8000/openapi.json
 
 ### Monitoring Tools
+
 - **pgAdmin**: http://localhost:5050 (Database management - included in Docker Compose)
   - Email: admin@meroghar.com
   - Password: meroghar_admin_password
@@ -456,11 +499,13 @@ uvicorn src.main:app --port 8001
 - **Database GUI Alternatives**: TablePlus, DBeaver
 
 ### Documentation
+
 - **Architecture**: `/docs/architecture/`
 - **API Contracts**: `/specs/001-rental-management/contracts/`
 - **Data Model**: `/specs/001-rental-management/data-model.md`
 
 ### Support
+
 - **GitHub Issues**: https://github.com/meroghar/meroghar/issues
 - **Slack**: #meroghar-dev channel
 - **Email**: dev@meroghar.com

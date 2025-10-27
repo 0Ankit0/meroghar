@@ -5,6 +5,7 @@ Complete guide for using pgAdmin to manage the MeroGhar PostgreSQL database.
 ---
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [Quick Start](#quick-start)
 3. [First-Time Setup](#first-time-setup)
@@ -17,6 +18,7 @@ Complete guide for using pgAdmin to manage the MeroGhar PostgreSQL database.
 ## Overview
 
 pgAdmin 4 is a web-based database management tool that provides:
+
 - Visual query builder
 - Schema designer
 - Data viewer and editor
@@ -31,7 +33,7 @@ pgAdmin 4 is a web-based database management tool that provides:
 - **Email**: admin@meroghar.com
 - **Password**: meroghar_admin_password
 
-*Credentials can be customized in `.env` file*
+_Credentials can be customized in `.env` file_
 
 ---
 
@@ -78,14 +80,14 @@ See [First-Time Setup](#first-time-setup) below.
 
 Configure connection details:
 
-| Field | Value |
-|-------|-------|
-| **Host** | `postgres` (Docker container name) |
-| **Port** | `5432` |
-| **Maintenance database** | `meroghar_dev` |
-| **Username** | `meroghar` |
-| **Password** | `meroghar_dev_password` |
-| **Save password** | ✅ Yes |
+| Field                    | Value                              |
+| ------------------------ | ---------------------------------- |
+| **Host**                 | `postgres` (Docker container name) |
+| **Port**                 | `5432`                             |
+| **Maintenance database** | `meroghar_dev`                     |
+| **Username**             | `meroghar`                         |
+| **Password**             | `meroghar_dev_password`            |
+| **Save password**        | ✅ Yes                             |
 
 ### Step 4: Advanced (Optional)
 
@@ -103,27 +105,32 @@ Click **"Save"** button. The server should appear in the left sidebar.
 ### 1. Browse Data
 
 **View Tables:**
+
 1. Expand **"Servers" → "MeroGhar Dev" → "Databases" → "meroghar_dev" → "Schemas" → "public" → "Tables"**
 2. Right-click table name
 3. Select **"View/Edit Data" → "All Rows"**
 
 **Filter Data:**
+
 1. Click filter icon (funnel) in data view
 2. Add filter conditions
 3. Click "OK"
 
 **Sort Data:**
+
 - Click column header to sort
 
 ### 2. Run SQL Queries
 
 **Query Tool:**
+
 1. Right-click **"meroghar_dev"** database
 2. Select **"Query Tool"**
 3. Type SQL query
 4. Press **F5** or click ▶️ Execute button
 
 **Example Queries:**
+
 ```sql
 -- View all users
 SELECT * FROM users;
@@ -132,7 +139,7 @@ SELECT * FROM users;
 SELECT * FROM tenants WHERE rent_amount > 10000;
 
 -- Count payments by month
-SELECT 
+SELECT
     DATE_TRUNC('month', payment_date) AS month,
     COUNT(*) AS payment_count,
     SUM(amount) AS total_amount
@@ -144,12 +151,14 @@ ORDER BY month DESC;
 ### 3. Export Data
 
 **Export Table to CSV:**
+
 1. Right-click table → **"View/Edit Data" → "All Rows"**
 2. Click download icon (⬇️) in toolbar
 3. Select format: **CSV**
 4. Click "Download"
 
 **Export Query Results:**
+
 1. Run query in Query Tool
 2. Click download icon (⬇️)
 3. Select format (CSV, Excel, JSON)
@@ -158,6 +167,7 @@ ORDER BY month DESC;
 ### 4. Import Data
 
 **Import CSV:**
+
 1. Right-click table → **"Import/Export Data"**
 2. Toggle **"Import"**
 3. Select file
@@ -167,6 +177,7 @@ ORDER BY month DESC;
 ### 5. Backup Database
 
 **Full Backup:**
+
 1. Right-click **"meroghar_dev"** database
 2. Select **"Backup"**
 3. Choose filename: `meroghar_backup_2025-01-26.sql`
@@ -175,6 +186,7 @@ ORDER BY month DESC;
 
 **Scheduled Backups:**
 Use the backend backup script instead:
+
 ```bash
 cd backend/scripts
 ./backup.sh
@@ -183,6 +195,7 @@ cd backend/scripts
 ### 6. Restore Database
 
 **From Backup File:**
+
 1. Right-click **"meroghar_dev"** database
 2. Select **"Restore"**
 3. Choose backup file
@@ -191,11 +204,13 @@ cd backend/scripts
 ### 7. View Database Schema
 
 **ERD (Entity Relationship Diagram):**
+
 1. Right-click **"meroghar_dev"** → **"ERD For Database"**
 2. View visual schema diagram
 3. Export as image (PNG/SVG)
 
 **Schema Details:**
+
 1. Expand **"Schemas" → "public" → "Tables"**
 2. Click table name
 3. View **"Columns"**, **"Constraints"**, **"Indexes"** tabs
@@ -203,19 +218,21 @@ cd backend/scripts
 ### 8. Monitor Performance
 
 **Active Queries:**
+
 1. Right-click **"MeroGhar Dev"** server
 2. Select **"Dashboard"**
 3. View **"Server Activity"** section
 
 **Slow Query Analysis:**
+
 ```sql
 -- Enable query logging (if needed)
 ALTER SYSTEM SET log_min_duration_statement = 1000; -- Log queries > 1 second
 SELECT pg_reload_conf();
 
 -- View slow queries (if logging enabled)
-SELECT * FROM pg_stat_statements 
-ORDER BY mean_exec_time DESC 
+SELECT * FROM pg_stat_statements
+ORDER BY mean_exec_time DESC
 LIMIT 10;
 ```
 
@@ -235,7 +252,7 @@ GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO intermediary;
 
 ```sql
 -- Table sizes
-SELECT 
+SELECT
     tablename,
     pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS size
 FROM pg_tables
@@ -279,6 +296,7 @@ COMMIT;
 ### 3. Regular Backups
 
 Schedule regular backups:
+
 ```bash
 # Use backend backup script
 cd backend/scripts
@@ -292,11 +310,11 @@ cd backend/scripts
 
 ```sql
 -- Check database size regularly
-SELECT 
+SELECT
     pg_size_pretty(pg_database_size('meroghar_dev')) AS size;
 
 -- Check for bloat
-SELECT schemaname, tablename, 
+SELECT schemaname, tablename,
        pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS total_size
 FROM pg_tables
 WHERE schemaname = 'public'
@@ -308,7 +326,7 @@ ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
 ```sql
 -- Before running expensive query, check plan
 EXPLAIN ANALYZE
-SELECT * FROM payments 
+SELECT * FROM payments
 JOIN tenants ON payments.tenant_id = tenants.id
 WHERE payment_date > '2025-01-01';
 ```
@@ -320,16 +338,19 @@ WHERE payment_date > '2025-01-01';
 ### Issue: Cannot Connect to pgAdmin
 
 **Check if pgAdmin is running:**
+
 ```bash
 docker-compose ps pgadmin
 ```
 
 **Check logs:**
+
 ```bash
 docker-compose logs pgadmin
 ```
 
 **Restart pgAdmin:**
+
 ```bash
 docker-compose restart pgadmin
 ```
@@ -337,17 +358,20 @@ docker-compose restart pgadmin
 ### Issue: Cannot Connect to Database
 
 **Verify PostgreSQL is running:**
+
 ```bash
 docker-compose ps postgres
 ```
 
 **Check connection details:**
+
 - Host should be `postgres` (container name), NOT `localhost`
 - Port: `5432`
 - Username: `meroghar`
 - Password: `meroghar_dev_password`
 
 **Test connection from terminal:**
+
 ```bash
 docker-compose exec postgres psql -U meroghar -d meroghar_dev -c "SELECT version();"
 ```
@@ -357,16 +381,19 @@ docker-compose exec postgres psql -U meroghar -d meroghar_dev -c "SELECT version
 **Reset pgAdmin password:**
 
 1. Stop pgAdmin:
+
 ```bash
 docker-compose stop pgadmin
 ```
 
 2. Remove pgAdmin data:
+
 ```bash
 docker volume rm meroghar_pgadmin_data
 ```
 
 3. Start pgAdmin (will recreate with fresh credentials):
+
 ```bash
 docker-compose up -d pgadmin
 ```
@@ -382,6 +409,7 @@ docker-compose up -d pgadmin
 ### Issue: Slow Queries
 
 **Check active connections:**
+
 ```sql
 SELECT pid, usename, application_name, state, query
 FROM pg_stat_activity
@@ -389,6 +417,7 @@ WHERE datname = 'meroghar_dev';
 ```
 
 **Kill long-running query:**
+
 ```sql
 -- Get PID from above query
 SELECT pg_terminate_backend(12345);  -- Replace with actual PID
@@ -399,15 +428,17 @@ SELECT pg_terminate_backend(12345);  -- Replace with actual PID
 **Option 1: Change pgAdmin Port**
 
 Edit `docker-compose.yml`:
+
 ```yaml
 pgadmin:
   ports:
-    - "5051:80"  # Use port 5051 instead
+    - "5051:80" # Use port 5051 instead
 ```
 
 Then access at: http://localhost:5051
 
 **Option 2: Stop Conflicting Service**
+
 ```bash
 # Find what's using port 5050
 netstat -ano | findstr :5050  # Windows
@@ -427,6 +458,7 @@ kill -9 <PID>                 # macOS/Linux
 **1. Change Default Credentials**
 
 Never use default credentials in production! Update `.env`:
+
 ```bash
 PGADMIN_DEFAULT_EMAIL=secure_admin@yourcompany.com
 PGADMIN_DEFAULT_PASSWORD=very_secure_random_password_here
@@ -435,14 +467,15 @@ PGADMIN_DEFAULT_PASSWORD=very_secure_random_password_here
 **2. Enable HTTPS**
 
 Configure Nginx reverse proxy with SSL:
+
 ```nginx
 server {
     listen 443 ssl;
     server_name pgadmin.yourcompany.com;
-    
+
     ssl_certificate /path/to/cert.pem;
     ssl_certificate_key /path/to/key.pem;
-    
+
     location / {
         proxy_pass http://localhost:5050;
         proxy_set_header Host $host;
@@ -454,6 +487,7 @@ server {
 **3. Use VPN or IP Whitelisting**
 
 Restrict access to pgAdmin:
+
 - Deploy behind VPN
 - Use firewall rules to whitelist IPs
 - Use authentication proxy
@@ -461,6 +495,7 @@ Restrict access to pgAdmin:
 **4. Regular Security Updates**
 
 Update pgAdmin regularly:
+
 ```bash
 docker-compose pull pgadmin
 docker-compose up -d pgadmin
@@ -471,10 +506,12 @@ docker-compose up -d pgadmin
 ## Additional Resources
 
 ### Official Documentation
+
 - **pgAdmin Docs**: https://www.pgadmin.org/docs/
 - **PostgreSQL Docs**: https://www.postgresql.org/docs/
 
 ### Keyboard Shortcuts
+
 - **Execute Query**: F5
 - **Open Query Tool**: Ctrl+Shift+Q
 - **Save**: Ctrl+S
@@ -484,6 +521,7 @@ docker-compose up -d pgadmin
 ### Alternatives
 
 If pgAdmin doesn't meet your needs:
+
 - **TablePlus**: https://tableplus.com/ (macOS/Windows/Linux)
 - **DBeaver**: https://dbeaver.io/ (cross-platform, free)
 - **DataGrip**: https://www.jetbrains.com/datagrip/ (JetBrains, paid)
@@ -494,11 +532,13 @@ If pgAdmin doesn't meet your needs:
 ## Support
 
 ### Internal Support
+
 - **Documentation**: `/backend/docs/`
 - **GitHub Issues**: https://github.com/meroghar/meroghar/issues
 - **Team Slack**: #meroghar-database channel
 
 ### External Resources
+
 - **pgAdmin Forum**: https://www.postgresql.org/list/pgadmin-support/
 - **Stack Overflow**: Tag `pgadmin` + `postgresql`
 

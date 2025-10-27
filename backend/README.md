@@ -23,11 +23,13 @@ docker-compose logs -f backend
 ```
 
 **pgAdmin Login:**
+
 - URL: http://localhost:5050
 - Email: admin@meroghar.com
 - Password: meroghar_admin_password
 
 **pgAdmin Database Connection:**
+
 - Host: `postgres`
 - Port: 5432
 - Username: meroghar
@@ -80,12 +82,14 @@ backend/
 Copy `.env.example` to `.env` and configure:
 
 **Required:**
+
 - `DATABASE_URL`: PostgreSQL connection string
 - `SECRET_KEY`: Secret key for encryption
 - `JWT_SECRET_KEY`: JWT token signing key
 - `REDIS_URL`: Redis connection string
 
 **Optional:**
+
 - `PGADMIN_DEFAULT_EMAIL`: pgAdmin login email
 - `PGADMIN_DEFAULT_PASSWORD`: pgAdmin login password
 - Payment gateway credentials (Stripe, Razorpay)

@@ -142,6 +142,7 @@ open http://localhost:5050
 ```
 
 **pgAdmin First-Time Setup:**
+
 1. Open http://localhost:5050
 2. Login with credentials from .env file
 3. Click "Add New Server"
@@ -491,11 +492,13 @@ docker-compose exec redis redis-cli ping
 ### Monitoring Tools
 
 #### pgAdmin (Database Management)
+
 **Already included** in docker-compose.yml
 
 Access at: http://localhost:5050
 
 Features:
+
 - Visual query builder
 - Schema designer
 - Data viewer and editor
@@ -504,6 +507,7 @@ Features:
 - Backup/restore tools
 
 Login credentials (from .env):
+
 - Email: admin@meroghar.com
 - Password: meroghar_admin_password
 
