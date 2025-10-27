@@ -294,23 +294,23 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 8
 
-- [ ] T157 [P] [US8] Create Message model with content, schedule, status in backend/src/models/message.py
-- [ ] T158 [US8] Create Alembic migration for Message table in backend/alembic/versions/
-- [ ] T159 [P] [US8] Create message request/response schemas in backend/src/schemas/message.py
-- [ ] T160 [US8] Implement Twilio SMS integration in backend/src/services/message_service.py
-- [ ] T161 [US8] Implement WhatsApp messaging via Twilio in backend/src/services/message_service.py
-- [ ] T162 [US8] Create message template system in backend/src/services/message_service.py
-- [ ] T163 [US8] Implement bulk message sending endpoint (POST /api/v1/messages/bulk) in backend/src/api/v1/messages.py
-- [ ] T164 [US8] Implement scheduled message endpoint (POST /api/v1/messages/schedule) in backend/src/api/v1/messages.py
-- [ ] T165 [US8] Implement message history endpoint (GET /api/v1/messages) in backend/src/api/v1/messages.py
-- [ ] T166 [US8] Create Celery task for scheduled message delivery in backend/src/tasks/message_tasks.py
-- [ ] T167 [US8] Create Celery beat schedule for recurring reminders in backend/src/tasks/celery_app.py
-- [ ] T168 [P] [US8] Create Message model for mobile in mobile/lib/models/message.dart
-- [ ] T169 [US8] Create message provider in mobile/lib/providers/message_provider.dart
-- [ ] T170 [US8] Create bulk message screen with tenant selection in mobile/lib/screens/messages/bulk_message_screen.dart
-- [ ] T171 [US8] Create message template picker in mobile/lib/widgets/message_template_picker.dart
-- [ ] T172 [US8] Create message history screen in mobile/lib/screens/messages/message_history_screen.dart
-- [ ] T173 [US8] Add delivery status tracking widget in mobile/lib/widgets/message_status_widget.dart
+- [x] T157 [P] [US8] Create Message model with content, schedule, status in backend/src/models/message.py
+- [x] T158 [US8] Create Alembic migration for Message table in backend/alembic/versions/
+- [x] T159 [P] [US8] Create message request/response schemas in backend/src/schemas/message.py
+- [x] T160 [US8] Implement Twilio SMS integration in backend/src/services/message_service.py
+- [x] T161 [US8] Implement WhatsApp messaging via Twilio in backend/src/services/message_service.py
+- [x] T162 [US8] Create message template system in backend/src/services/message_service.py
+- [x] T163 [US8] Implement bulk message sending endpoint (POST /api/v1/messages/bulk) in backend/src/api/v1/messages.py
+- [x] T164 [US8] Implement scheduled message endpoint (POST /api/v1/messages/schedule) in backend/src/api/v1/messages.py
+- [x] T165 [US8] Implement message history endpoint (GET /api/v1/messages) in backend/src/api/v1/messages.py
+- [x] T166 [US8] Create Celery task for scheduled message delivery in backend/src/tasks/message_tasks.py
+- [x] T167 [US8] Create Celery beat schedule for recurring reminders in backend/src/tasks/celery_app.py
+- [x] T168 [P] [US8] Create Message model for mobile in mobile/lib/models/message.dart
+- [x] T169 [US8] Create message provider in mobile/lib/providers/message_provider.dart
+- [x] T170 [US8] Create bulk message screen with tenant selection in mobile/lib/screens/messages/bulk_message_screen.dart
+- [x] T171 [US8] Create message template picker in mobile/lib/widgets/message_template_picker.dart
+- [x] T172 [US8] Create message history screen in mobile/lib/screens/messages/message_history_screen.dart
+- [x] T173 [US8] Add delivery status tracking widget in mobile/lib/widgets/message_status_widget.dart
 - [ ] T174 [US8] Implement RLS policies for messages table in backend/alembic/versions/
 
 **Checkpoint**: At this point, bulk messaging functionality is operational
