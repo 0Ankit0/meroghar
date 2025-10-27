@@ -34,7 +34,7 @@
   "select": "चुनें",
   "selectAll": "सभी चुनें",
   "deselectAll": "सभी हटाएं",
-  "continue": "जारी रखें",
+  "continueButton": "जारी रखें",
   "skip": "छोड़ें",
   "apply": "लागू करें",
   "clear": "साफ़ करें",

@@ -34,7 +34,7 @@
   "select": "Seleccionar",
   "selectAll": "Seleccionar todo",
   "deselectAll": "Deseleccionar todo",
-  "continue": "Continuar",
+  "continueButton": "Continuar",
   "skip": "Omitir",
   "apply": "Aplicar",
   "clear": "Limpiar",

@@ -1,9 +1,6 @@
 {
   "@@locale": "en",
   
-  "_comment_app": "============================================",
-  "_comment_app_name": "Application Name & General",
-  "_comment_app_end": "============================================",
   
   "appName": "MeroGhar",
   "@appName": {
@@ -15,9 +12,6 @@
     "description": "Application tagline"
   },
   
-  "_comment_common": "============================================",
-  "_comment_common_name": "Common Words & Actions",
-  "_comment_common_end": "============================================",
   
   "ok": "OK",
   "cancel": "Cancel",
@@ -49,16 +43,13 @@
   "select": "Select",
   "selectAll": "Select All",
   "deselectAll": "Deselect All",
-  "continue": "Continue",
+  "continueButton": "Continue",
   "skip": "Skip",
   "apply": "Apply",
   "clear": "Clear",
   "reset": "Reset",
   "update": "Update",
   
-  "_comment_nav": "============================================",
-  "_comment_nav_name": "Navigation",
-  "_comment_nav_end": "============================================",
   
   "home": "Home",
   "dashboard": "Dashboard",
@@ -75,9 +66,6 @@
   "profile": "Profile",
   "logout": "Logout",
   
-  "_comment_auth": "============================================",
-  "_comment_auth_name": "Authentication",
-  "_comment_auth_end": "============================================",
   
   "login": "Login",
   "register": "Register",
@@ -109,9 +97,6 @@
   "passwordMismatch": "Passwords do not match",
   "invalidEmail": "Invalid email address",
   
-  "_comment_tenant": "============================================",
-  "_comment_tenant_name": "Tenant Management",
-  "_comment_tenant_end": "============================================",
   
   "tenant": "Tenant",
   "tenantList": "Tenant List",
@@ -139,9 +124,6 @@
   "active": "Active",
   "inactive": "Inactive",
   
-  "_comment_property": "============================================",
-  "_comment_property_name": "Property Management",
-  "_comment_property_end": "============================================",
   
   "property": "Property",
   "propertyList": "Property List",
@@ -159,9 +141,6 @@
   "propertyUpdated": "Property updated successfully",
   "propertyDeleted": "Property deleted successfully",
   
-  "_comment_payment": "============================================",
-  "_comment_payment_name": "Payment Management",
-  "_comment_payment_end": "============================================",
   
   "payment": "Payment",
   "paymentList": "Payment List",
@@ -193,9 +172,6 @@
   "transactionId": "Transaction ID",
   "referenceId": "Reference ID",
   
-  "_comment_bill": "============================================",
-  "_comment_bill_name": "Bill Management",
-  "_comment_bill_end": "============================================",
   
   "bill": "Bill",
   "billList": "Bill List",
@@ -222,9 +198,6 @@
   "allocateBill": "Allocate Bill",
   "billAllocated": "Bill allocated successfully",
   
-  "_comment_expense": "============================================",
-  "_comment_expense_name": "Expense Management",
-  "_comment_expense_end": "============================================",
   
   "expense": "Expense",
   "expenseList": "Expense List",
@@ -251,9 +224,6 @@
   "expenseApproved": "Expense approved",
   "expenseRejected": "Expense rejected",
   
-  "_comment_document": "============================================",
-  "_comment_document_name": "Document Management",
-  "_comment_document_end": "============================================",
   
   "document": "Document",
   "documentList": "Document List",
@@ -276,9 +246,6 @@
   "documentExpiringSoon": "Document expiring soon",
   "documentExpired": "Document expired",
   
-  "_comment_message": "============================================",
-  "_comment_message_name": "Messaging",
-  "_comment_message_end": "============================================",
   
   "message": "Message",
   "messageList": "Message List",
@@ -299,9 +266,6 @@
   "paymentReminder": "Payment Reminder",
   "reminderSent": "Reminder sent successfully",
   
-  "_comment_notification": "============================================",
-  "_comment_notification_name": "Notifications",
-  "_comment_notification_end": "============================================",
   
   "notification": "Notification",
   "notificationCenter": "Notification Center",
@@ -326,9 +290,6 @@
   "endTime": "End Time",
   "badgeCount": "Badge Count",
   
-  "_comment_report": "============================================",
-  "_comment_report_name": "Reports",
-  "_comment_report_end": "============================================",
   
   "report": "Report",
   "reportList": "Report List",
@@ -360,9 +321,6 @@
   "exportHistory": "Export History",
   "noExports": "No exports found",
   
-  "_comment_rent": "============================================",
-  "_comment_rent_name": "Rent Management",
-  "_comment_rent_end": "============================================",
   
   "rentPolicy": "Rent Policy",
   "rentIncrement": "Rent Increment",
@@ -388,9 +346,6 @@
   "percentage": "Percentage",
   "fixedAmount": "Fixed Amount",
   
-  "_comment_language": "============================================",
-  "_comment_language_name": "Language & Localization",
-  "_comment_language_end": "============================================",
   
   "language": "Language",
   "languageSettings": "Language Settings",
@@ -402,9 +357,6 @@
   "languageChanged": "Language changed successfully",
   "restartRequired": "Please restart the app for changes to take effect",
   
-  "_comment_sync": "============================================",
-  "_comment_sync_name": "Sync & Offline",
-  "_comment_sync_end": "============================================",
   
   "sync": "Sync",
   "syncNow": "Sync Now",
@@ -428,9 +380,6 @@
   "keepServer": "Keep Server",
   "syncLog": "Sync Log",
   
-  "_comment_settings": "============================================",
-  "_comment_settings_name": "Settings",
-  "_comment_settings_end": "============================================",
   
   "accountSettings": "Account Settings",
   "appSettings": "App Settings",
@@ -452,9 +401,6 @@
   "dateFormat": "Date Format",
   "timeFormat": "Time Format",
   
-  "_comment_errors": "============================================",
-  "_comment_errors_name": "Error Messages",
-  "_comment_errors_end": "============================================",
   
   "error": "Error",
   "errorOccurred": "An error occurred",
@@ -493,9 +439,6 @@
   "fileTooLarge": "File is too large",
   "unsupportedFileType": "Unsupported file type",
   
-  "_comment_confirmation": "============================================",
-  "_comment_confirmation_name": "Confirmation Dialogs",
-  "_comment_confirmation_end": "============================================",
   
   "confirmDelete": "Are you sure you want to delete?",
   "confirmLogout": "Are you sure you want to logout?",
@@ -504,18 +447,12 @@
   "unsavedChanges": "You have unsaved changes",
   "discardChanges": "Discard changes?",
   
-  "_comment_success": "============================================",
-  "_comment_success_name": "Success Messages",
-  "_comment_success_end": "============================================",
   
   "success": "Success",
   "operationSuccessful": "Operation completed successfully",
   "changesSaved": "Changes saved successfully",
   "dataRefreshed": "Data refreshed",
   
-  "_comment_misc": "============================================",
-  "_comment_misc_name": "Miscellaneous",
-  "_comment_misc_end": "============================================",
   
   "total": "Total",
   "subtotal": "Subtotal",
