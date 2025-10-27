@@ -45,20 +45,20 @@ This is a Mobile + API project with:
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T010 Setup database connection and session management in backend/src/core/database.py
-- [ ] T011 Initialize Alembic migrations framework in backend/alembic/
-- [ ] T012 [P] Implement password hashing utilities (bcrypt cost 12+) in backend/src/core/security.py
-- [ ] T013 [P] Implement JWT token generation/validation (access + refresh tokens) in backend/src/core/security.py
-- [ ] T014 Create FastAPI dependencies for auth and DB sessions in backend/src/api/dependencies.py
-- [ ] T015 [P] Setup CORS middleware and error handlers in backend/src/core/middleware.py
-- [ ] T016 [P] Configure logging infrastructure in backend/src/core/config.py
-- [ ] T017 Setup API router with /api/v1 prefix in backend/src/main.py
-- [ ] T018 [P] Create base Pydantic schemas (SuccessResponse, ErrorResponse) in backend/src/schemas/**init**.py
-- [ ] T019 [P] Setup SQLite local database helper for mobile in mobile/lib/services/database_service.dart
-- [ ] T020 [P] Create secure storage service for JWT tokens in mobile in mobile/lib/services/secure_storage_service.dart
-- [ ] T021 [P] Setup Dio HTTP client with interceptors for auth in mobile/lib/services/api_service.dart
-- [ ] T022 Create Celery app configuration with Redis broker in backend/src/tasks/celery_app.py
-- [ ] T023 [P] Setup app configuration and environment loader in backend/src/core/config.py
+- [x] T010 Setup database connection and session management in backend/src/core/database.py
+- [x] T011 Initialize Alembic migrations framework in backend/alembic/
+- [x] T012 [P] Implement password hashing utilities (bcrypt cost 12+) in backend/src/core/security.py
+- [x] T013 [P] Implement JWT token generation/validation (access + refresh tokens) in backend/src/core/security.py
+- [x] T014 Create FastAPI dependencies for auth and DB sessions in backend/src/api/dependencies.py
+- [x] T015 [P] Setup CORS middleware and error handlers in backend/src/core/middleware.py
+- [x] T016 [P] Configure logging infrastructure in backend/src/core/config.py
+- [x] T017 Setup API router with /api/v1 prefix in backend/src/main.py
+- [x] T018 [P] Create base Pydantic schemas (SuccessResponse, ErrorResponse) in backend/src/schemas/**init**.py
+- [x] T019 [P] Setup SQLite local database helper for mobile in mobile/lib/services/database_service.dart
+- [x] T020 [P] Create secure storage service for JWT tokens in mobile in mobile/lib/services/secure_storage_service.dart
+- [x] T021 [P] Setup Dio HTTP client with interceptors for auth in mobile/lib/services/api_service.dart
+- [x] T022 Create Celery app configuration with Redis broker in backend/src/tasks/celery_app.py
+- [x] T023 [P] Setup app configuration and environment loader in backend/src/core/config.py
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
