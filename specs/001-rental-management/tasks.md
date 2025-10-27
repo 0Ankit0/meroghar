@@ -335,12 +335,12 @@ This is a Mobile + API project with:
 - [x] T182 [US9] Add document expiration reminder notifications in backend/src/tasks/notification_tasks.py
 - [x] T183 [US9] Implement document version history tracking in backend/src/services/document_service.py
 - [x] T184 [US9] Implement document access revocation on tenant deactivation in backend/src/services/document_service.py
-- [ ] T185 [P] [US9] Create Document model for mobile in mobile/lib/models/document.dart
-- [ ] T186 [US9] Create document provider in mobile/lib/providers/document_provider.dart
-- [ ] T187 [US9] Create document upload screen with file picker in mobile/lib/screens/documents/document_upload_screen.dart
-- [ ] T188 [US9] Create document list screen with category filters in mobile/lib/screens/documents/document_list_screen.dart
-- [ ] T189 [US9] Create document viewer screen for PDF/images in mobile/lib/screens/documents/document_viewer_screen.dart
-- [ ] T190 [US9] Implement RLS policies for documents table in backend/alembic/versions/
+- [x] T185 [P] [US9] Create Document model for mobile in mobile/lib/models/document.dart
+- [x] T186 [US9] Create document provider in mobile/lib/providers/document_provider.dart
+- [x] T187 [US9] Create document upload screen with file picker in mobile/lib/screens/documents/document_upload_screen.dart
+- [x] T188 [US9] Create document list screen with category filters in mobile/lib/screens/documents/document_list_screen.dart
+- [x] T189 [US9] Create document viewer screen for PDF/images in mobile/lib/screens/documents/document_viewer_screen.dart
+- [x] T190 [US9] Implement RLS policies for documents table in backend/alembic/versions/
 
 **Checkpoint**: At this point, document storage and expiration tracking is functional
 
