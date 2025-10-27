@@ -206,6 +206,12 @@ __all__ = [
     "TenantListResponse",
     "TenantWithUserResponse",
     "TenantBalanceResponse",
+    # Payment schemas (T059)
+    "PaymentCreateRequest",
+    "PaymentUpdateRequest",
+    "PaymentResponse",
+    "PaymentListResponse",
+    "TransactionResponse",
 ]
 
 # Import schemas for convenient access
@@ -216,6 +222,14 @@ from .auth import (
     RefreshTokenRequest,
     RegisterRequest,
     TokenPair,
+)
+from .payment import (
+    PaymentCreateRequest,
+    PaymentListResponse,
+    PaymentResponse,
+    PaymentUpdateRequest,
+    TenantBalanceResponse as PaymentTenantBalanceResponse,
+    TransactionResponse,
 )
 from .property import (
     PropertyAssignIntermediaryRequest,
