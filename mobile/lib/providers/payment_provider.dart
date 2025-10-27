@@ -81,7 +81,8 @@ class PaymentProvider with ChangeNotifier {
           'payment_period_start':
               paymentPeriodStart.toIso8601String().split('T')[0],
         if (paymentPeriodEnd != null)
-          'payment_period_end': paymentPeriodEnd.toIso8601String().split('T')[0],
+          'payment_period_end':
+              paymentPeriodEnd.toIso8601String().split('T')[0],
         if (transactionReference != null)
           'transaction_reference': transactionReference,
         if (notes != null) 'notes': notes,

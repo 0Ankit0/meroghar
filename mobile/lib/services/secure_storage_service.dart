@@ -183,15 +183,9 @@ class SecureStorageService {
 
   /// Load complete authentication session.
   Future<AuthSession?> loadAuthSession() async {
-    final results = await Future.wait([
-      getAccessToken(),
-      getRefreshToken(),
-      getUserId(),
-    ]);
-
-    final accessToken = results[0] as String?;
-    final refreshToken = results[1] as String?;
-    final userId = results[2] as String?;
+    final accessToken = await getAccessToken();
+    final refreshToken = await getRefreshToken();
+    final userId = await getUserId();
 
     if (accessToken == null || refreshToken == null || userId == null) {
       return null;

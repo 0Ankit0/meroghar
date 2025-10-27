@@ -362,138 +362,143 @@ class _TenantCardState extends State<_TenantCard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    backgroundColor: widget.tenant.status == TenantStatus.active
-                        ? Colors.green.shade100
-                        : Colors.grey.shade200,
-                    child: Icon(
-                      Icons.person,
-                      color: widget.tenant.status == TenantStatus.active
-                          ? Colors.green.shade700
-                          : Colors.grey.shade600,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Tenant ${widget.tenant.id.substring(0, 8)}...',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
+                  Row(
+                    children: [
+                      CircleAvatar(
+                        backgroundColor:
+                            widget.tenant.status == TenantStatus.active
+                                ? Colors.green.shade100
+                                : Colors.grey.shade200,
+                        child: Icon(
+                          Icons.person,
+                          color: widget.tenant.status == TenantStatus.active
+                              ? Colors.green.shade700
+                              : Colors.grey.shade600,
                         ),
-                        const SizedBox(height: 4),
-                        Row(
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 8,
-                                vertical: 2,
-                              ),
-                              decoration: BoxDecoration(
-                                color: widget.tenant.status == TenantStatus.active
-                                    ? Colors.green.shade100
-                                    : Colors.grey.shade200,
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Text(
-                                widget.tenant.status.value.toUpperCase(),
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.bold,
-                                  color: widget.tenant.status == TenantStatus.active
-                                      ? Colors.green.shade700
-                                      : Colors.grey.shade700,
-                                ),
+                            Text(
+                              'Tenant ${widget.tenant.id.substring(0, 8)}...',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
                               ),
                             ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${widget.tenant.monthsStayed} months',
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey.shade600,
-                              ),
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: widget.tenant.status ==
+                                            TenantStatus.active
+                                        ? Colors.green.shade100
+                                        : Colors.grey.shade200,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    widget.tenant.status.value.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: widget.tenant.status ==
+                                              TenantStatus.active
+                                          ? Colors.green.shade700
+                                          : Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${widget.tenant.monthsStayed} months',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey.shade600,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            currencyFormat.format(widget.tenant.monthlyRent),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
+                              color: Colors.blue,
+                            ),
+                          ),
+                          Text(
+                            'per month',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  // Payment Status Badge Section
+                  if (!_isLoadingBalance && _balance != null) ...[
+                    const SizedBox(height: 12),
+                    _buildPaymentStatusBadge(currencyFormat),
+                  ],
+                  const Divider(height: 24),
+                  Row(
                     children: [
-                      Text(
-                        currencyFormat.format(widget.tenant.monthlyRent),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.blue,
+                      Expanded(
+                        child: _InfoItem(
+                          icon: Icons.calendar_today,
+                          label: 'Move In',
+                          value: dateFormat.format(widget.tenant.moveInDate),
                         ),
                       ),
-                      Text(
-                        'per month',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey.shade600,
+                      Expanded(
+                        child: _InfoItem(
+                          icon: Icons.account_balance_wallet,
+                          label: 'Deposit',
+                          value: currencyFormat
+                              .format(widget.tenant.securityDeposit),
                         ),
                       ),
                     ],
                   ),
-                ],
-              ),
-              // Payment Status Badge Section
-              if (!_isLoadingBalance && _balance != null) ...[
-                const SizedBox(height: 12),
-                _buildPaymentStatusBadge(currencyFormat),
-              ],
-              const Divider(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: _InfoItem(
-                      icon: Icons.calendar_today,
-                      label: 'Move In',
-                      value: dateFormat.format(widget.tenant.moveInDate),
-                    ),
-                  ),
-                  Expanded(
-                    child: _InfoItem(
-                      icon: Icons.account_balance_wallet,
-                      label: 'Deposit',
-                      value: currencyFormat.format(widget.tenant.securityDeposit),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: _InfoItem(
-                      icon: Icons.electric_bolt,
-                      label: 'Electricity',
-                      value: '${widget.tenant.electricityRate}/unit',
-                    ),
-                  ),
-                  if (widget.tenant.moveOutDate != null)
-                    Expanded(
-                      child: _InfoItem(
-                        icon: Icons.exit_to_app,
-                        label: 'Move Out',
-                        value: dateFormat.format(widget.tenant.moveOutDate!),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _InfoItem(
+                          icon: Icons.electric_bolt,
+                          label: 'Electricity',
+                          value: '${widget.tenant.electricityRate}/unit',
+                        ),
                       ),
-                    ),
+                      if (widget.tenant.moveOutDate != null)
+                        Expanded(
+                          child: _InfoItem(
+                            icon: Icons.exit_to_app,
+                            label: 'Move Out',
+                            value:
+                                dateFormat.format(widget.tenant.moveOutDate!),
+                          ),
+                        ),
+                    ],
+                  ),
                 ],
               ),
-            ],
-          ),
-        ),
+            ),
           ],
         ),
       ),
@@ -522,7 +527,8 @@ class _TenantCardState extends State<_TenantCard> {
       backgroundColor = Colors.red.shade50;
       textColor = Colors.red.shade700;
       icon = Icons.error;
-      statusText = '$monthsBehind ${monthsBehind == 1 ? 'Month' : 'Months'} Behind';
+      statusText =
+          '$monthsBehind ${monthsBehind == 1 ? 'Month' : 'Months'} Behind';
     } else {
       // Outstanding but not yet overdue
       backgroundColor = Colors.orange.shade50;

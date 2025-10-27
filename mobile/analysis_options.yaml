@@ -72,7 +72,7 @@ linter:
     - one_member_abstracts
     - only_throw_errors
     - overridden_fields
-    - package_api_docs
+    # - package_api_docs  # Removed in Dart 3.7.0
     - package_names
     - package_prefixed_library_names
     - parameter_assignments

@@ -56,7 +56,8 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
   Future<void> _selectDate(BuildContext context, bool isPaymentDate) async {
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: isPaymentDate ? _paymentDate : (_periodStart ?? DateTime.now()),
+      initialDate:
+          isPaymentDate ? _paymentDate : (_periodStart ?? DateTime.now()),
       firstDate: DateTime(2020),
       lastDate: DateTime.now().add(const Duration(days: 365)),
     );
@@ -161,8 +162,10 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                               style: Theme.of(context).textTheme.titleMedium,
                             ),
                             const SizedBox(height: 8),
-                            Text('Tenant ID: ${widget.tenant.id.substring(0, 8)}...'),
-                            Text('Property ID: ${widget.propertyId.substring(0, 8)}...'),
+                            Text(
+                                'Tenant ID: ${widget.tenant.id.substring(0, 8)}...'),
+                            Text(
+                                'Property ID: ${widget.propertyId.substring(0, 8)}...'),
                             Text(
                               'Monthly Rent: INR ${widget.tenant.monthlyRent.toStringAsFixed(2)}',
                             ),
@@ -372,9 +375,8 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton(
-                        onPressed: paymentProvider.isLoading
-                            ? null
-                            : _submitPayment,
+                        onPressed:
+                            paymentProvider.isLoading ? null : _submitPayment,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
