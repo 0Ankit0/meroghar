@@ -94,10 +94,10 @@ This is a Mobile + API project with:
 - [x] T043 [US1] Create auth provider with login/register state in mobile/lib/providers/auth_provider.dart
 - [x] T044 [US1] Create registration screen for owners in mobile/lib/screens/auth/register_screen.dart
 - [x] T045 [US1] Create login screen for all users in mobile/lib/screens/auth/login_screen.dart
-- [ ] T046 [US1] Create property setup screen in mobile/lib/screens/properties/property_form_screen.dart
-- [ ] T047 [US1] Create intermediary creation form in mobile/lib/screens/users/intermediary_form_screen.dart
-- [ ] T048 [US1] Create tenant creation form in mobile/lib/screens/tenants/tenant_form_screen.dart
-- [ ] T049 [US1] Create tenant list screen with card view in mobile/lib/screens/tenants/tenant_list_screen.dart
+- [x] T046 [US1] Create property setup screen in mobile/lib/screens/properties/property_form_screen.dart
+- [x] T047 [US1] Create intermediary creation form in mobile/lib/screens/users/intermediary_form_screen.dart
+- [x] T048 [US1] Create tenant creation form in mobile/lib/screens/tenants/tenant_form_screen.dart
+- [x] T049 [US1] Create tenant list screen with card view in mobile/lib/screens/tenants/tenant_list_screen.dart
 - [ ] T050 [US1] Implement RLS policies for users table in backend/alembic/versions/
 - [ ] T051 [US1] Implement RLS policies for properties table in backend/alembic/versions/
 - [ ] T052 [US1] Implement RLS policies for tenants table in backend/alembic/versions/
