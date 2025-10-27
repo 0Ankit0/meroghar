@@ -130,12 +130,12 @@ This is a Mobile + API project with:
 - [x] T066 [US2] Create payment provider with payment state in mobile/lib/providers/payment_provider.dart
 - [x] T067 [US2] Create payment recording screen in mobile/lib/screens/payments/payment_form_screen.dart
 - [x] T068 [US2] Create payment history screen in mobile/lib/screens/payments/payment_history_screen.dart
-- [ ] T069 [US2] Add payment status indicator to tenant list cards in mobile/lib/widgets/tenant_card.dart
-- [ ] T070 [US2] Create receipt view/download widget in mobile/lib/screens/payments/receipt_view_screen.dart
-- [ ] T071 [US2] Implement overdue payment highlighting logic in mobile/lib/widgets/tenant_card.dart
-- [ ] T072 [US2] Implement RLS policies for payments table in backend/alembic/versions/
-- [ ] T073 [US2] Add pro-rated rent calculation for mid-month move-in in backend/src/services/payment_service.py
-- [ ] T074 [US2] Add validation and error handling to all US2 endpoints in backend/src/api/v1/
+- [x] T069 [US2] Add payment status indicator to tenant list cards in mobile/lib/widgets/tenant_card.dart
+- [x] T070 [US2] Create receipt view/download widget in mobile/lib/screens/payments/receipt_view_screen.dart
+- [x] T071 [US2] Implement overdue payment highlighting logic in mobile/lib/widgets/tenant_card.dart
+- [x] T072 [US2] Implement RLS policies for payments table in backend/alembic/versions/
+- [x] T073 [US2] Add pro-rated rent calculation for mid-month move-in in backend/src/services/payment_service.py
+- [x] T074 [US2] Add validation and error handling to all US2 endpoints in backend/src/api/v1/
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently - full rent payment tracking is functional
 
