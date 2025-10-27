@@ -1,18 +1,20 @@
 """
 FastAPI dependencies for authentication and database sessions.
-Implements T014 from tasks.md.
+Implements T014 from tasks.md - Updated for async support.
 """
 
 import logging
-from typing import Generator, Optional
+from typing import Optional
+from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from jose import JWTError
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
-from ..core.database import get_db, set_rls_context
-from ..core.security import verify_token
+from ..core.database import get_async_db
+from ..core.security import decode_token
+from ..models.user import User, UserRole
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +24,7 @@ security = HTTPBearer()
 
 async def get_current_user_id(
     credentials: HTTPAuthorizationCredentials = Depends(security),
-) -> str:
+) -> UUID:
     """
     Extract and validate current user ID from JWT token.
 
@@ -39,12 +41,20 @@ async def get_current_user_id(
 
     try:
         # Verify and decode token
-        payload = verify_token(token, token_type="access")
+        payload = decode_token(token)
 
         if payload is None:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid or expired token",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+
+        # Verify token type
+        if payload.get("type") != "access":
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token type. Expected access token.",
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -57,10 +67,17 @@ async def get_current_user_id(
             )
 
         logger.debug(f"Authenticated user: {user_id}")
-        return user_id
+        return UUID(user_id)
 
-    except JWTError as e:
+    except ValueError as e:
         logger.warning(f"JWT validation error: {e}")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Could not validate credentials",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
+    except Exception as e:
+        logger.warning(f"Unexpected error validating JWT: {e}")
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Could not validate credentials",
@@ -72,7 +89,7 @@ async def get_optional_current_user_id(
     credentials: Optional[HTTPAuthorizationCredentials] = Depends(
         HTTPBearer(auto_error=False)
     ),
-) -> Optional[str]:
+) -> Optional[UUID]:
     """
     Extract current user ID from JWT token if present (optional authentication).
 
@@ -87,90 +104,87 @@ async def get_optional_current_user_id(
 
     try:
         token = credentials.credentials
-        payload = verify_token(token, token_type="access")
+        payload = decode_token(token)
 
-        if payload is None:
+        if payload is None or payload.get("type") != "access":
             return None
 
         user_id = payload.get("sub")
-        logger.debug(f"Optional auth - authenticated user: {user_id}")
-        return user_id
+        if user_id:
+            logger.debug(f"Optional auth - authenticated user: {user_id}")
+            return UUID(user_id)
+        return None
 
     except Exception as e:
         logger.debug(f"Optional auth failed: {e}")
         return None
 
 
-def get_db_with_rls(
-    db: Session = Depends(get_db),
-    user_id: str = Depends(get_current_user_id),
-) -> Generator[Session, None, None]:
+async def get_current_user(
+    user_id: UUID = Depends(get_current_user_id),
+    session: AsyncSession = Depends(get_async_db),
+) -> User:
     """
-    Get database session with Row-Level Security context set.
+    Get current authenticated user from database.
 
     Args:
-        db: Database session
-        user_id: Current authenticated user ID
+        user_id: Current user ID from token
+        session: Database session
 
-    Yields:
-        Database session with RLS context
+    Returns:
+        User object
 
-    Example:
-        @app.get("/users")
-        def get_users(db: Session = Depends(get_db_with_rls)):
-            # RLS policies will automatically filter results
-            return db.query(User).all()
+    Raises:
+        HTTPException: If user not found or inactive
     """
-    # Set RLS context for this session
-    set_rls_context(db, user_id)
-    yield db
+    result = await session.execute(
+        select(User).where(User.id == user_id)
+    )
+    user = result.scalar_one_or_none()
+
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found",
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="User account is inactive",
+        )
+
+    return user
 
 
-async def require_role(required_role: str):
+def require_role(*allowed_roles: UserRole):
     """
-    Dependency factory to require specific user role.
+    Dependency factory to require specific user role(s).
 
     Args:
-        required_role: Required role (owner, intermediary, tenant)
+        allowed_roles: One or more allowed roles
 
     Returns:
         Dependency function that checks user role
 
     Example:
         @app.get("/admin")
-        def admin_only(user = Depends(require_role("owner"))):
+        async def admin_only(user: User = Depends(require_role(UserRole.OWNER))):
             return {"message": "Admin access granted"}
     """
 
     async def check_role(
-        credentials: HTTPAuthorizationCredentials = Depends(security),
-    ) -> dict:
-        token = credentials.credentials
-
-        try:
-            payload = verify_token(token, token_type="access")
-
-            if payload is None:
-                raise HTTPException(
-                    status_code=status.HTTP_401_UNAUTHORIZED,
-                    detail="Invalid or expired token",
-                )
-
-            user_role = payload.get("role")
-            if user_role != required_role:
-                raise HTTPException(
-                    status_code=status.HTTP_403_FORBIDDEN,
-                    detail=f"Requires {required_role} role",
-                )
-
-            logger.debug(f"Role check passed: {user_role}")
-            return payload
-
-        except JWTError:
+        user: User = Depends(get_current_user),
+    ) -> User:
+        if user.role not in allowed_roles:
+            role_names = ", ".join(role.value for role in allowed_roles)
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Could not validate credentials",
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Requires one of: {role_names}",
             )
+
+        logger.debug(f"Role check passed: {user.role.value}")
+        return user
 
     return check_role
 
@@ -196,7 +210,7 @@ class CommonQueryParams:
 __all__ = [
     "get_current_user_id",
     "get_optional_current_user_id",
-    "get_db_with_rls",
+    "get_current_user",
     "require_role",
     "CommonQueryParams",
     "security",
