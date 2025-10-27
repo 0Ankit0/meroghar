@@ -1,0 +1,254 @@
+openapi: 3.0.3
+info:
+  title: Meroghar Messages API
+  description: SMS and WhatsApp messaging
+  version: 1.0.0
+
+servers:
+  - url: https://api.meroghar.com/api/v1
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /messages:
+    get:
+      summary: List messages
+      operationId: listMessages
+      tags:
+        - Messages
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: tenant_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: message_type
+          in: query
+          schema:
+            type: string
+            enum: [rent_reminder, bill_notification, payment_confirmation, custom]
+        - name: delivery_status
+          in: query
+          schema:
+            type: string
+            enum: [pending, sent, delivered, failed, read]
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Message'
+
+    post:
+      summary: Send message
+      description: Send SMS or WhatsApp message to tenant(s)
+      operationId: sendMessage
+      tags:
+        - Messages
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - recipients
+                - message_content
+                - channel
+              properties:
+                recipients:
+                  type: array
+                  items:
+                    type: string
+                    format: uuid
+                  description: Tenant IDs
+                message_type:
+                  type: string
+                  enum: [rent_reminder, bill_notification, payment_confirmation, custom]
+                  default: custom
+                channel:
+                  type: string
+                  enum: [sms, whatsapp, both]
+                template_id:
+                  type: string
+                  description: Template identifier (optional)
+                message_content:
+                  type: string
+                  maxLength: 1600
+                scheduled_at:
+                  type: string
+                  format: date-time
+                  description: Schedule for later (optional)
+      responses:
+        '201':
+          description: Message(s) created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  messages:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Message'
+                  total_sent:
+                    type: integer
+
+  /messages/{message_id}:
+    get:
+      summary: Get message details
+      operationId: getMessage
+      tags:
+        - Messages
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Message details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Message'
+
+  /messages/templates:
+    get:
+      summary: List message templates
+      operationId: listTemplates
+      tags:
+        - Messages
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MessageTemplate'
+
+    post:
+      summary: Create message template
+      operationId: createTemplate
+      tags:
+        - Messages
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - message_type
+                - content
+              properties:
+                name:
+                  type: string
+                message_type:
+                  type: string
+                  enum: [rent_reminder, bill_notification, payment_confirmation, custom]
+                content:
+                  type: string
+                  description: Template with variables {tenant_name}, {amount}, {due_date}
+                channel:
+                  type: string
+                  enum: [sms, whatsapp, both]
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageTemplate'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Message:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+          format: uuid
+        message_type:
+          type: string
+        channel:
+          type: string
+        template_id:
+          type: string
+        message_content:
+          type: string
+        scheduled_at:
+          type: string
+          format: date-time
+        sent_at:
+          type: string
+          format: date-time
+        delivery_status:
+          type: string
+          enum: [pending, sent, delivered, failed, read]
+        gateway_message_id:
+          type: string
+        failure_reason:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+          format: uuid
+
+    MessageTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        message_type:
+          type: string
+        content:
+          type: string
+        channel:
+          type: string
+        variables:
+          type: array
+          items:
+            type: string
+          description: Available variables for template
+        created_at:
+          type: string
+          format: date-time

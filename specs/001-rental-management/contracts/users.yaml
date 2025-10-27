@@ -1,0 +1,162 @@
+openapi: 3.0.3
+info:
+  title: Meroghar Users API
+  description: User profile management
+  version: 1.0.0
+
+servers:
+  - url: https://api.meroghar.com/api/v1
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /users/me:
+    get:
+      summary: Get current user profile
+      operationId: getCurrentUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+    patch:
+      summary: Update current user profile
+      operationId: updateCurrentUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                full_name:
+                  type: string
+                phone:
+                  type: string
+                preferred_language:
+                  type: string
+                  enum: [en, hi, es]
+                display_currency:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                theme:
+                  type: string
+                  enum: [light, dark, system]
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+
+  /users/me/device-token:
+    post:
+      summary: Update FCM device token
+      description: Register device token for push notifications
+      operationId: updateDeviceToken
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - device_token
+              properties:
+                device_token:
+                  type: string
+                device_type:
+                  type: string
+                  enum: [ios, android]
+      responses:
+        '204':
+          description: Token updated
+
+  /users/{user_id}:
+    get:
+      summary: Get user by ID
+      description: View user details (restricted by role)
+      operationId: getUser
+      tags:
+        - Users
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '403':
+          description: Forbidden
+        '404':
+          description: Not found
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        full_name:
+          type: string
+        phone:
+          type: string
+        role:
+          type: string
+          enum: [owner, intermediary, tenant]
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+
+    UserProfile:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            preferences:
+              type: object
+              properties:
+                preferred_language:
+                  type: string
+                display_currency:
+                  type: string
+                theme:
+                  type: string
+            last_login_at:
+              type: string
+              format: date-time

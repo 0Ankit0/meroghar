@@ -1,0 +1,311 @@
+openapi: 3.0.3
+info:
+  title: Meroghar Properties API
+  description: Property management and intermediary assignments
+  version: 1.0.0
+
+servers:
+  - url: https://api.meroghar.com/api/v1
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /properties:
+    get:
+      summary: List properties
+      operationId: listProperties
+      tags:
+        - Properties
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of properties
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Property'
+
+    post:
+      summary: Create property
+      description: Create new property (Owner only)
+      operationId: createProperty
+      tags:
+        - Properties
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - address_line1
+                - city
+                - state
+                - postal_code
+                - country
+                - total_units
+                - base_currency
+              properties:
+                name:
+                  type: string
+                address_line1:
+                  type: string
+                address_line2:
+                  type: string
+                city:
+                  type: string
+                state:
+                  type: string
+                postal_code:
+                  type: string
+                country:
+                  type: string
+                total_units:
+                  type: integer
+                  minimum: 1
+                base_currency:
+                  type: string
+                  pattern: '^[A-Z]{3}$'
+                  description: ISO 4217 currency code (immutable)
+      responses:
+        '201':
+          description: Property created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+  /properties/{property_id}:
+    get:
+      summary: Get property details
+      operationId: getProperty
+      tags:
+        - Properties
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Property details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyDetail'
+
+    patch:
+      summary: Update property
+      operationId: updateProperty
+      tags:
+        - Properties
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                address_line1:
+                  type: string
+                address_line2:
+                  type: string
+                city:
+                  type: string
+                state:
+                  type: string
+                postal_code:
+                  type: string
+                total_units:
+                  type: integer
+      responses:
+        '200':
+          description: Property updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Property'
+
+  /properties/{property_id}/assignments:
+    get:
+      summary: List intermediary assignments
+      operationId: listAssignments
+      tags:
+        - Property Assignments
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PropertyAssignment'
+
+    post:
+      summary: Assign intermediary to property
+      description: Grant intermediary access to property (Owner only)
+      operationId: assignIntermediary
+      tags:
+        - Property Assignments
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - intermediary_id
+              properties:
+                intermediary_id:
+                  type: string
+                  format: uuid
+      responses:
+        '201':
+          description: Intermediary assigned
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PropertyAssignment'
+
+  /properties/{property_id}/assignments/{assignment_id}:
+    delete:
+      summary: Remove intermediary assignment
+      description: Revoke intermediary access (Owner only)
+      operationId: removeAssignment
+      tags:
+        - Property Assignments
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - name: assignment_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Assignment removed
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Property:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        owner_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        address_line1:
+          type: string
+        address_line2:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+        total_units:
+          type: integer
+        base_currency:
+          type: string
+          description: ISO 4217 currency code (immutable)
+        created_at:
+          type: string
+          format: date-time
+
+    PropertyDetail:
+      allOf:
+        - $ref: '#/components/schemas/Property'
+        - type: object
+          properties:
+            active_tenants_count:
+              type: integer
+            total_tenants_count:
+              type: integer
+            assigned_intermediaries:
+              type: array
+              items:
+                type: object
+
+    PropertyAssignment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+          format: uuid
+        intermediary_id:
+          type: string
+          format: uuid
+        intermediary_name:
+          type: string
+        intermediary_email:
+          type: string
+        assigned_by:
+          type: string
+          format: uuid
+        assigned_at:
+          type: string
+          format: date-time
+        is_active:
+          type: boolean

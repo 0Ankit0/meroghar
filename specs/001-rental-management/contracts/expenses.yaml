@@ -1,0 +1,256 @@
+openapi: 3.0.3
+info:
+  title: Meroghar Expenses API
+  description: Property expense tracking
+  version: 1.0.0
+
+servers:
+  - url: https://api.meroghar.com/api/v1
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /expenses:
+    get:
+      summary: List expenses
+      operationId: listExpenses
+      tags:
+        - Expenses
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [maintenance, repair, cleaning, renovation, emergency, other]
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: approval_status
+          in: query
+          schema:
+            type: string
+            enum: [pending, approved, rejected]
+      responses:
+        '200':
+          description: List of expenses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Expense'
+
+    post:
+      summary: Record expense
+      operationId: createExpense
+      tags:
+        - Expenses
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - property_id
+                - category
+                - description
+                - amount
+                - expense_date
+                - paid_by
+              properties:
+                property_id:
+                  type: string
+                  format: uuid
+                category:
+                  type: string
+                  enum: [maintenance, repair, cleaning, renovation, emergency, other]
+                description:
+                  type: string
+                amount:
+                  type: number
+                  format: decimal
+                expense_date:
+                  type: string
+                  format: date
+                paid_by:
+                  type: string
+                  enum: [owner, intermediary, tenant]
+                notes:
+                  type: string
+      responses:
+        '201':
+          description: Expense recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+
+  /expenses/{expense_id}:
+    get:
+      summary: Get expense details
+      operationId: getExpense
+      tags:
+        - Expenses
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Expense details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Expense'
+
+    patch:
+      summary: Update expense
+      operationId: updateExpense
+      tags:
+        - Expenses
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                amount:
+                  type: number
+                notes:
+                  type: string
+      responses:
+        '200':
+          description: Expense updated
+
+  /expenses/{expense_id}/approve:
+    post:
+      summary: Approve expense
+      description: Approve pending expense (Owner only)
+      operationId: approveExpense
+      tags:
+        - Expenses
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Expense approved
+
+  /expenses/{expense_id}/reject:
+    post:
+      summary: Reject expense
+      description: Reject pending expense (Owner only)
+      operationId: rejectExpense
+      tags:
+        - Expenses
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: expense_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - reason
+              properties:
+                reason:
+                  type: string
+      responses:
+        '200':
+          description: Expense rejected
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Expense:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+          format: uuid
+        category:
+          type: string
+        description:
+          type: string
+        amount:
+          type: number
+          format: decimal
+        currency:
+          type: string
+        expense_date:
+          type: string
+          format: date
+        paid_by:
+          type: string
+        approval_status:
+          type: string
+          enum: [pending, approved, rejected]
+        approved_by:
+          type: string
+          format: uuid
+        approved_at:
+          type: string
+          format: date-time
+        receipt_urls:
+          type: array
+          items:
+            type: string
+        notes:
+          type: string
+        created_at:
+          type: string
+          format: date-time

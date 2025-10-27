@@ -1,0 +1,330 @@
+openapi: 3.0.3
+info:
+  title: Meroghar Analytics API
+  description: Analytics and dashboard endpoints for owners and intermediaries
+  version: 1.0.0
+
+servers:
+  - url: https://api.meroghar.com/api/v1
+    description: Production
+  - url: http://localhost:8000/api/v1
+    description: Local
+
+paths:
+  /analytics/dashboard:
+    get:
+      summary: Get dashboard analytics summary
+      description: Retrieve comprehensive dashboard data with financial metrics, charts, and KPIs
+      operationId: getDashboard
+      tags:
+        - Analytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+          description: Filter by specific property (required for intermediaries)
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+          description: Start date for metrics (default: 12 months ago)
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+          description: End date for metrics (default: today)
+        - name: display_currency
+          in: query
+          schema:
+            type: string
+            pattern: '^[A-Z]{3}$'
+          description: ISO 4217 currency for display conversion (default: property currency)
+      responses:
+        '200':
+          description: Dashboard data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /analytics/revenue-trends:
+    get:
+      summary: Get revenue trends over time
+      description: Retrieve monthly revenue data for charts
+      operationId: getRevenueTrends
+      tags:
+        - Analytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [month, quarter, year]
+            default: month
+        - name: months
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 36
+            default: 12
+          description: Number of months to retrieve
+      responses:
+        '200':
+          description: Revenue trends data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        period:
+                          type: string
+                          example: "2025-01"
+                        total_revenue:
+                          type: number
+                          format: decimal
+                          example: 125000.00
+                        rent_collected:
+                          type: number
+                          format: decimal
+                        bill_payments:
+                          type: number
+                          format: decimal
+                        currency:
+                          type: string
+                          example: "INR"
+
+  /analytics/expense-breakdown:
+    get:
+      summary: Get expense breakdown by category
+      description: Retrieve expenses grouped by category for pie charts
+      operationId: getExpenseBreakdown
+      tags:
+        - Analytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Expense breakdown data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total_expenses:
+                    type: number
+                    format: decimal
+                  currency:
+                    type: string
+                  breakdown:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        category:
+                          type: string
+                          enum: [maintenance, repair, cleaning, renovation, emergency, other]
+                        amount:
+                          type: number
+                          format: decimal
+                        percentage:
+                          type: number
+                          format: float
+                        count:
+                          type: integer
+
+  /analytics/occupancy-rates:
+    get:
+      summary: Get occupancy and vacancy analytics
+      description: Retrieve occupancy rates and trends
+      operationId: getOccupancyRates
+      tags:
+        - Analytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Occupancy data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  current_occupancy_rate:
+                    type: number
+                    format: float
+                    example: 85.5
+                  total_units:
+                    type: integer
+                    example: 20
+                  occupied_units:
+                    type: integer
+                    example: 17
+                  vacant_units:
+                    type: integer
+                    example: 3
+                  average_tenancy_duration_days:
+                    type: integer
+                    example: 456
+
+  /analytics/payment-collection:
+    get:
+      summary: Get payment collection analytics
+      description: Analyze payment collection rates and patterns
+      operationId: getPaymentCollection
+      tags:
+        - Analytics
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Payment collection data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  collection_rate:
+                    type: number
+                    format: float
+                    example: 92.5
+                    description: Percentage of rent collected on time
+                  total_outstanding:
+                    type: number
+                    format: decimal
+                  overdue_count:
+                    type: integer
+                  paid_on_time_count:
+                    type: integer
+                  average_delay_days:
+                    type: number
+                    format: float
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DashboardData:
+      type: object
+      properties:
+        summary:
+          type: object
+          properties:
+            total_revenue_this_month:
+              type: number
+              format: decimal
+            total_expenses_this_month:
+              type: number
+              format: decimal
+            net_income_this_month:
+              type: number
+              format: decimal
+            total_tenants:
+              type: integer
+            active_tenants:
+              type: integer
+            total_outstanding:
+              type: number
+              format: decimal
+            currency:
+              type: string
+        revenue_trend:
+          type: array
+          items:
+            type: object
+            properties:
+              month:
+                type: string
+              amount:
+                type: number
+        expense_breakdown:
+          type: array
+          items:
+            type: object
+        payment_status:
+          type: object
+          properties:
+            paid:
+              type: integer
+            pending:
+              type: integer
+            overdue:
+              type: integer
+
+  responses:
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              error:
+                type: string
+              message:
+                type: string

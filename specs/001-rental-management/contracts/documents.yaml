@@ -1,0 +1,288 @@
+openapi: 3.0.3
+info:
+  title: Meroghar Documents API
+  description: Document storage and management
+  version: 1.0.0
+
+servers:
+  - url: https://api.meroghar.com/api/v1
+  - url: http://localhost:8000/api/v1
+
+paths:
+  /documents:
+    get:
+      summary: List documents
+      operationId: listDocuments
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: property_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: tenant_id
+          in: query
+          schema:
+            type: string
+            format: uuid
+        - name: document_type
+          in: query
+          schema:
+            type: string
+            enum: [lease_agreement, id_proof, noc, police_verification, other]
+        - name: search
+          in: query
+          schema:
+            type: string
+          description: Search in title and tags
+      responses:
+        '200':
+          description: List of documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+
+    post:
+      summary: Upload document
+      operationId: uploadDocument
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+                - document_type
+                - title
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: PDF, JPEG, or PNG file (max 10MB)
+                property_id:
+                  type: string
+                  format: uuid
+                tenant_id:
+                  type: string
+                  format: uuid
+                document_type:
+                  type: string
+                  enum: [lease_agreement, id_proof, noc, police_verification, other]
+                title:
+                  type: string
+                description:
+                  type: string
+                expiration_date:
+                  type: string
+                  format: date
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '201':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+        '400':
+          description: Invalid file or file too large
+        '413':
+          description: File size exceeds 10MB limit
+
+  /documents/{document_id}:
+    get:
+      summary: Get document metadata
+      operationId: getDocument
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Document metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Document'
+
+    patch:
+      summary: Update document metadata
+      operationId: updateDocument
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                expiration_date:
+                  type: string
+                  format: date
+                tags:
+                  type: array
+                  items:
+                    type: string
+      responses:
+        '200':
+          description: Document updated
+
+    delete:
+      summary: Delete document
+      operationId: deleteDocument
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '204':
+          description: Document deleted
+
+  /documents/{document_id}/download:
+    get:
+      summary: Download document
+      description: Get presigned URL for secure document download
+      operationId: downloadDocument
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Presigned download URL
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  download_url:
+                    type: string
+                    format: uri
+                    description: Presigned S3 URL (expires in 1 hour)
+                  expires_at:
+                    type: string
+                    format: date-time
+
+  /documents/{document_id}/versions:
+    get:
+      summary: Get document version history
+      operationId: getDocumentVersions
+      tags:
+        - Documents
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Version history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Document'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        property_id:
+          type: string
+          format: uuid
+        tenant_id:
+          type: string
+          format: uuid
+        document_type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        file_name:
+          type: string
+        file_size:
+          type: integer
+          description: File size in bytes
+        mime_type:
+          type: string
+        version:
+          type: integer
+        expiration_date:
+          type: string
+          format: date
+        tags:
+          type: array
+          items:
+            type: string
+        uploaded_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
