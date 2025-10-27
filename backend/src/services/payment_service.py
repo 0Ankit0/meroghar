@@ -240,6 +240,243 @@ class PaymentService:
         # Round to 2 decimal places
         return prorated_amount.quantize(Decimal("0.01"))
 
+    async def generate_receipt(
+        self,
+        payment_id: UUID,
+        output_path: str,
+    ) -> str:
+        """Generate PDF receipt for a payment.
+        
+        Args:
+            payment_id: Payment ID to generate receipt for
+            output_path: Path to save the PDF file
+            
+        Returns:
+            Path to generated PDF file
+            
+        Raises:
+            ValueError: If payment not found
+        """
+        from reportlab.lib.pagesizes import A4
+        from reportlab.lib.units import mm
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.enums import TA_LEFT, TA_CENTER, TA_RIGHT
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib import colors
+        
+        # Get payment with related data
+        result = await self.session.execute(
+            select(Payment).where(Payment.id == payment_id)
+        )
+        payment = result.scalar_one_or_none()
+        
+        if not payment:
+            raise ValueError(f"Payment {payment_id} not found")
+        
+        # Get tenant and property details
+        result = await self.session.execute(
+            select(Tenant).where(Tenant.id == payment.tenant_id)
+        )
+        tenant = result.scalar_one_or_none()
+        
+        from ..models.property import Property
+        result = await self.session.execute(
+            select(Property).where(Property.id == payment.property_id)
+        )
+        property_obj = result.scalar_one_or_none()
+        
+        # Create PDF
+        pdf = SimpleDocTemplate(output_path, pagesize=A4)
+        
+        # Get styles
+        styles = getSampleStyleSheet()
+        
+        # Custom styles
+        title_style = ParagraphStyle(
+            'CustomTitle',
+            parent=styles['Heading1'],
+            fontSize=24,
+            textColor=colors.HexColor('#2C3E50'),
+            spaceAfter=30,
+            alignment=TA_CENTER,
+        )
+        
+        heading_style = ParagraphStyle(
+            'CustomHeading',
+            parent=styles['Heading2'],
+            fontSize=14,
+            textColor=colors.HexColor('#34495E'),
+            spaceAfter=12,
+            alignment=TA_LEFT,
+        )
+        
+        normal_style = ParagraphStyle(
+            'CustomNormal',
+            parent=styles['Normal'],
+            fontSize=11,
+            alignment=TA_LEFT,
+        )
+        
+        # Build content
+        content = []
+        
+        # Title
+        content.append(Paragraph("PAYMENT RECEIPT", title_style))
+        content.append(Spacer(1, 20))
+        
+        # Receipt details
+        receipt_data = [
+            ["Receipt #:", str(payment.id)[:8].upper()],
+            ["Date:", payment.payment_date.strftime("%B %d, %Y")],
+            ["Status:", payment.status.value.upper()],
+        ]
+        
+        receipt_table = Table(receipt_data, colWidths=[80*mm, 80*mm])
+        receipt_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+            ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 10),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#2C3E50')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        content.append(receipt_table)
+        content.append(Spacer(1, 20))
+        
+        # Property Details
+        content.append(Paragraph("Property Details", heading_style))
+        
+        property_data = [
+            ["Property:", property_obj.name if property_obj else "N/A"],
+            ["Address:", property_obj.address if property_obj else "N/A"],
+        ]
+        
+        property_table = Table(property_data, colWidths=[80*mm, 80*mm])
+        property_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+            ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 10),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#2C3E50')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        content.append(property_table)
+        content.append(Spacer(1, 20))
+        
+        # Tenant Details
+        content.append(Paragraph("Tenant Details", heading_style))
+        
+        tenant_data = [
+            ["Name:", tenant.full_name if tenant else "N/A"],
+            ["Phone:", tenant.phone_number if tenant else "N/A"],
+            ["Email:", tenant.email_address if tenant else "N/A"],
+        ]
+        
+        tenant_table = Table(tenant_data, colWidths=[80*mm, 80*mm])
+        tenant_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+            ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 10),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#2C3E50')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        content.append(tenant_table)
+        content.append(Spacer(1, 20))
+        
+        # Payment Details
+        content.append(Paragraph("Payment Details", heading_style))
+        
+        payment_details_data = [
+            ["Payment Type:", payment.payment_type.value.replace('_', ' ').title()],
+            ["Payment Method:", payment.payment_method.value.replace('_', ' ').title()],
+            ["Transaction Ref:", payment.transaction_reference or "N/A"],
+        ]
+        
+        if payment.payment_period_start and payment.payment_period_end:
+            payment_details_data.append([
+                "Period:",
+                f"{payment.payment_period_start.strftime('%b %d, %Y')} - {payment.payment_period_end.strftime('%b %d, %Y')}"
+            ])
+        
+        payment_details_table = Table(payment_details_data, colWidths=[80*mm, 80*mm])
+        payment_details_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, -1), 'Helvetica', 10),
+            ('FONT', (0, 0), (0, -1), 'Helvetica-Bold', 10),
+            ('TEXTCOLOR', (0, 0), (-1, -1), colors.HexColor('#2C3E50')),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ]))
+        
+        content.append(payment_details_table)
+        content.append(Spacer(1, 20))
+        
+        # Amount Summary
+        content.append(Paragraph("Amount Summary", heading_style))
+        
+        amount_data = [
+            ["Description", "Amount"],
+            [payment.payment_type.value.replace('_', ' ').title(), f"{payment.currency} {payment.amount:,.2f}"],
+            ["", ""],
+            ["Total Amount Paid", f"{payment.currency} {payment.amount:,.2f}"],
+        ]
+        
+        amount_table = Table(amount_data, colWidths=[120*mm, 40*mm])
+        amount_table.setStyle(TableStyle([
+            ('FONT', (0, 0), (-1, 0), 'Helvetica-Bold', 11),
+            ('FONT', (0, 1), (-1, -2), 'Helvetica', 10),
+            ('FONT', (0, -1), (-1, -1), 'Helvetica-Bold', 12),
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#34495E')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('BACKGROUND', (0, -1), (-1, -1), colors.HexColor('#ECF0F1')),
+            ('TEXTCOLOR', (0, -1), (-1, -1), colors.HexColor('#2C3E50')),
+            ('ALIGN', (0, 0), (0, -1), 'LEFT'),
+            ('ALIGN', (1, 0), (1, -1), 'RIGHT'),
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+            ('GRID', (0, 0), (-1, -2), 0.5, colors.grey),
+            ('BOX', (0, 0), (-1, -1), 1, colors.black),
+            ('TOPPADDING', (0, 0), (-1, -1), 10),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 10),
+            ('LEFTPADDING', (0, 0), (-1, -1), 10),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 10),
+        ]))
+        
+        content.append(amount_table)
+        content.append(Spacer(1, 30))
+        
+        # Notes
+        if payment.notes:
+            content.append(Paragraph("Notes", heading_style))
+            content.append(Paragraph(payment.notes, normal_style))
+            content.append(Spacer(1, 20))
+        
+        # Footer
+        footer_style = ParagraphStyle(
+            'Footer',
+            parent=styles['Normal'],
+            fontSize=9,
+            textColor=colors.grey,
+            alignment=TA_CENTER,
+        )
+        
+        content.append(Spacer(1, 30))
+        content.append(Paragraph(
+            f"This is a computer-generated receipt and does not require a signature.<br/>"
+            f"Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}",
+            footer_style
+        ))
+        
+        # Build PDF
+        pdf.build(content)
+        
+        logger.info(f"Receipt generated for payment {payment_id} at {output_path}")
+        
+        return output_path
+
     def _calculate_months_between(self, start_date: date, end_date: date) -> int:
         """Calculate number of months between two dates.
         
