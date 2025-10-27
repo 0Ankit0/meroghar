@@ -7,13 +7,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../config/env.example.dart';
 
 /// Service for securely storing sensitive data like JWT tokens.
-/// 
+///
 /// Uses platform-specific secure storage:
 /// - iOS: Keychain
 /// - Android: EncryptedSharedPreferences
 class SecureStorageService {
   static final SecureStorageService instance = SecureStorageService._internal();
-  
+
   late final FlutterSecureStorage _storage;
 
   factory SecureStorageService() => instance;

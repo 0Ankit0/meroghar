@@ -193,7 +193,8 @@ class _TenantListScreenState extends State<TenantListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red.shade300),
+                    Icon(Icons.error_outline,
+                        size: 64, color: Colors.red.shade300),
                     const SizedBox(height: 16),
                     Text(_errorMessage!),
                     const SizedBox(height: 16),
@@ -211,7 +212,8 @@ class _TenantListScreenState extends State<TenantListScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.people_outline, size: 64, color: Colors.grey.shade400),
+                    Icon(Icons.people_outline,
+                        size: 64, color: Colors.grey.shade400),
                     const SizedBox(height: 16),
                     Text(
                       'No tenants found',
@@ -258,7 +260,8 @@ class _TenantCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currencyFormat = NumberFormat.currency(symbol: '\$', decimalDigits: 2);
+    final currencyFormat =
+        NumberFormat.currency(symbol: '\$', decimalDigits: 2);
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     return Card(

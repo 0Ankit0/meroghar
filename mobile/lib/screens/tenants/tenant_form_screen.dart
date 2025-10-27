@@ -141,7 +141,8 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
                       child: ListTile(
                         leading: const Icon(Icons.calendar_today),
                         title: const Text('Move-In Date'),
-                        subtitle: Text(DateFormat('MMM dd, yyyy').format(_moveInDate)),
+                        subtitle: Text(
+                            DateFormat('MMM dd, yyyy').format(_moveInDate)),
                         trailing: const Icon(Icons.edit),
                         onTap: _selectMoveInDate,
                       ),
@@ -160,7 +161,8 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
                         prefixIcon: Icon(Icons.payments),
                         suffixText: 'per month',
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       validator: _validateAmount,
                     ),
                     const SizedBox(height: 16),
@@ -172,7 +174,8 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
                         prefixIcon: Icon(Icons.lock),
                         suffixText: 'one-time',
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       validator: _validateAmount,
                     ),
                     const SizedBox(height: 16),
@@ -185,7 +188,8 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
                         prefixIcon: Icon(Icons.electric_bolt),
                         suffixText: 'per unit',
                       ),
-                      keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      keyboardType:
+                          const TextInputType.numberWithOptions(decimal: true),
                       validator: _validateAmount,
                     ),
                     const SizedBox(height: 24),
@@ -198,7 +202,8 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
                           children: [
                             Row(
                               children: [
-                                Icon(Icons.info_outline, color: Colors.blue.shade700),
+                                Icon(Icons.info_outline,
+                                    color: Colors.blue.shade700),
                                 const SizedBox(width: 8),
                                 Text(
                                   'Note',

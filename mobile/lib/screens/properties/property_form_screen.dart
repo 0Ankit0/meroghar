@@ -151,9 +151,8 @@ class _PropertyFormScreenState extends State<PropertyFormScreen> {
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.location_on),
                       ),
-                      validator: (value) => value?.isEmpty ?? true
-                          ? 'Address is required'
-                          : null,
+                      validator: (value) =>
+                          value?.isEmpty ?? true ? 'Address is required' : null,
                     ),
                     const SizedBox(height: 16),
                     TextFormField(

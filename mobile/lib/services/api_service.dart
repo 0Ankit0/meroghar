@@ -11,7 +11,7 @@ import '../config/env.example.dart';
 import 'secure_storage_service.dart';
 
 /// HTTP client service with automatic JWT authentication.
-/// 
+///
 /// Features:
 /// - Automatic access token injection
 /// - Automatic token refresh on 401
@@ -76,7 +76,8 @@ class ApiService {
         onResponse: (response, handler) {
           // Log response in debug mode
           if (Environment.apiLogRequests) {
-            print('[API Response] ${response.statusCode} ${response.requestOptions.path}');
+            print(
+                '[API Response] ${response.statusCode} ${response.requestOptions.path}');
             print('[API Data] ${response.data}');
           }
 
@@ -103,7 +104,8 @@ class ApiService {
 
                   // Retry original request with new token
                   final options = error.requestOptions;
-                  options.headers['Authorization'] = 'Bearer ${newTokens['access_token']}';
+                  options.headers['Authorization'] =
+                      'Bearer ${newTokens['access_token']}';
 
                   final response = await _dio.fetch(options);
                   handler.resolve(response);
@@ -119,7 +121,7 @@ class ApiService {
               } catch (e) {
                 _isRefreshing = false;
                 _requestsWaitingForToken.clear();
-                
+
                 // Clear session on refresh failure
                 await _storage.clearAuthSession();
               }
@@ -128,7 +130,8 @@ class ApiService {
 
           // Log error in debug mode
           if (Environment.apiLogRequests) {
-            print('[API Error] ${error.response?.statusCode} ${error.requestOptions.path}');
+            print(
+                '[API Error] ${error.response?.statusCode} ${error.requestOptions.path}');
             print('[API Error Data] ${error.response?.data}');
           }
 
