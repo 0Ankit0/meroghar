@@ -143,6 +143,16 @@ class Property(Base):
         back_populates="property",
         cascade="all, delete-orphan",
     )
+    bills = relationship(
+        "Bill",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
+    recurring_bills = relationship(
+        "RecurringBill",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (

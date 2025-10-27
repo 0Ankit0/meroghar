@@ -156,7 +156,7 @@ analyzer:
     missing_return: error
     todo: ignore
     deprecated_member_use_from_same_package: ignore
-    
+
   exclude:
     - "**/*.g.dart"
     - "**/*.freezed.dart"

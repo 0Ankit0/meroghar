@@ -11,8 +11,16 @@ All model files should be imported here.
 from .user import User, UserRole
 from .property import Property, PropertyAssignment
 from .tenant import Tenant, TenantStatus
-from .payment import Payment, PaymentMethod, PaymentType
-from .bill import BillAllocation
+from .payment import Payment, PaymentMethod, PaymentType, PaymentStatus
+from .bill import (
+    Bill,
+    BillAllocation,
+    RecurringBill,
+    BillType,
+    BillStatus,
+    AllocationMethod,
+    RecurringFrequency,
+)
 
 __all__ = [
     # User
@@ -24,11 +32,18 @@ __all__ = [
     # Tenant
     "Tenant",
     "TenantStatus",
-    # Payment (stub for relationships)
+    # Payment
     "Payment",
     "PaymentMethod",
     "PaymentType",
-    # Bill (stub for relationships)
+    "PaymentStatus",
+    # Bill
+    "Bill",
     "BillAllocation",
+    "RecurringBill",
+    "BillType",
+    "BillStatus",
+    "AllocationMethod",
+    "RecurringFrequency",
 ]
 
