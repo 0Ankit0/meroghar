@@ -54,11 +54,13 @@ class PaymentStatusOverview {
   });
 
   factory PaymentStatusOverview.fromJson(Map<String, dynamic> json) {
-    final statusBreakdownJson = json['status_breakdown'] as Map<String, dynamic>;
+    final statusBreakdownJson =
+        json['status_breakdown'] as Map<String, dynamic>;
     final statusBreakdown = <String, PaymentStatusData>{};
-    
+
     statusBreakdownJson.forEach((key, value) {
-      statusBreakdown[key] = PaymentStatusData.fromJson(value as Map<String, dynamic>);
+      statusBreakdown[key] =
+          PaymentStatusData.fromJson(value as Map<String, dynamic>);
     });
 
     return PaymentStatusOverview(
@@ -71,16 +73,22 @@ class PaymentStatusOverview {
 
   Map<String, dynamic> toJson() {
     return {
-      'status_breakdown': statusBreakdown.map((key, value) => MapEntry(key, value.toJson())),
+      'status_breakdown':
+          statusBreakdown.map((key, value) => MapEntry(key, value.toJson())),
       'total_count': totalCount,
       'total_amount': totalAmount,
       'date_range': dateRange.toJson(),
     };
   }
 
-  PaymentStatusData get completed => statusBreakdown['completed'] ?? const PaymentStatusData(count: 0, amount: 0);
-  PaymentStatusData get pending => statusBreakdown['pending'] ?? const PaymentStatusData(count: 0, amount: 0);
-  PaymentStatusData get failed => statusBreakdown['failed'] ?? const PaymentStatusData(count: 0, amount: 0);
+  PaymentStatusData get completed =>
+      statusBreakdown['completed'] ??
+      const PaymentStatusData(count: 0, amount: 0);
+  PaymentStatusData get pending =>
+      statusBreakdown['pending'] ??
+      const PaymentStatusData(count: 0, amount: 0);
+  PaymentStatusData get failed =>
+      statusBreakdown['failed'] ?? const PaymentStatusData(count: 0, amount: 0);
 }
 
 /// Individual payment status data

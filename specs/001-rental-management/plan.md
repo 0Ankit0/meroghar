@@ -14,7 +14,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - Frontend: Flutter cross-platform mobile app with offline-first architecture using local SQLite
 - Authentication: JWT tokens with bcrypt password hashing
 - Data Sync: Offline-first with last-write-wins for non-financial data, append-only for financial transactions
-- Integration: Payment gateways (Stripe, Razorpay, PayPal), SMS/WhatsApp messaging, cloud document storage (S3)
+- Integration: Nepal-based payment gateways (Khalti, eSewa, IME Pay), SMS/Viber messaging, cloud document storage (S3)
 - Background Jobs: Celery with Redis for recurring bills and scheduled messages
 
 ## Technical Context
@@ -368,8 +368,8 @@ docs/
 - JWT dual-token authentication (15min access, 7day refresh)
 - Celery + Redis for background jobs with Beat for CRON scheduling
 - Flutter Provider for state management (Riverpod for future complexity)
-- Payment gateway adapter pattern (Stripe, Razorpay, PayPal)
-- AWS S3 for document storage with presigned URLs
+- Payment gateway adapter pattern (Khalti, eSewa, IME Pay)
+- AWS S3 or local storage for document storage with presigned URLs
 - Firebase Cloud Messaging for push notifications
 - Flutter intl + ARB files for internationalization
 - pytest with testcontainers for backend testing
@@ -515,9 +515,9 @@ All technology choices documented with rationale, alternatives considered, and i
 - **Sync Strategy**: LWW for profiles, append-only for financial with conflict UI
 - **Bill Division**: Decimal arithmetic with deterministic remainder
 - **Background Jobs**: Celery with Redis for recurring bills and messages
-- **Document Storage**: AWS S3 with presigned URLs
+- **Document Storage**: AWS S3 or local storage with presigned URLs
 - **Notifications**: Firebase Cloud Messaging (FCM)
-- **Payments**: Adapter pattern supporting Stripe, Razorpay, PayPal
+- **Payments**: Adapter pattern supporting Nepal-based gateways (Khalti, eSewa, IME Pay)
 - **Testing**: pytest (backend 80%), flutter_test (frontend 70%)
 
 ### Readiness Assessment

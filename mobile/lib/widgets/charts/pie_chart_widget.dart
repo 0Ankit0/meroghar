@@ -16,7 +16,8 @@ class ExpenseBreakdownPieChart extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<ExpenseBreakdownPieChart> createState() => _ExpenseBreakdownPieChartState();
+  State<ExpenseBreakdownPieChart> createState() =>
+      _ExpenseBreakdownPieChartState();
 }
 
 class _ExpenseBreakdownPieChartState extends State<ExpenseBreakdownPieChart> {
@@ -48,7 +49,8 @@ class _ExpenseBreakdownPieChartState extends State<ExpenseBreakdownPieChart> {
                       touchedIndex = -1;
                       return;
                     }
-                    touchedIndex = pieTouchResponse.touchedSection!.touchedSectionIndex;
+                    touchedIndex =
+                        pieTouchResponse.touchedSection!.touchedSectionIndex;
                   });
                 },
               ),

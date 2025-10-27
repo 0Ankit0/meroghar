@@ -28,7 +28,8 @@ class RevenueExpensesBarChart extends StatelessWidget {
 
     final revenueAmount = comparison!.revenue.total;
     final expensesAmount = comparison!.expenses.total;
-    final maxValue = [revenueAmount, expensesAmount].reduce((a, b) => a > b ? a : b);
+    final maxValue =
+        [revenueAmount, expensesAmount].reduce((a, b) => a > b ? a : b);
 
     return SizedBox(
       height: height,
@@ -205,7 +206,8 @@ class RevenueExpensesBarChart extends StatelessWidget {
     );
   }
 
-  Widget _buildSummaryItem(String label, String value, Color color, IconData icon) {
+  Widget _buildSummaryItem(
+      String label, String value, Color color, IconData icon) {
     return Column(
       children: [
         Row(

@@ -202,20 +202,20 @@ This is a Mobile + API project with:
 
 ## Phase 7: User Story 5 - Tenant Pays Rent Online via Payment Gateway (Priority: P3)
 
-**Goal**: Tenant receives reminder, opens app, and pays rent directly using credit card or UPI through integrated gateway
+**Goal**: Tenant receives reminder, opens app, and pays rent directly using Khalti (Nepal's leading digital wallet) through integrated gateway
 
-**Independent Test**: Tenant selects payment ? enters card details ? receives confirmation ? sees updated balance
+**Independent Test**: Tenant selects payment → enters Khalti PIN/credentials → receives confirmation → sees updated balance
 
 ### Implementation for User Story 5
 
-- [ ] T110 [US5] Implement Stripe payment gateway integration in backend/src/services/payment_gateway/stripe_service.py
-- [ ] T111 [P] [US5] Implement Razorpay payment gateway integration in backend/src/services/payment_gateway/razorpay_service.py
-- [ ] T112 [P] [US5] Implement PayPal payment gateway integration in backend/src/services/payment_gateway/paypal_service.py
-- [ ] T113 [US5] Create payment gateway factory in backend/src/services/payment_gateway/**init**.py
+- [ ] T110 [US5] Implement Khalti payment gateway integration in backend/src/services/payment_gateway/khalti_service.py
+- [ ] T111 [P] [US5] Implement eSewa payment gateway integration (backup) in backend/src/services/payment_gateway/esewa_service.py
+- [ ] T112 [P] [US5] Implement IME Pay payment gateway integration (backup) in backend/src/services/payment_gateway/imepay_service.py
+- [ ] T113 [US5] Create payment gateway factory in backend/src/services/payment_gateway/__init__.py
 - [ ] T114 [US5] Implement payment initiation endpoint (POST /api/v1/payments/initiate) in backend/src/api/v1/payments.py
-- [ ] T115 [P] [US5] Implement payment webhook handler for Stripe (POST /api/v1/webhooks/stripe) in backend/src/api/v1/webhooks.py
-- [ ] T116 [P] [US5] Implement payment webhook handler for Razorpay (POST /api/v1/webhooks/razorpay) in backend/src/api/v1/webhooks.py
-- [ ] T117 [P] [US5] Implement payment webhook handler for PayPal (POST /api/v1/webhooks/paypal) in backend/src/api/v1/webhooks.py
+- [ ] T115 [P] [US5] Implement payment webhook handler for Khalti (POST /api/v1/webhooks/khalti) in backend/src/api/v1/webhooks.py
+- [ ] T116 [P] [US5] Implement payment webhook handler for eSewa (POST /api/v1/webhooks/esewa) in backend/src/api/v1/webhooks.py
+- [ ] T117 [P] [US5] Implement payment webhook handler for IME Pay (POST /api/v1/webhooks/imepay) in backend/src/api/v1/webhooks.py
 - [ ] T118 [US5] Implement payment status polling endpoint (GET /api/v1/payments/{id}/status) in backend/src/api/v1/payments.py
 - [ ] T119 [US5] Create payment gateway integration in mobile using webview in mobile/lib/screens/payments/payment_gateway_screen.dart
 - [ ] T120 [US5] Create payment method selection screen in mobile/lib/screens/payments/payment_method_screen.dart
@@ -224,7 +224,7 @@ This is a Mobile + API project with:
 - [ ] T123 [US5] Implement failed payment retry mechanism in mobile/lib/providers/payment_provider.dart
 - [ ] T124 [US5] Add payment gateway fee tracking in Transaction model in backend/src/models/payment.py
 
-**Checkpoint**: At this point, tenants can pay rent online through multiple payment gateways
+**Checkpoint**: At this point, tenants can pay rent online through Khalti and other Nepal-based payment gateways
 
 ---
 

@@ -91,16 +91,16 @@ A property owner views interactive dashboard with rent collection trends, expens
 
 ### User Story 5 - Tenant Pays Rent Online via Payment Gateway (Priority: P3)
 
-A tenant receives rent reminder notification, opens the app, and pays rent directly using credit card or UPI through integrated payment gateway.
+A tenant receives rent reminder notification, opens the app, and pays rent directly using Khalti (Nepal's leading digital wallet and payment gateway).
 
-**Why this priority**: Convenience feature that reduces collection delays but offline payments are sufficient initially. Requires payment gateway integration costs.
+**Why this priority**: Convenience feature that reduces collection delays but offline payments are sufficient initially. Nepal-specific payment gateway integration required.
 
-**Independent Test**: Can be fully tested by tenant selecting payment → entering card details → receiving confirmation → seeing updated balance, delivering friction less payments.
+**Independent Test**: Can be fully tested by tenant selecting payment → entering Khalti PIN/credentials → receiving confirmation → seeing updated balance, delivering frictionless payments.
 
 **Acceptance Scenarios**:
 
 1. **Given** rent is due, **When** tenant receives payment reminder notification, **Then** notification shows amount due and quick pay link
-2. **Given** tenant opens app, **When** tenant clicks pay rent, **Then** payment gateway options appear (card, UPI, wallet)
+2. **Given** tenant opens app, **When** tenant clicks pay rent, **Then** payment gateway options appear (Khalti, eSewa, IME Pay)
 3. **Given** tenant selects payment method, **When** tenant completes payment, **Then** payment confirmation appears and receipt is auto-generated
 4. **Given** payment is processed, **When** system receives webhook confirmation, **Then** transaction record is created with gateway ID
 5. **Given** payment fails, **When** tenant retries, **Then** previous failed transaction is marked and new attempt is initiated
@@ -404,9 +404,9 @@ When a tenant completes online payment, the intermediary immediately receives pu
 
 **Payment Gateway Integration:**
 
-- **FR-076**: System MUST integrate with multiple payment gateways (Stripe, Razorpay, PayPal)
+- **FR-076**: System MUST integrate with Nepal-based payment gateways (Khalti, eSewa, IME Pay)
 - **FR-077**: Tenants MUST be able to pay rent through the app using various payment methods
-- **FR-078**: System MUST support cards, UPI, and wallet payments
+- **FR-078**: System MUST support digital wallet payments (Khalti, eSewa), mobile banking (IME Pay), and card payments
 - **FR-079**: System MUST automatically generate payment receipts after successful transactions
 - **FR-080**: System MUST send payment confirmation notifications
 - **FR-081**: System MUST support recurring payment setup for monthly rent

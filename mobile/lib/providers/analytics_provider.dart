@@ -41,8 +41,10 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null) queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      if (endDate != null)
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
 
       final response = await _apiService.get(
         '/analytics/rent-trends',
@@ -50,9 +52,10 @@ class AnalyticsProvider with ChangeNotifier {
       );
 
       _rentTrends = (response.data as List)
-          .map((json) => RentCollectionTrend.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              RentCollectionTrend.fromJson(json as Map<String, dynamic>))
           .toList();
-      
+
       _error = null;
     } on DioException catch (e) {
       _error = e.response?.data['detail'] ?? 'Failed to fetch rent trends';
@@ -79,15 +82,18 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null) queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      if (endDate != null)
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
 
       final response = await _apiService.get(
         '/analytics/payment-status',
         queryParameters: queryParams,
       );
 
-      _paymentStatus = PaymentStatusOverview.fromJson(response.data as Map<String, dynamic>);
+      _paymentStatus =
+          PaymentStatusOverview.fromJson(response.data as Map<String, dynamic>);
       _error = null;
     } on DioException catch (e) {
       _error = e.response?.data['detail'] ?? 'Failed to fetch payment status';
@@ -114,8 +120,10 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null) queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      if (endDate != null)
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
 
       final response = await _apiService.get(
         '/analytics/expense-breakdown',
@@ -123,12 +131,14 @@ class AnalyticsProvider with ChangeNotifier {
       );
 
       _expenseBreakdown = (response.data as List)
-          .map((json) => ExpenseBreakdown.fromJson(json as Map<String, dynamic>))
+          .map(
+              (json) => ExpenseBreakdown.fromJson(json as Map<String, dynamic>))
           .toList();
-      
+
       _error = null;
     } on DioException catch (e) {
-      _error = e.response?.data['detail'] ?? 'Failed to fetch expense breakdown';
+      _error =
+          e.response?.data['detail'] ?? 'Failed to fetch expense breakdown';
       debugPrint('Error fetching expense breakdown: $_error');
     } catch (e) {
       _error = 'An unexpected error occurred';
@@ -152,18 +162,22 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null) queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      if (endDate != null)
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
 
       final response = await _apiService.get(
         '/analytics/revenue-expenses',
         queryParameters: queryParams,
       );
 
-      _revenueExpenses = RevenueExpensesComparison.fromJson(response.data as Map<String, dynamic>);
+      _revenueExpenses = RevenueExpensesComparison.fromJson(
+          response.data as Map<String, dynamic>);
       _error = null;
     } on DioException catch (e) {
-      _error = e.response?.data['detail'] ?? 'Failed to fetch revenue vs expenses';
+      _error =
+          e.response?.data['detail'] ?? 'Failed to fetch revenue vs expenses';
       debugPrint('Error fetching revenue vs expenses: $_error');
     } catch (e) {
       _error = 'An unexpected error occurred';
@@ -185,8 +199,10 @@ class AnalyticsProvider with ChangeNotifier {
 
     try {
       final queryParams = <String, dynamic>{};
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null) queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      if (endDate != null)
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
 
       final response = await _apiService.get(
         '/analytics/property-performance',
@@ -194,12 +210,14 @@ class AnalyticsProvider with ChangeNotifier {
       );
 
       _propertyPerformance = (response.data as List)
-          .map((json) => PropertyPerformance.fromJson(json as Map<String, dynamic>))
+          .map((json) =>
+              PropertyPerformance.fromJson(json as Map<String, dynamic>))
           .toList();
-      
+
       _error = null;
     } on DioException catch (e) {
-      _error = e.response?.data['detail'] ?? 'Failed to fetch property performance';
+      _error =
+          e.response?.data['detail'] ?? 'Failed to fetch property performance';
       debugPrint('Error fetching property performance: $_error');
     } catch (e) {
       _error = 'An unexpected error occurred';
@@ -217,11 +235,16 @@ class AnalyticsProvider with ChangeNotifier {
     DateTime? endDate,
   }) async {
     await Future.wait([
-      fetchRentCollectionTrends(propertyId: propertyId, startDate: startDate, endDate: endDate),
-      fetchPaymentStatusOverview(propertyId: propertyId, startDate: startDate, endDate: endDate),
-      fetchExpenseBreakdown(propertyId: propertyId, startDate: startDate, endDate: endDate),
-      fetchRevenueVsExpenses(propertyId: propertyId, startDate: startDate, endDate: endDate),
-      if (propertyId == null) fetchPropertyPerformance(startDate: startDate, endDate: endDate),
+      fetchRentCollectionTrends(
+          propertyId: propertyId, startDate: startDate, endDate: endDate),
+      fetchPaymentStatusOverview(
+          propertyId: propertyId, startDate: startDate, endDate: endDate),
+      fetchExpenseBreakdown(
+          propertyId: propertyId, startDate: startDate, endDate: endDate),
+      fetchRevenueVsExpenses(
+          propertyId: propertyId, startDate: startDate, endDate: endDate),
+      if (propertyId == null)
+        fetchPropertyPerformance(startDate: startDate, endDate: endDate),
     ]);
   }
 
@@ -239,8 +262,10 @@ class AnalyticsProvider with ChangeNotifier {
         'format': format,
       };
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null) queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null) queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      if (startDate != null)
+        queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
+      if (endDate != null)
+        queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
 
       final response = await _apiService.post(
         '/analytics/export',

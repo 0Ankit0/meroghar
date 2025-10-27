@@ -159,7 +159,7 @@ class RentTrendsLineChart extends StatelessWidget {
                     }
                     final trend = trends[index];
                     final month = DateFormat('MMM yyyy').format(trend.month);
-                    
+
                     String label;
                     Color color;
                     if (touchedSpot.barIndex == 0) {
@@ -172,7 +172,7 @@ class RentTrendsLineChart extends StatelessWidget {
                       label = 'Pending: ${_formatCurrency(touchedSpot.y)}';
                       color = Colors.orange;
                     }
-                    
+
                     return LineTooltipItem(
                       '$month\n$label',
                       TextStyle(

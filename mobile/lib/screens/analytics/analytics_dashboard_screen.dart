@@ -13,7 +13,8 @@ class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({Key? key}) : super(key: key);
 
   @override
-  State<AnalyticsDashboardScreen> createState() => _AnalyticsDashboardScreenState();
+  State<AnalyticsDashboardScreen> createState() =>
+      _AnalyticsDashboardScreenState();
 }
 
 class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
@@ -27,7 +28,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     // Default to last 6 months
     _endDate = DateTime.now();
     _startDate = DateTime(_endDate!.year, _endDate!.month - 6, _endDate!.day);
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadAnalytics();
     });
@@ -134,13 +135,15 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                         'Expense Breakdown',
                         () => _navigateToDetail('expense-breakdown'),
                       ),
-                      ExpenseBreakdownPieChart(expenses: provider.expenseBreakdown),
+                      ExpenseBreakdownPieChart(
+                          expenses: provider.expenseBreakdown),
                       const SizedBox(height: 32),
                       _buildSectionHeader(
                         'Revenue vs Expenses',
                         () => _navigateToDetail('revenue-expenses'),
                       ),
-                      RevenueExpensesBarChart(comparison: provider.revenueExpenses),
+                      RevenueExpensesBarChart(
+                          comparison: provider.revenueExpenses),
                       const SizedBox(height: 32),
                       if (_selectedPropertyId == null) ...[
                         _buildSectionHeader(
@@ -176,7 +179,8 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
             DropdownButtonFormField<String?>(
               value: _selectedPropertyId,
               decoration: const InputDecoration(
-                contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 border: OutlineInputBorder(),
               ),
               hint: const Text('All Properties'),
@@ -310,7 +314,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
   Widget _buildPropertyPerformanceList(AnalyticsProvider provider) {
     final properties = provider.propertyPerformance;
-    
+
     if (properties.isEmpty) {
       return const Card(
         child: Padding(
@@ -323,7 +327,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     return Column(
       children: properties.map((property) {
         final isProfitable = property.netProfit >= 0;
-        
+
         return Card(
           child: ListTile(
             title: Text(property.propertyName),
@@ -406,7 +410,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
   Future<void> _exportAnalytics(String format) async {
     final provider = context.read<AnalyticsProvider>();
-    
+
     final result = await provider.exportAnalytics(
       reportType: 'revenue-expenses',
       format: format,

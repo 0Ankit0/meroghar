@@ -336,10 +336,10 @@ class TenantListScreen extends StatelessWidget {
 ## 7. Payment Gateway Integration Strategy
 
 ### Decision
-Implement adapter pattern for multiple payment gateways (Stripe, Razorpay, PayPal). Common interface with provider-specific implementations.
+Implement adapter pattern for Nepal-based payment gateways (Khalti, eSewa, IME Pay). Common interface with provider-specific implementations.
 
 ### Rationale
-Different markets require different payment providers (Razorpay for India, Stripe for international). Adapter pattern allows easy addition of new providers without changing core payment logic. Single provider lock-in creates business risk.
+Nepal's digital payment ecosystem requires local payment providers. Khalti is the leading digital wallet with widespread adoption. eSewa and IME Pay provide backup options. Adapter pattern allows easy addition of new providers without changing core payment logic. Single provider lock-in creates business risk.
 
 ### Interface Design
 ```python
@@ -348,7 +348,7 @@ from abc import ABC, abstractmethod
 class PaymentGateway(ABC):
     @abstractmethod
     async def create_payment_intent(self, amount: Decimal, currency: str, metadata: dict) -> str:
-        """Create payment intent, return client_secret."""
+        """Create payment intent, return transaction_id or redirect URL."""
         pass
     
     @abstractmethod
@@ -366,36 +366,54 @@ class PaymentGateway(ABC):
         """Verify and process webhook."""
         pass
 
-class StripeGateway(PaymentGateway):
-    def __init__(self, api_key: str):
-        self.stripe = stripe
-        self.stripe.api_key = api_key
+class KhaltiGateway(PaymentGateway):
+    def __init__(self, public_key: str, secret_key: str):
+        self.public_key = public_key
+        self.secret_key = secret_key
+        self.base_url = "https://khalti.com/api/v2"
     
     async def create_payment_intent(self, amount: Decimal, currency: str, metadata: dict) -> str:
-        intent = await self.stripe.PaymentIntent.create_async(
-            amount=int(amount * 100),  # Stripe uses smallest currency unit
-            currency=currency.lower(),
-            metadata=metadata
-        )
-        return intent.client_secret
+        # Khalti uses paisa (1 NPR = 100 paisa)
+        payload = {
+            "return_url": metadata.get("return_url"),
+            "website_url": metadata.get("website_url"),
+            "amount": int(amount * 100),  # Convert to paisa
+            "purchase_order_id": metadata.get("order_id"),
+            "purchase_order_name": metadata.get("description"),
+        }
+        # Returns payment URL for redirect
+        return payment_url
 
-class RazorpayGateway(PaymentGateway):
-    # Similar implementation for Razorpay
+class ESewaGateway(PaymentGateway):
+    # Implementation for eSewa
+    pass
+
+class IMEPayGateway(PaymentGateway):
+    # Implementation for IME Pay
     pass
 ```
 
 ### Configuration
 ```python
 # config.py
-PAYMENT_GATEWAY = os.getenv("PAYMENT_GATEWAY", "stripe")  # stripe | razorpay | paypal
+PAYMENT_GATEWAY = os.getenv("PAYMENT_GATEWAY", "khalti")  # khalti | esewa | imepay
 
 def get_payment_gateway() -> PaymentGateway:
-    if PAYMENT_GATEWAY == "stripe":
-        return StripeGateway(api_key=os.getenv("STRIPE_API_KEY"))
-    elif PAYMENT_GATEWAY == "razorpay":
-        return RazorpayGateway(key_id=os.getenv("RAZORPAY_KEY_ID"), key_secret=os.getenv("RAZORPAY_SECRET"))
-    elif PAYMENT_GATEWAY == "paypal":
-        return PayPalGateway(client_id=os.getenv("PAYPAL_CLIENT_ID"), secret=os.getenv("PAYPAL_SECRET"))
+    if PAYMENT_GATEWAY == "khalti":
+        return KhaltiGateway(
+            public_key=os.getenv("KHALTI_PUBLIC_KEY"),
+            secret_key=os.getenv("KHALTI_SECRET_KEY")
+        )
+    elif PAYMENT_GATEWAY == "esewa":
+        return ESewaGateway(
+            merchant_id=os.getenv("ESEWA_MERCHANT_ID"),
+            secret=os.getenv("ESEWA_SECRET")
+        )
+    elif PAYMENT_GATEWAY == "imepay":
+        return IMEPayGateway(
+            merchant_code=os.getenv("IMEPAY_MERCHANT_CODE"),
+            module=os.getenv("IMEPAY_MODULE")
+        )
 ```
 
 ### Webhook Security
