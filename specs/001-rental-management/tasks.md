@@ -83,11 +83,11 @@ This is a Mobile + API project with:
 - [x] T032 [P] [US1] Create tenant request/response schemas in backend/src/schemas/tenant.py
 - [x] T033 [US1] Implement AuthService with register, login, token refresh in backend/src/services/auth_service.py
 - [x] T034 [US1] Implement authentication endpoints (register, login, refresh) in backend/src/api/v1/auth.py
-- [ ] T035 [US1] Implement user creation endpoint (POST /api/v1/users) in backend/src/api/v1/users.py
-- [ ] T036 [US1] Implement property creation endpoint (POST /api/v1/properties) in backend/src/api/v1/properties.py
-- [ ] T037 [US1] Implement intermediary assignment endpoint (POST /api/v1/properties/{id}/assign) in backend/src/api/v1/properties.py
-- [ ] T038 [US1] Implement tenant creation endpoint (POST /api/v1/tenants) in backend/src/api/v1/tenants.py
-- [ ] T039 [US1] Implement tenant list endpoint (GET /api/v1/tenants) with RLS in backend/src/api/v1/tenants.py
+- [x] T035 [US1] Implement user creation endpoint (POST /api/v1/users) in backend/src/api/v1/users.py
+- [x] T036 [US1] Implement property creation endpoint (POST /api/v1/properties) in backend/src/api/v1/properties.py
+- [x] T037 [US1] Implement intermediary assignment endpoint (POST /api/v1/properties/{id}/assign) in backend/src/api/v1/properties.py
+- [x] T038 [US1] Implement tenant creation endpoint (POST /api/v1/tenants) in backend/src/api/v1/tenants.py
+- [x] T039 [US1] Implement tenant list endpoint (GET /api/v1/tenants) with RLS in backend/src/api/v1/tenants.py
 - [ ] T040 [P] [US1] Create User model for mobile local storage in mobile/lib/models/user.dart
 - [ ] T041 [P] [US1] Create Property model for mobile local storage in mobile/lib/models/property.dart
 - [ ] T042 [P] [US1] Create Tenant model for mobile local storage in mobile/lib/models/tenant.dart
