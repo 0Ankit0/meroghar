@@ -4,10 +4,11 @@ Implements T010 from tasks.md.
 """
 
 import logging
-from contextlib import contextmanager
-from typing import Generator
+from contextlib import asynccontextmanager, contextmanager
+from typing import AsyncGenerator, Generator
 
 from sqlalchemy import create_engine, event, pool
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -16,7 +17,7 @@ from .config import get_settings
 logger = logging.getLogger(__name__)
 settings = get_settings()
 
-# Create SQLAlchemy engine
+# Create SQLAlchemy sync engine
 engine = create_engine(
     settings.database_url,
     echo=settings.db_echo,
@@ -26,11 +27,31 @@ engine = create_engine(
     pool_recycle=3600,  # Recycle connections after 1 hour
 )
 
+# Create SQLAlchemy async engine (replace postgresql:// with postgresql+asyncpg://)
+async_database_url = settings.database_url.replace("postgresql://", "postgresql+asyncpg://")
+async_engine = create_async_engine(
+    async_database_url,
+    echo=settings.db_echo,
+    pool_size=settings.db_pool_size,
+    max_overflow=settings.db_max_overflow,
+    pool_pre_ping=True,
+    pool_recycle=3600,
+)
+
 # Create session factory
 SessionLocal = sessionmaker(
     autocommit=False,
     autoflush=False,
     bind=engine,
+)
+
+# Create async session factory
+AsyncSessionLocal = async_sessionmaker(
+    async_engine,
+    class_=AsyncSession,
+    expire_on_commit=False,
+    autocommit=False,
+    autoflush=False,
 )
 
 # Create declarative base for models
@@ -124,6 +145,31 @@ def get_db() -> Generator[Session, None, None]:
         session.close()
 
 
+async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
+    """
+    Async dependency function for FastAPI to inject async database sessions.
+
+    Yields:
+        SQLAlchemy AsyncSession
+
+    Example:
+        @app.get("/users")
+        async def get_users(db: AsyncSession = Depends(get_async_db)):
+            result = await db.execute(select(User))
+            return result.scalars().all()
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Async database error in request: {e}")
+            raise
+        finally:
+            await session.close()
+
+
 def init_db() -> None:
     """
     Initialize database by creating all tables.
@@ -151,6 +197,18 @@ def close_db() -> None:
         logger.error(f"Error closing database: {e}")
 
 
+async def close_async_db() -> None:
+    """
+    Close async database connections.
+    Should be called on application shutdown.
+    """
+    try:
+        await async_engine.dispose()
+        logger.info("Async database connections closed")
+    except Exception as e:
+        logger.error(f"Error closing async database: {e}")
+
+
 def check_db_connection() -> bool:
     """
     Check if database connection is working.
@@ -170,12 +228,16 @@ def check_db_connection() -> bool:
 
 __all__ = [
     "engine",
+    "async_engine",
     "SessionLocal",
+    "AsyncSessionLocal",
     "Base",
     "get_db",
+    "get_async_db",
     "get_db_context",
     "set_rls_context",
     "init_db",
     "close_db",
+    "close_async_db",
     "check_db_connection",
 ]
