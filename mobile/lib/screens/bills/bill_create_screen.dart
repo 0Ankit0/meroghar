@@ -20,13 +20,13 @@ class BillCreateScreen extends StatefulWidget {
 
 class _BillCreateScreenState extends State<BillCreateScreen> {
   final _formKey = GlobalKey<FormState>();
-  
+
   BillType _billType = BillType.electricity;
   AllocationMethod _allocationMethod = AllocationMethod.equal;
   final _amountController = TextEditingController();
   final _descriptionController = TextEditingController();
   final _billNumberController = TextEditingController();
-  
+
   DateTime _periodStart = DateTime.now();
   DateTime _periodEnd = DateTime.now().add(const Duration(days: 30));
   DateTime _dueDate = DateTime.now().add(const Duration(days: 40));
@@ -84,12 +84,14 @@ class _BillCreateScreenState extends State<BillCreateScreen> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _billNumberController,
-              decoration: const InputDecoration(labelText: 'Bill Number (Optional)'),
+              decoration:
+                  const InputDecoration(labelText: 'Bill Number (Optional)'),
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _descriptionController,
-              decoration: const InputDecoration(labelText: 'Description (Optional)'),
+              decoration:
+                  const InputDecoration(labelText: 'Description (Optional)'),
               maxLines: 3,
             ),
             const SizedBox(height: 32),

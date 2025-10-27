@@ -275,7 +275,8 @@ class BillAllocation {
   int get hashCode => id.hashCode ^ billId.hashCode ^ tenantId.hashCode;
 
   @override
-  String toString() => 'BillAllocation(id: $id, allocatedAmount: $allocatedAmount, isPaid: $isPaid)';
+  String toString() =>
+      'BillAllocation(id: $id, allocatedAmount: $allocatedAmount, isPaid: $isPaid)';
 }
 
 /// Bill model

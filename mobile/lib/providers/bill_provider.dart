@@ -61,8 +61,7 @@ class BillProvider with ChangeNotifier {
   /// Get bills allocated to a specific tenant
   List<Bill> getBillsForTenant(String tenantId) {
     return _bills
-        .where((b) =>
-            b.allocations.any((alloc) => alloc.tenantId == tenantId))
+        .where((b) => b.allocations.any((alloc) => alloc.tenantId == tenantId))
         .toList();
   }
 
@@ -237,7 +236,8 @@ class BillProvider with ChangeNotifier {
       final requestData = <String, dynamic>{
         if (status != null) 'status': status.toJson(),
         if (totalAmount != null) 'total_amount': totalAmount,
-        if (dueDate != null) 'due_date': dueDate.toIso8601String().split('T')[0],
+        if (dueDate != null)
+          'due_date': dueDate.toIso8601String().split('T')[0],
         if (description != null) 'description': description,
         if (billNumber != null) 'bill_number': billNumber,
       };
@@ -435,7 +435,8 @@ class BillProvider with ChangeNotifier {
       final recurringBill =
           RecurringBill.fromJson(response.data as Map<String, dynamic>);
 
-      final index = _recurringBills.indexWhere((rb) => rb.id == recurringBillId);
+      final index =
+          _recurringBills.indexWhere((rb) => rb.id == recurringBillId);
       if (index != -1) {
         _recurringBills[index] = recurringBill;
       }
@@ -532,9 +533,8 @@ class BillProvider with ChangeNotifier {
           whereArgs: [billMap['id']],
         );
 
-        final allocations = allocationMaps
-            .map((m) => BillAllocation.fromJson(m))
-            .toList();
+        final allocations =
+            allocationMaps.map((m) => BillAllocation.fromJson(m)).toList();
 
         final billData = Map<String, dynamic>.from(billMap);
         billData['allocations'] = allocations.map((a) => a.toJson()).toList();

@@ -34,11 +34,11 @@ class _TenantDashboardScreenState extends State<TenantDashboardScreen> {
   Future<void> _loadData() async {
     final authProvider = context.read<AuthProvider>();
     final user = authProvider.currentUser;
-    
+
     if (user != null && user.role == UserRole.tenant) {
       final billProvider = context.read<BillProvider>();
       final paymentProvider = context.read<PaymentProvider>();
-      
+
       // For tenants, use user ID as tenant filter
       await Future.wait([
         billProvider.fetchBills(),
@@ -56,7 +56,7 @@ class _TenantDashboardScreenState extends State<TenantDashboardScreen> {
       body: Consumer3<AuthProvider, BillProvider, PaymentProvider>(
         builder: (context, authProvider, billProvider, paymentProvider, child) {
           final user = authProvider.currentUser;
-          
+
           if (user == null || user.role != UserRole.tenant) {
             return const Center(
               child: Text('This dashboard is for tenants only'),
@@ -65,20 +65,20 @@ class _TenantDashboardScreenState extends State<TenantDashboardScreen> {
 
           // For tenants, user.id represents their tenant ID
           final tenantId = user.id;
-          
+
           if (billProvider.isLoading || paymentProvider.isLoading) {
             return const Center(child: CircularProgressIndicator());
           }
 
           // Get tenant's bills and allocations
           final myBills = billProvider.getBillsForTenant(tenantId);
-          final unpaidAllocations = billProvider.getUnpaidAllocationsForTenant(tenantId);
+          final unpaidAllocations =
+              billProvider.getUnpaidAllocationsForTenant(tenantId);
           final totalUnpaid = billProvider.getTotalUnpaidForTenant(tenantId);
-          
+
           // Get recent payments
-          final recentPayments = paymentProvider.getPaymentsByTenant(tenantId)
-              .take(5)
-              .toList();
+          final recentPayments =
+              paymentProvider.getPaymentsByTenant(tenantId).take(5).toList();
 
           return RefreshIndicator(
             onRefresh: _loadData,
@@ -92,7 +92,7 @@ class _TenantDashboardScreenState extends State<TenantDashboardScreen> {
                   currencyFormat: _currencyFormat,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Overdue Bills Section
                 _OverdueBillsSection(
                   bills: myBills.where((b) => b.isOverdue).toList(),
@@ -101,19 +101,21 @@ class _TenantDashboardScreenState extends State<TenantDashboardScreen> {
                   dateFormat: _dateFormat,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Pending Bills Section
                 _PendingBillsSection(
-                  bills: myBills.where((b) => 
-                    !b.isOverdue && 
-                    (b.status == BillStatus.pending || b.status == BillStatus.partiallyPaid)
-                  ).toList(),
+                  bills: myBills
+                      .where((b) =>
+                          !b.isOverdue &&
+                          (b.status == BillStatus.pending ||
+                              b.status == BillStatus.partiallyPaid))
+                      .toList(),
                   tenantId: tenantId,
                   currencyFormat: _currencyFormat,
                   dateFormat: _dateFormat,
                 ),
                 const SizedBox(height: 16),
-                
+
                 // Recent Payments Section
                 _RecentPaymentsSection(
                   payments: recentPayments,
@@ -208,12 +210,11 @@ class _OverdueBillsSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ...bills.map((bill) {
-          final myAllocation = bill.allocations
-              .cast<BillAllocation?>()
-              .firstWhere(
-                (alloc) => alloc?.tenantId == tenantId,
-                orElse: () => null,
-              );
+          final myAllocation =
+              bill.allocations.cast<BillAllocation?>().firstWhere(
+                    (alloc) => alloc?.tenantId == tenantId,
+                    orElse: () => null,
+                  );
 
           return Card(
             color: Colors.red.shade50,
@@ -283,12 +284,11 @@ class _PendingBillsSection extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         ...bills.take(5).map((bill) {
-          final myAllocation = bill.allocations
-              .cast<BillAllocation?>()
-              .firstWhere(
-                (alloc) => alloc?.tenantId == tenantId,
-                orElse: () => null,
-              );
+          final myAllocation =
+              bill.allocations.cast<BillAllocation?>().firstWhere(
+                    (alloc) => alloc?.tenantId == tenantId,
+                    orElse: () => null,
+                  );
 
           return Card(
             margin: const EdgeInsets.symmetric(vertical: 4),

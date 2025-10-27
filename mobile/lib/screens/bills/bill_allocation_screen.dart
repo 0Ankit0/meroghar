@@ -114,9 +114,8 @@ class _BillSummaryCard extends StatelessWidget {
             Text('Due: ${dateFormat.format(bill.dueDate)}'),
             const SizedBox(height: 8),
             LinearProgressIndicator(
-              value: bill.totalAmount > 0 
-                  ? bill.totalPaid / bill.totalAmount 
-                  : 0,
+              value:
+                  bill.totalAmount > 0 ? bill.totalPaid / bill.totalAmount : 0,
             ),
             const SizedBox(height: 4),
             Text(

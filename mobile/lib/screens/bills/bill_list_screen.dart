@@ -227,9 +227,7 @@ class _BillCard extends StatelessWidget {
     // Get allocation for this tenant if tenantId provided
     BillAllocation? myAllocation;
     if (tenantId != null) {
-      myAllocation = bill.allocations
-          .cast<BillAllocation?>()
-          .firstWhere(
+      myAllocation = bill.allocations.cast<BillAllocation?>().firstWhere(
             (alloc) => alloc?.tenantId == tenantId,
             orElse: () => null,
           );
