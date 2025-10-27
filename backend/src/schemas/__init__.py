@@ -282,3 +282,13 @@ from .user import (
     UserResponse,
     UserUpdateRequest,
 )
+from .document import (
+    DocumentCreate,
+    DocumentUploadResponse,
+    DocumentComplete,
+    DocumentResponse,
+    DocumentListResponse,
+    DocumentUpdateStatus,
+    DocumentVersionCreate,
+    DocumentDownloadResponse,
+)
