@@ -52,6 +52,15 @@ class DatabaseService {
   /// Create initial database schema.
   Future<void> _onCreate(Database db, int version) async {
     await db.transaction((txn) async {
+      // Device metadata table for sync tracking
+      await txn.execute('''
+        CREATE TABLE device_metadata (
+          key TEXT PRIMARY KEY,
+          value TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )
+      ''');
+
       // Users table
       await txn.execute('''
         CREATE TABLE users (
@@ -263,5 +272,73 @@ class DatabaseService {
       await File(path).delete();
     }
     _database = null;
+  }
+
+  /// Get device metadata value by key.
+  Future<String?> getDeviceMetadata(String key) async {
+    final db = await database;
+    final result = await db.query(
+      'device_metadata',
+      columns: ['value'],
+      where: 'key = ?',
+      whereArgs: [key],
+    );
+
+    if (result.isNotEmpty) {
+      return result.first['value'] as String;
+    }
+    return null;
+  }
+
+  /// Set device metadata value.
+  Future<void> setDeviceMetadata(String key, String value) async {
+    final db = await database;
+    await db.insert(
+      'device_metadata',
+      {
+        'key': key,
+        'value': value,
+        'updated_at': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  /// Get device ID, generating one if it doesn't exist.
+  Future<String> getDeviceId() async {
+    String? deviceId = await getDeviceMetadata('device_id');
+
+    if (deviceId == null) {
+      // Generate a new UUID for this device
+      deviceId = _generateUuid();
+      await setDeviceMetadata('device_id', deviceId);
+    }
+
+    return deviceId;
+  }
+
+  /// Get device name for display.
+  Future<String?> getDeviceName() async {
+    return await getDeviceMetadata('device_name');
+  }
+
+  /// Set device name for display.
+  Future<void> setDeviceName(String name) async {
+    await setDeviceMetadata('device_name', name);
+  }
+
+  /// Simple UUID generator (v4-like).
+  String _generateUuid() {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final random = (now * 1000).toString();
+    return 'device-$random-${_randomString(8)}';
+  }
+
+  /// Generate random string for UUID.
+  String _randomString(int length) {
+    const chars = 'abcdefghijklmnopqrstuvwxyz0123456789';
+    final random = DateTime.now().microsecondsSinceEpoch;
+    return List.generate(length, (i) => chars[(random + i) % chars.length])
+        .join();
   }
 }

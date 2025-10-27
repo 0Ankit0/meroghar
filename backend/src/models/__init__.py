@@ -21,6 +21,8 @@ from .bill import (
     AllocationMethod,
     RecurringFrequency,
 )
+from .expense import Expense, ExpenseCategory, ExpenseStatus
+from .sync import SyncLog, SyncStatus, SyncOperation
 
 __all__ = [
     # User
@@ -45,5 +47,13 @@ __all__ = [
     "BillStatus",
     "AllocationMethod",
     "RecurringFrequency",
+    # Expense
+    "Expense",
+    "ExpenseCategory",
+    "ExpenseStatus",
+    # Sync
+    "SyncLog",
+    "SyncStatus",
+    "SyncOperation",
 ]
 

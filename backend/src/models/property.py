@@ -153,6 +153,11 @@ class Property(Base):
         back_populates="property",
         cascade="all, delete-orphan",
     )
+    expenses = relationship(
+        "Expense",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (
@@ -237,6 +242,13 @@ class PropertyAssignment(Base):
         default=datetime.utcnow,
         nullable=False,
         comment="Assignment timestamp",
+    )
+    updated_at = Column(
+        DateTime,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+        nullable=False,
+        comment="Last update timestamp",
     )
     removed_at = Column(
         DateTime,

@@ -139,8 +139,23 @@ class User(Base):
     )
     created_payments = relationship(
         "Payment",
-        back_populates="creator",
-        foreign_keys="Payment.created_by",
+        back_populates="recorder",
+        foreign_keys="Payment.recorded_by",
+    )
+    recorded_expenses = relationship(
+        "Expense",
+        back_populates="recorder",
+        foreign_keys="Expense.recorded_by",
+    )
+    approved_expenses = relationship(
+        "Expense",
+        back_populates="approver",
+        foreign_keys="Expense.approved_by",
+    )
+    sync_logs = relationship(
+        "SyncLog",
+        back_populates="user",
+        cascade="all, delete-orphan",
     )
 
     # Indexes
