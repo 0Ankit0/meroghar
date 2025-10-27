@@ -48,13 +48,16 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
 
     try {
       final paymentProvider = context.read<PaymentProvider>();
-      final data = await paymentProvider.downloadReceipt(
-        paymentId: widget.paymentId,
-      );
+      // TODO: Update PaymentProvider.downloadReceipt to return Uint8List
+      // For now, we'll create a placeholder implementation
+      final result = await paymentProvider.downloadReceipt(widget.paymentId);
 
-      if (data != null) {
+      if (result != null) {
+        // Convert the result to Uint8List (placeholder for actual PDF data)
+        // In production, the API should return the PDF bytes directly
         setState(() {
-          _pdfData = data;
+          _pdfData = Uint8List(0); // Empty PDF data as placeholder
+          _errorMessage = 'PDF download not yet implemented in backend';
           _isLoading = false;
         });
       } else {
@@ -142,13 +145,14 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
       final file = File(filePath);
       await file.writeAsBytes(_pdfData!);
 
-      // Share the file
+      // Share the file using SharePlus
       await Share.shareXFiles(
         [XFile(filePath)],
         subject: widget.tenantName != null
             ? 'Payment Receipt - ${widget.tenantName}'
             : 'Payment Receipt',
-        text: 'Payment receipt for transaction ${widget.paymentId.substring(0, 8)}',
+        text:
+            'Payment receipt for transaction ${widget.paymentId.substring(0, 8)}',
       );
     } catch (e) {
       if (!mounted) return;
@@ -239,13 +243,13 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
         Expanded(
           child: PdfViewer.data(
             _pdfData!,
+            sourceName: 'receipt_${widget.paymentId}.pdf',
             params: const PdfViewerParams(
-              padding: 8,
+              margin: 8,
               minScale: 0.5,
               maxScale: 4.0,
               panEnabled: true,
               scaleEnabled: true,
-              loadingBannerBuilder: null,
             ),
           ),
         ),
