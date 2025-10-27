@@ -33,25 +33,31 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            TextField(controller: _titleCtrl, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(
+                controller: _titleCtrl,
+                decoration: const InputDecoration(labelText: 'Title')),
             const SizedBox(height: 8),
             DropdownButton<DocumentType>(
               value: _selectedType,
               hint: const Text('Select document type'),
-        items: DocumentType.values
-          .map((t) => DropdownMenuItem(value: t, child: Text(Document.documentTypeToLabel(t))))
+              items: DocumentType.values
+                  .map((t) => DropdownMenuItem(
+                      value: t, child: Text(Document.documentTypeToLabel(t))))
                   .toList(),
               onChanged: (v) => setState(() => _selectedType = v),
             ),
             const SizedBox(height: 8),
-            TextField(controller: _descriptionCtrl, decoration: const InputDecoration(labelText: 'Description')),
+            TextField(
+                controller: _descriptionCtrl,
+                decoration: const InputDecoration(labelText: 'Description')),
             const SizedBox(height: 8),
             Row(
               children: [
                 ElevatedButton(
                   child: const Text('Pick File'),
                   onPressed: () async {
-                    final result = await FilePicker.platform.pickFiles(withData: false);
+                    final result =
+                        await FilePicker.platform.pickFiles(withData: false);
                     if (result != null && result.files.isNotEmpty) {
                       setState(() => _pickedFile = result.files.first);
                     }
@@ -67,8 +73,13 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
               onPressed: provider.isLoading
                   ? null
                   : () async {
-                      if (_pickedFile == null || _selectedType == null || _titleCtrl.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill required fields and pick a file')));
+                      if (_pickedFile == null ||
+                          _selectedType == null ||
+                          _titleCtrl.text.isEmpty) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text(
+                                    'Fill required fields and pick a file')));
                         return;
                       }
 
@@ -83,18 +94,24 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                       final uploadResp = await provider.getUploadUrl(
                         request: uploadRequest,
                         fileExtension: _pickedFile!.extension ?? 'bin',
-                        mimeType: _pickedFile!.name.endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream',
+                        mimeType: _pickedFile!.name.endsWith('.pdf')
+                            ? 'application/pdf'
+                            : 'application/octet-stream',
                       );
 
                       if (uploadResp == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Upload init failed')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text(provider.error ?? 'Upload init failed')));
                         return;
                       }
 
                       // Upload file via presigned URL
                       final filePath = _pickedFile!.path;
                       if (filePath == null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Unable to read file')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                                content: Text('Unable to read file')));
                         return;
                       }
 
@@ -105,11 +122,16 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                         await dio.put(
                           uploadResp.uploadUrl,
                           data: Stream.fromIterable([bytes]),
-                          options: Options(headers: {'Content-Type': _pickedFile!.name.endsWith('.pdf') ? 'application/pdf' : 'application/octet-stream'}),
+                          options: Options(headers: {
+                            'Content-Type': _pickedFile!.name.endsWith('.pdf')
+                                ? 'application/pdf'
+                                : 'application/octet-stream'
+                          }),
                         );
                       } catch (e) {
                         // If presigned upload failed, show message
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('File upload failed: $e')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('File upload failed: $e')));
                         return;
                       }
 
@@ -121,12 +143,16 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                         mimeType: 'application/pdf',
                       );
 
-                      final doc = await provider.completeUpload(metadata: uploadRequest, file: completeReq);
+                      final doc = await provider.completeUpload(
+                          metadata: uploadRequest, file: completeReq);
                       if (doc != null) {
-                        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Upload complete')));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Upload complete')));
                         Navigator.of(context).pop();
                       } else {
-                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(provider.error ?? 'Failed to complete')));
+                        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                            content:
+                                Text(provider.error ?? 'Failed to complete')));
                       }
                     },
             )

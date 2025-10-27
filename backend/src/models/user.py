@@ -65,6 +65,11 @@ class User(Base):
         nullable=True,
         comment="Contact phone number (E.164 format)",
     )
+    fcm_token = Column(
+        String(500),
+        nullable=True,
+        comment="Firebase Cloud Messaging device token for push notifications",
+    )
     password_hash = Column(
         String(255),
         nullable=False,

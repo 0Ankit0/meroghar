@@ -65,8 +65,8 @@ class DocumentProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-  final body = metadata.toJson();
-  body.addAll(file.toJson());
+      final body = metadata.toJson();
+      body.addAll(file.toJson());
 
       final response = await _apiService.post('/documents', data: body);
 
@@ -94,7 +94,8 @@ class DocumentProvider with ChangeNotifier {
     try {
       final response = await _apiService.get('/documents/$documentId/download');
       if (response.success) {
-        return DocumentDownloadResponse.fromJson(response.data as Map<String, dynamic>);
+        return DocumentDownloadResponse.fromJson(
+            response.data as Map<String, dynamic>);
       }
       return null;
     } catch (e) {
@@ -116,16 +117,21 @@ class DocumentProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-  final query = <String, dynamic>{'page': page, 'page_size': pageSize};
-  if (type != null) query['document_type'] = Document.documentTypeToString(type);
-  if (status != null) query['status'] = Document.documentStatusToString(status);
+      final query = <String, dynamic>{'page': page, 'page_size': pageSize};
+      if (type != null)
+        query['document_type'] = Document.documentTypeToString(type);
+      if (status != null)
+        query['status'] = Document.documentStatusToString(status);
       if (tenantId != null) query['tenant_id'] = tenantId;
 
-      final response = await _apiService.get('/documents', queryParameters: query);
+      final response =
+          await _apiService.get('/documents', queryParameters: query);
       _isLoading = false;
       if (response.success) {
         final data = response.data as Map<String, dynamic>;
-        final docs = (data['documents'] as List).map((e) => Document.fromJson(e as Map<String,dynamic>)).toList();
+        final docs = (data['documents'] as List)
+            .map((e) => Document.fromJson(e as Map<String, dynamic>))
+            .toList();
         _documents = docs;
         notifyListeners();
       } else {
@@ -155,7 +161,8 @@ class DocumentProvider with ChangeNotifier {
 
   Future<bool> deleteDocument(int id, {bool hardDelete = false}) async {
     try {
-      final response = await _apiService.delete('/documents/$id', queryParameters: {'hard_delete': hardDelete});
+      final response = await _apiService.delete('/documents/$id',
+          queryParameters: {'hard_delete': hardDelete});
       if (response.success) {
         _documents.removeWhere((d) => d.id == id);
         notifyListeners();

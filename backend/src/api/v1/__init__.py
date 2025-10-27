@@ -15,6 +15,7 @@ from .reports import router as reports_router
 from .sync import router as sync_router
 from .messages import router as messages_router
 from .documents import router as documents_router
+from .notifications import router as notifications_router
 
 # Create API v1 router
 api_router = APIRouter(prefix="/v1")
@@ -33,5 +34,6 @@ api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
 api_router.include_router(sync_router, prefix="/sync", tags=["Sync"])
 api_router.include_router(messages_router, prefix="/messages", tags=["Messages"])
 api_router.include_router(documents_router, prefix="/documents", tags=["Documents"])
+api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
 
 __all__ = ["api_router"]

@@ -21,6 +21,7 @@ from ..models.bill import (
     RecurringBill,
     RecurringFrequency,
 )
+from ..models.notification import NotificationPriority, NotificationType
 from ..models.property import Property
 from ..models.tenant import Tenant, TenantStatus
 from ..schemas.bill import (
@@ -28,6 +29,7 @@ from ..schemas.bill import (
     BillCreateRequest,
     RecurringBillCreateRequest,
 )
+from .notification_service import NotificationService
 
 logger = logging.getLogger(__name__)
 
@@ -153,6 +155,34 @@ class BillService:
             f"method={request.allocation_method.value}, allocations={len(bill.allocations)}, "
             f"created_by={created_by}"
         )
+        
+        # T243: Send bill creation notifications to affected tenants
+        try:
+            for allocation in bill.allocations:
+                await NotificationService.create_notification(
+                    db=self.session,
+                    user_id=allocation.tenant.user_id,
+                    title="New Bill Created",
+                    body=(
+                        f"A new {bill.bill_type.value} bill of "
+                        f"{bill.currency} {allocation.allocated_amount} has been created. "
+                        f"Due date: {bill.due_date.strftime('%Y-%m-%d')}"
+                    ),
+                    notification_type=NotificationType.BILL_CREATED,
+                    priority=NotificationPriority.NORMAL,
+                    deep_link=f"meroghar://bills/{bill.id}",
+                    metadata={
+                        "bill_id": str(bill.id),
+                        "allocation_id": str(allocation.id),
+                        "allocated_amount": float(allocation.allocated_amount),
+                        "due_date": bill.due_date.isoformat(),
+                    },
+                    send_push=True,
+                )
+            logger.info(f"Bill notifications sent for bill {bill.id}")
+        except Exception as e:
+            # Don't fail bill creation if notification fails
+            logger.error(f"Failed to send bill notifications: {e}")
         
         return bill
 

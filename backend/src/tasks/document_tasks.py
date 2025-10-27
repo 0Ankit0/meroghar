@@ -13,10 +13,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_async_session
 from ..models.document import Document, DocumentStatus
+from ..models.notification import NotificationPriority, NotificationType
 from ..models.tenant import Tenant
 from ..models.message import Message, MessageTemplate, MessageChannel, MessageStatus
 from ..services.document_service import get_document_service
 from ..services.message_service import MessageService
+from ..services.notification_service import NotificationService
 
 logger = get_task_logger(__name__)
 
@@ -131,6 +133,29 @@ def send_document_expiration_reminders():
                         
                         # Send message via message service
                         await message_service.send_message(session, message.id)
+                        
+                        # T244: Send push notification for document expiration
+                        try:
+                            await NotificationService.create_notification(
+                                db=session,
+                                user_id=tenant.user_id,
+                                title="Document Expiring Soon",
+                                body=(
+                                    f"Your {document.document_type.value} document "
+                                    f"'{document.title}' will expire on {expiry_date}"
+                                ),
+                                notification_type=NotificationType.DOCUMENT_EXPIRING,
+                                priority=NotificationPriority.NORMAL,
+                                deep_link=f"meroghar://documents/{document.id}",
+                                metadata={
+                                    "document_id": str(document.id),
+                                    "expiry_date": expiry_date,
+                                    "days_left": days_left,
+                                },
+                                send_push=True,
+                            )
+                        except Exception as e:
+                            logger.error(f"Failed to send push notification for document {document.id}: {e}")
                         
                         # Mark reminder as sent
                         await doc_service.mark_reminder_sent(document, session)

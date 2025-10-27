@@ -224,6 +224,15 @@ __all__ = [
     "BillListResponse",
     "RecurringBillResponse",
     "RecurringBillListResponse",
+    # Notification schemas (T237)
+    "NotificationCreateRequest",
+    "NotificationMarkReadRequest",
+    "NotificationUpdateFCMRequest",
+    "NotificationFilterRequest",
+    "NotificationResponse",
+    "NotificationListResponse",
+    "NotificationUnreadCountResponse",
+    "NotificationBatchResponse",
 ]
 
 # Import schemas for convenient access
@@ -291,4 +300,14 @@ from .document import (
     DocumentUpdateStatus,
     DocumentVersionCreate,
     DocumentDownloadResponse,
+)
+from .notification import (
+    NotificationCreateRequest,
+    NotificationMarkReadRequest,
+    NotificationUpdateFCMRequest,
+    NotificationFilterRequest,
+    NotificationResponse,
+    NotificationListResponse,
+    NotificationUnreadCountResponse,
+    NotificationBatchResponse,
 )

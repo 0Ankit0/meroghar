@@ -35,10 +35,13 @@ class _DocumentListScreenState extends State<DocumentListScreen> {
                 return ListTile(
                   title: Text(d.title),
                   subtitle: Text('${d.typeLabel} • ${d.fileSizeFormatted}'),
-                  trailing: d.isExpired ? const Icon(Icons.warning, color: Colors.orange) : null,
+                  trailing: d.isExpired
+                      ? const Icon(Icons.warning, color: Colors.orange)
+                      : null,
                   onTap: () async {
                     // Open viewer
-                    Navigator.of(context).push(MaterialPageRoute(builder: (_) => DocumentViewerScreen(document: d)));
+                    Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => DocumentViewerScreen(document: d)));
                   },
                 );
               },

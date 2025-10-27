@@ -14,9 +14,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from ...api.dependencies import get_current_user
 from ...core.database import get_async_db
 from ...models.payment import Payment, PaymentStatus
+from ...models.tenant import Tenant
 from ...models.user import User
+from ...models.notification import NotificationPriority, NotificationType
 from ...services.payment_gateway import PaymentGateway, PaymentGatewayFactory
 from ...services.payment_service import PaymentService
+from ...services.notification_service import NotificationService
 from ...tasks.notification_tasks import send_payment_confirmation
 
 # Configure logger for webhook endpoints
@@ -137,6 +140,46 @@ async def khalti_callback(
                 logger.info(f"Receipt auto-generated at: {receipt_path}")
             else:
                 logger.warning(f"Receipt auto-generation failed for payment {payment.id}")
+            
+            # T242: Send payment notification to intermediary/owner
+            try:
+                # Get tenant to find property owner/intermediaries
+                tenant_result = await session.execute(
+                    select(Tenant).where(Tenant.id == payment.tenant_id)
+                )
+                tenant = tenant_result.scalar_one_or_none()
+                
+                if tenant:
+                    # Notify property owner and assigned intermediaries
+                    property_result = await session.execute(
+                        select(User).where(User.id == tenant.property.owner_id)
+                    )
+                    owner = property_result.scalar_one_or_none()
+                    
+                    if owner:
+                        await NotificationService.create_notification(
+                            db=session,
+                            user_id=owner.id,
+                            title="Payment Received",
+                            body=(
+                                f"Payment of {payment.currency} {payment.amount} "
+                                f"received from {tenant.user.full_name}"
+                            ),
+                            notification_type=NotificationType.PAYMENT_RECEIVED,
+                            priority=NotificationPriority.HIGH,
+                            deep_link=f"meroghar://payments/{payment.id}",
+                            metadata={
+                                "payment_id": str(payment.id),
+                                "tenant_id": str(payment.tenant_id),
+                                "amount": float(payment.amount),
+                                "transaction_id": verification.get("transaction_id"),
+                            },
+                            send_push=True,
+                        )
+                        logger.info(f"Payment notification sent to owner {owner.id}")
+            except Exception as e:
+                # Don't fail payment if notification fails
+                logger.error(f"Failed to send payment notification: {e}")
             
             # T122: Send payment confirmation notification
             try:

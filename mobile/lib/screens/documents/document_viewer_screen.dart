@@ -18,15 +18,18 @@ class DocumentViewerScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Document URL:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const Text('Document URL:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             const SizedBox(height: 8),
             SelectableText(document.fileUrl),
             const SizedBox(height: 16),
             Row(children: [
               ElevatedButton(
                 onPressed: () async {
-                  await Clipboard.setData(ClipboardData(text: document.fileUrl));
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('URL copied to clipboard')));
+                  await Clipboard.setData(
+                      ClipboardData(text: document.fileUrl));
+                  ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('URL copied to clipboard')));
                 },
                 child: const Text('Copy URL'),
               ),
