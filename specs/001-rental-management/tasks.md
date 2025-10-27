@@ -209,8 +209,8 @@ This is a Mobile + API project with:
 ### Implementation for User Story 5
 
 - [x] T110 [US5] Implement Khalti payment gateway integration in backend/src/services/payment_gateway/khalti_service.py
-- [ ] T111 [P] [US5] Implement eSewa payment gateway integration (backup) in backend/src/services/payment_gateway/esewa_service.py
-- [ ] T112 [P] [US5] Implement IME Pay payment gateway integration (backup) in backend/src/services/payment_gateway/imepay_service.py
+- [x] T111 [P] [US5] Implement eSewa payment gateway integration (backup) in backend/src/services/payment_gateway/esewa_service.py
+- [x] T112 [P] [US5] Implement IME Pay payment gateway integration (backup) in backend/src/services/payment_gateway/imepay_service.py
 - [x] T113 [US5] Create payment gateway factory in backend/src/services/payment_gateway/**init**.py
 - [x] T114 [US5] Implement payment initiation endpoint (POST /api/v1/payments/initiate) in backend/src/api/v1/payments.py
 - [x] T115 [P] [US5] Implement payment webhook handler for Khalti (POST /api/v1/webhooks/khalti) in backend/src/api/v1/webhooks.py
@@ -363,9 +363,9 @@ This is a Mobile + API project with:
 - [x] T197 [US10] Implement rent history endpoint (GET /api/v1/tenants/{id}/rent-history) in backend/src/api/v1/tenants.py
 - [x] T198 [US10] Create Celery task for daily rent increment check in backend/src/tasks/rent_tasks.py
 - [x] T199 [US10] Add rent increment notification 30 days before in backend/src/tasks/notification_tasks.py
-- [ ] T200 [US10] Create rent policy configuration screen in mobile/lib/screens/tenants/rent_policy_screen.dart
-- [ ] T201 [US10] Create rent history view in tenant detail screen in mobile/lib/screens/tenants/tenant_detail_screen.dart
-- [ ] T202 [US10] Add manual rent override UI in mobile/lib/screens/tenants/rent_override_screen.dart
+- [x] T200 [US10] Create rent policy configuration screen in mobile/lib/screens/tenants/rent_policy_screen.dart
+- [x] T201 [US10] Create rent history view in tenant detail screen in mobile/lib/screens/tenants/tenant_detail_screen.dart
+- [x] T202 [US10] Add manual rent override UI in mobile/lib/screens/tenants/rent_override_screen.dart
 
 **Checkpoint**: At this point, automatic rent increment system is operational
 
@@ -384,9 +384,9 @@ This is a Mobile + API project with:
 - [x] T205 [US11] Implement payment history export endpoint (POST /api/v1/payments/export) in backend/src/api/v1/payments.py
 - [x] T206 [US11] Add date range filtering to export endpoint in backend/src/api/v1/payments.py
 - [x] T207 [US11] Add format selection (Excel/PDF) to export endpoint in backend/src/api/v1/payments.py
-- [ ] T208 [US11] Create export screen with date range picker in mobile/lib/screens/exports/export_screen.dart
-- [ ] T209 [US11] Implement file download and sharing in mobile in mobile/lib/services/file_service.dart
-- [ ] T210 [US11] Add export history tracking in mobile/lib/providers/export_provider.dart
+- [x] T208 [US11] Create export screen with date range picker in mobile/lib/screens/exports/export_screen.dart
+- [x] T209 [US11] Implement file download and sharing in mobile in mobile/lib/services/file_service.dart
+- [x] T210 [US11] Add export history tracking in mobile/lib/providers/export_provider.dart
 
 **Checkpoint**: At this point, tenants can export their payment history
 
@@ -400,17 +400,17 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 12
 
-- [ ] T211 [P] [US12] Setup Flutter localization with l10n.yaml in mobile/
-- [ ] T212 [P] [US12] Create English translations in mobile/lib/l10n/app_en.arb
-- [ ] T213 [P] [US12] Create Hindi translations in mobile/lib/l10n/app_hi.arb
-- [ ] T214 [P] [US12] Create Spanish translations in mobile/lib/l10n/app_es.arb
-- [ ] T215 [US12] Configure RTL support for Arabic/Hebrew in mobile/lib/main.dart
-- [ ] T216 [US12] Create language provider with locale state in mobile/lib/providers/language_provider.dart
-- [ ] T217 [US12] Create language selection screen in mobile/lib/screens/settings/language_settings_screen.dart
-- [ ] T218 [US12] Implement number/currency formatting per locale in mobile/lib/utils/formatters.dart
-- [ ] T219 [US12] Create language-specific message templates in backend/src/services/message_service.py
-- [ ] T220 [US12] Add language preference to User model in backend/src/models/user.py
-- [ ] T221 [US12] Implement English fallback for missing translations in mobile/lib/l10n/
+- [x] T211 [P] [US12] Setup Flutter localization with l10n.yaml in mobile/
+- [x] T212 [P] [US12] Create English translations in mobile/lib/l10n/app_en.arb
+- [x] T213 [P] [US12] Create Hindi translations in mobile/lib/l10n/app_hi.arb
+- [x] T214 [P] [US12] Create Spanish translations in mobile/lib/l10n/app_es.arb
+- [x] T215 [US12] Configure RTL support for Arabic/Hebrew in mobile/lib/main.dart
+- [x] T216 [US12] Create language provider with locale state in mobile/lib/providers/language_provider.dart
+- [x] T217 [US12] Create language selection screen in mobile/lib/screens/settings/language_settings_screen.dart
+- [x] T218 [US12] Implement number/currency formatting per locale in mobile/lib/utils/formatters.dart
+- [x] T219 [US12] Create language-specific message templates in backend/src/services/message_service.py
+- [x] T220 [US12] Add language preference to User model in backend/src/models/user.py
+- [x] T221 [US12] Implement English fallback for missing translations in mobile/lib/l10n/
 
 **Checkpoint**: At this point, multi-language support is functional
 
@@ -424,19 +424,19 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 13
 
-- [ ] T222 [P] [US13] Create ReportTemplate model with template config in backend/src/models/report.py
-- [ ] T223 [US13] Create Alembic migration for ReportTemplate table in backend/alembic/versions/
-- [ ] T224 [US13] Implement tax calculation service in backend/src/services/report_service.py
-- [ ] T225 [US13] Implement annual income statement endpoint (GET /api/v1/reports/tax/income) in backend/src/api/v1/reports.py
-- [ ] T226 [US13] Implement expense deduction report endpoint (GET /api/v1/reports/tax/deductions) in backend/src/api/v1/reports.py
-- [ ] T227 [US13] Implement GST/VAT report endpoint (GET /api/v1/reports/tax/gst) in backend/src/api/v1/reports.py
-- [ ] T228 [US13] Implement profit/loss statement endpoint (GET /api/v1/reports/financial/pnl) in backend/src/api/v1/reports.py
-- [ ] T229 [US13] Implement cash flow report endpoint (GET /api/v1/reports/financial/cashflow) in backend/src/api/v1/reports.py
-- [ ] T230 [US13] Implement report scheduling endpoint (POST /api/v1/reports/schedule) in backend/src/api/v1/reports.py
-- [ ] T231 [US13] Create Celery task for scheduled report generation in backend/src/tasks/report_tasks.py
-- [ ] T232 [US13] Create tax report screen with year selector in mobile/lib/screens/reports/tax_report_screen.dart
-- [ ] T233 [US13] Create financial report screen with report type selector in mobile/lib/screens/reports/financial_report_screen.dart
-- [ ] T234 [US13] Implement secure share link generation in backend/src/services/report_service.py
+- [x] T222 [P] [US13] Create ReportTemplate model with template config in backend/src/models/report.py
+- [x] T223 [US13] Create Alembic migration for ReportTemplate table in backend/alembic/versions/
+- [x] T224 [US13] Implement tax calculation service in backend/src/services/report_service.py
+- [x] T225 [US13] Implement annual income statement endpoint (GET /api/v1/reports/tax/income) in backend/src/api/v1/reports.py
+- [x] T226 [US13] Implement expense deduction report endpoint (GET /api/v1/reports/tax/deductions) in backend/src/api/v1/reports.py
+- [x] T227 [US13] Implement GST/VAT report endpoint (GET /api/v1/reports/tax/gst) in backend/src/api/v1/reports.py
+- [x] T228 [US13] Implement profit/loss statement endpoint (GET /api/v1/reports/financial/pnl) in backend/src/api/v1/reports.py
+- [x] T229 [US13] Implement cash flow report endpoint (GET /api/v1/reports/financial/cashflow) in backend/src/api/v1/reports.py
+- [x] T230 [US13] Implement report scheduling endpoint (POST /api/v1/reports/schedule) in backend/src/api/v1/reports.py
+- [x] T231 [US13] Create Celery task for scheduled report generation in backend/src/tasks/report_tasks.py
+- [x] T232 [US13] Create tax report screen with year selector in mobile/lib/screens/reports/tax_report_screen.dart
+- [x] T233 [US13] Create financial report screen with report type selector in mobile/lib/screens/reports/financial_report_screen.dart
+- [x] T234 [US13] Implement secure share link generation in backend/src/services/report_service.py
 
 **Checkpoint**: At this point, comprehensive tax reporting is functional
 
@@ -464,8 +464,8 @@ This is a Mobile + API project with:
 - [x] T246 [US14] Create notification provider in mobile/lib/providers/notification_provider.dart
 - [x] T247 [US14] Create in-app notification center screen in mobile/lib/screens/notifications/notification_center_screen.dart
 - [x] T248 [US14] Implement notification tap handling and deep linking in mobile/lib/services/notification_handler.dart
-- [ ] T249 [US14] Create notification preferences screen with quiet hours in mobile/lib/screens/settings/notification_settings_screen.dart
-- [ ] T250 [US14] Implement notification badge count on app icon in mobile/lib/main.dart
+- [x] T249 [US14] Create notification preferences screen with quiet hours in mobile/lib/screens/settings/notification_settings_screen.dart
+- [x] T250 [US14] Implement notification badge count on app icon in mobile/lib/main.dart
 - [x] T251 [US14] Implement notification grouping by type in mobile/lib/screens/notifications/notification_center_screen.dart
 - [x] T252 [US14] Implement RLS policies for notifications table in backend/alembic/versions/
 
@@ -477,24 +477,24 @@ This is a Mobile + API project with:
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T253 [P] Add comprehensive API documentation in backend/docs/api.md
-- [ ] T254 [P] Create deployment guide in backend/docs/deployment.md
-- [ ] T255 [P] Create mobile app user manual in mobile/docs/user-guide.md
+- [x] T253 [P] Add comprehensive API documentation in backend/docs/api.md
+- [x] T254 [P] Create deployment guide in backend/docs/deployment.md
+- [x] T255 [P] Create mobile app user manual in mobile/docs/user-guide.md
 - [ ] T256 Code cleanup and refactoring across backend services
 - [ ] T257 Code cleanup and refactoring across mobile screens
-- [ ] T258 [P] Performance optimization: add database indexes for frequent queries
-- [ ] T259 [P] Performance optimization: implement response caching with Redis
+- [x] T258 [P] Performance optimization: add database indexes for frequent queries
+- [x] T259 [P] Performance optimization: implement response caching with Redis
 - [ ] T260 [P] Performance optimization: optimize mobile database queries
-- [ ] T261 [P] Security audit: verify all RLS policies are correct
-- [ ] T262 [P] Security audit: check for SQL injection vulnerabilities
-- [ ] T263 [P] Security audit: verify JWT token validation everywhere
-- [ ] T264 [P] Add input validation to all API endpoints
-- [ ] T265 [P] Add error logging to all exception handlers
-- [ ] T266 [P] Setup monitoring and alerting with Sentry
-- [ ] T267 Run through complete quickstart.md validation
+- [x] T261 [P] Security audit: verify all RLS policies are correct
+- [x] T262 [P] Security audit: check for SQL injection vulnerabilities
+- [x] T263 [P] Security audit: verify JWT token validation everywhere
+- [x] T264 [P] Add input validation to all API endpoints
+- [x] T265 [P] Add error logging to all exception handlers
+- [x] T266 [P] Setup monitoring and alerting with Sentry
+- [x] T267 Run through complete quickstart.md validation
 - [ ] T268 Test all 14 user stories end-to-end
-- [ ] T269 [P] Create demo data seeding script in backend/scripts/seed_demo_data.py
-- [ ] T270 [P] Create backup and restore scripts
+- [x] T269 [P] Create demo data seeding script in backend/scripts/seed_demo_data.py
+- [x] T270 [P] Create backup and restore scripts
 
 ---
 
