@@ -379,11 +379,11 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 11
 
-- [ ] T203 [US11] Implement Excel export service using openpyxl in backend/src/services/export_service.py
-- [ ] T204 [US11] Implement PDF export service using ReportLab in backend/src/services/export_service.py
-- [ ] T205 [US11] Implement payment history export endpoint (POST /api/v1/payments/export) in backend/src/api/v1/payments.py
-- [ ] T206 [US11] Add date range filtering to export endpoint in backend/src/api/v1/payments.py
-- [ ] T207 [US11] Add format selection (Excel/PDF) to export endpoint in backend/src/api/v1/payments.py
+- [x] T203 [US11] Implement Excel export service using openpyxl in backend/src/services/export_service.py
+- [x] T204 [US11] Implement PDF export service using ReportLab in backend/src/services/export_service.py
+- [x] T205 [US11] Implement payment history export endpoint (POST /api/v1/payments/export) in backend/src/api/v1/payments.py
+- [x] T206 [US11] Add date range filtering to export endpoint in backend/src/api/v1/payments.py
+- [x] T207 [US11] Add format selection (Excel/PDF) to export endpoint in backend/src/api/v1/payments.py
 - [ ] T208 [US11] Create export screen with date range picker in mobile/lib/screens/exports/export_screen.dart
 - [ ] T209 [US11] Implement file download and sharing in mobile in mobile/lib/services/file_service.dart
 - [ ] T210 [US11] Add export history tracking in mobile/lib/providers/export_provider.dart
