@@ -2,21 +2,12 @@
 
 Implements T025 and T026 from tasks.md.
 """
+
 from datetime import datetime
-from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import (
-    Boolean,
-    CheckConstraint,
-    Column,
-    DateTime,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    UniqueConstraint,
-)
+from sqlalchemy import (Boolean, CheckConstraint, Column, DateTime, ForeignKey,
+                        Index, Integer, String, UniqueConstraint)
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
@@ -25,10 +16,10 @@ from ..core.database import Base
 
 class Property(Base):
     """Property model representing a rental property.
-    
+
     Properties are owned by users with role='owner' and managed by
     intermediaries through PropertyAssignment junction table.
-    
+
     Features:
     - Multi-unit support (apartments, condos, etc.)
     - Immutable base currency for financial consistency
@@ -194,11 +185,11 @@ class Property(Base):
 
 class PropertyAssignment(Base):
     """PropertyAssignment junction table for intermediary assignments.
-    
+
     Manages many-to-many relationship between intermediaries and properties.
     Allows owners to assign multiple intermediaries to a property and
     intermediaries to manage multiple properties.
-    
+
     Features:
     - Soft delete (removed_at) for assignment history
     - Unique constraint on active assignments
@@ -289,9 +280,9 @@ class PropertyAssignment(Base):
             "intermediary_id",
             "is_active",
             name="uq_property_intermediary_active",
-            postgresql_where=(is_active == True),
+            postgresql_where=(is_active),
         ),
-        Index("idx_pa_active", "is_active", postgresql_where=(is_active == True)),
+        Index("idx_pa_active", "is_active", postgresql_where=(is_active)),
     )
 
     def __repr__(self) -> str:

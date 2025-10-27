@@ -7,7 +7,8 @@ import functools
 import hashlib
 import json
 import logging
-from typing import Any, Callable, Optional, Union
+from collections.abc import Callable
+from typing import Any
 
 import redis
 from redis.exceptions import RedisError
@@ -46,12 +47,12 @@ class CacheService:
     def _generate_key(self, prefix: str, *args, **kwargs) -> str:
         """
         Generate a cache key from function arguments.
-        
+
         Args:
             prefix: Key prefix (usually function name)
             *args: Positional arguments
             **kwargs: Keyword arguments
-            
+
         Returns:
             Cache key string
         """
@@ -59,21 +60,21 @@ class CacheService:
         key_parts = [str(arg) for arg in args]
         key_parts.extend(f"{k}={v}" for k, v in sorted(kwargs.items()))
         key_string = ":".join(key_parts)
-        
+
         # Hash if too long
         if len(key_string) > 100:
             key_hash = hashlib.md5(key_string.encode()).hexdigest()
             return f"cache:{prefix}:{key_hash}"
-        
+
         return f"cache:{prefix}:{key_string}" if key_string else f"cache:{prefix}"
 
-    def get(self, key: str) -> Optional[Any]:
+    def get(self, key: str) -> Any | None:
         """
         Get value from cache.
-        
+
         Args:
             key: Cache key
-            
+
         Returns:
             Cached value or None if not found
         """
@@ -84,7 +85,7 @@ class CacheService:
             value = self.redis_client.get(key)
             if value is None:
                 return None
-            
+
             # Deserialize JSON
             return json.loads(value)
         except (RedisError, json.JSONDecodeError) as e:
@@ -95,16 +96,16 @@ class CacheService:
         self,
         key: str,
         value: Any,
-        ttl: Optional[int] = None,
+        ttl: int | None = None,
     ) -> bool:
         """
         Set value in cache with optional TTL.
-        
+
         Args:
             key: Cache key
             value: Value to cache (must be JSON-serializable)
             ttl: Time-to-live in seconds (None = no expiration)
-            
+
         Returns:
             True if successful, False otherwise
         """
@@ -114,12 +115,12 @@ class CacheService:
         try:
             # Serialize to JSON
             serialized = json.dumps(value, default=str)
-            
+
             if ttl:
                 self.redis_client.setex(key, ttl, serialized)
             else:
                 self.redis_client.set(key, serialized)
-            
+
             return True
         except (RedisError, TypeError, ValueError) as e:
             logger.warning(f"Cache set error for key '{key}': {e}")
@@ -128,10 +129,10 @@ class CacheService:
     def delete(self, key: str) -> bool:
         """
         Delete value from cache.
-        
+
         Args:
             key: Cache key
-            
+
         Returns:
             True if successful, False otherwise
         """
@@ -148,10 +149,10 @@ class CacheService:
     def delete_pattern(self, pattern: str) -> int:
         """
         Delete all keys matching a pattern.
-        
+
         Args:
             pattern: Redis pattern (e.g., "cache:analytics:*")
-            
+
         Returns:
             Number of keys deleted
         """
@@ -170,10 +171,10 @@ class CacheService:
     def clear_all(self) -> bool:
         """
         Clear all cache entries.
-        
+
         ⚠️ WARNING: This clears ALL keys in the Redis database.
         Use with caution in production.
-        
+
         Returns:
             True if successful, False otherwise
         """
@@ -190,7 +191,7 @@ class CacheService:
 
 
 # Global cache service instance
-_cache_service: Optional[CacheService] = None
+_cache_service: CacheService | None = None
 
 
 def get_cache_service() -> CacheService:
@@ -203,38 +204,39 @@ def get_cache_service() -> CacheService:
 
 def cached(
     ttl: int = 300,
-    key_prefix: Optional[str] = None,
-    invalidate_on: Optional[list[str]] = None,
+    key_prefix: str | None = None,
+    invalidate_on: list[str] | None = None,
 ):
     """
     Decorator to cache function results in Redis.
-    
+
     Args:
         ttl: Time-to-live in seconds (default: 5 minutes)
         key_prefix: Custom key prefix (default: function name)
         invalidate_on: List of cache patterns to invalidate when this function is called
-        
+
     Usage:
         @cached(ttl=600)
         async def get_analytics(user_id: str, date_range: str):
             # Expensive computation
             return result
-    
+
     Example with invalidation:
         @cached(ttl=3600, invalidate_on=["cache:analytics:*"])
         async def create_payment(payment_data):
             # This will invalidate all analytics caches when called
             return payment
     """
+
     def decorator(func: Callable) -> Callable:
         @functools.wraps(func)
         async def async_wrapper(*args, **kwargs):
             cache = get_cache_service()
-            
+
             # Generate cache key
             prefix = key_prefix or func.__name__
             cache_key = cache._generate_key(prefix, *args, **kwargs)
-            
+
             # Try to get from cache
             if cache.is_enabled():
                 cached_value = cache.get(cache_key)
@@ -242,32 +244,32 @@ def cached(
                     logger.debug(f"Cache HIT: {cache_key}")
                     return cached_value
                 logger.debug(f"Cache MISS: {cache_key}")
-            
+
             # Call function
             result = await func(*args, **kwargs)
-            
+
             # Cache result
             if cache.is_enabled():
                 cache.set(cache_key, result, ttl)
                 logger.debug(f"Cache SET: {cache_key} (TTL: {ttl}s)")
-            
+
             # Invalidate specified patterns
             if invalidate_on and cache.is_enabled():
                 for pattern in invalidate_on:
                     deleted = cache.delete_pattern(pattern)
                     if deleted > 0:
                         logger.debug(f"Cache invalidated: {pattern} ({deleted} keys)")
-            
+
             return result
-        
+
         @functools.wraps(func)
         def sync_wrapper(*args, **kwargs):
             cache = get_cache_service()
-            
+
             # Generate cache key
             prefix = key_prefix or func.__name__
             cache_key = cache._generate_key(prefix, *args, **kwargs)
-            
+
             # Try to get from cache
             if cache.is_enabled():
                 cached_value = cache.get(cache_key)
@@ -275,39 +277,39 @@ def cached(
                     logger.debug(f"Cache HIT: {cache_key}")
                     return cached_value
                 logger.debug(f"Cache MISS: {cache_key}")
-            
+
             # Call function
             result = func(*args, **kwargs)
-            
+
             # Cache result
             if cache.is_enabled():
                 cache.set(cache_key, result, ttl)
                 logger.debug(f"Cache SET: {cache_key} (TTL: {ttl}s)")
-            
+
             # Invalidate specified patterns
             if invalidate_on and cache.is_enabled():
                 for pattern in invalidate_on:
                     deleted = cache.delete_pattern(pattern)
                     if deleted > 0:
                         logger.debug(f"Cache invalidated: {pattern} ({deleted} keys)")
-            
+
             return result
-        
+
         # Return appropriate wrapper based on function type
         if functools.iscoroutinefunction(func):
             return async_wrapper
         return sync_wrapper
-    
+
     return decorator
 
 
 def invalidate_cache(pattern: str) -> int:
     """
     Invalidate cache entries matching a pattern.
-    
+
     Args:
         pattern: Redis pattern (e.g., "cache:analytics:*")
-        
+
     Returns:
         Number of keys deleted
     """
@@ -317,9 +319,9 @@ def invalidate_cache(pattern: str) -> int:
 
 # Cache configuration presets
 CACHE_TTL = {
-    "short": 60,           # 1 minute - frequently changing data
-    "medium": 300,         # 5 minutes - default
-    "long": 900,           # 15 minutes - semi-static data
-    "hour": 3600,          # 1 hour - relatively static data
-    "day": 86400,          # 24 hours - rarely changing data
+    "short": 60,  # 1 minute - frequently changing data
+    "medium": 300,  # 5 minutes - default
+    "long": 900,  # 15 minutes - semi-static data
+    "hour": 3600,  # 1 hour - relatively static data
+    "day": 86400,  # 24 hours - rarely changing data
 }

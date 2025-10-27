@@ -2,21 +2,15 @@
 
 Implements T125 from tasks.md.
 """
+
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from uuid import UUID, uuid4
 
-from sqlalchemy import (
-    DateTime,
-    Enum as SQLEnum,
-    ForeignKey,
-    Numeric,
-    String,
-    Text,
-    Date,
-    Boolean,
-)
+from sqlalchemy import Boolean, Date, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -50,7 +44,7 @@ class ExpenseStatus(str, Enum):
 
 class Expense(Base):
     """Maintenance and operational expense records.
-    
+
     Tracks expenses incurred by intermediaries for property maintenance,
     repairs, and other operational costs requiring owner reimbursement.
     """
@@ -58,9 +52,7 @@ class Expense(Base):
     __tablename__ = "expenses"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
 
     # Foreign keys
     property_id: Mapped[UUID] = mapped_column(
@@ -74,9 +66,7 @@ class Expense(Base):
     )
 
     # Expense details
-    amount: Mapped[Decimal] = mapped_column(
-        Numeric(precision=10, scale=2), nullable=False
-    )
+    amount: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="NPR")
     category: Mapped[ExpenseCategory] = mapped_column(
         SQLEnum(ExpenseCategory, name="expense_category", create_type=False),
@@ -92,10 +82,10 @@ class Expense(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     vendor_name: Mapped[str | None] = mapped_column(String(255), nullable=True)
     invoice_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
-    
+
     # Receipt/document URLs (stored in S3 or local storage)
     receipt_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
-    
+
     # Who paid for this expense
     paid_by: Mapped[str] = mapped_column(
         String(100), nullable=False, default="intermediary"

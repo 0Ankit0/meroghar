@@ -4,11 +4,12 @@ Implements T010 from tasks.md.
 """
 
 import logging
-from contextlib import asynccontextmanager, contextmanager
-from typing import AsyncGenerator, Generator
+from collections.abc import AsyncGenerator, Generator
+from contextlib import contextmanager
 
 from sqlalchemy import create_engine, event, pool
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_sessionmaker
+from sqlalchemy.ext.asyncio import (AsyncSession, async_sessionmaker,
+                                    create_async_engine)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
 
@@ -68,9 +69,7 @@ def set_rls_context(session: Session, user_id: str) -> None:
         user_id: User identifier to set in context
     """
     try:
-        session.execute(
-            f"SET LOCAL app.current_user_id = '{user_id}'"
-        )
+        session.execute(f"SET LOCAL app.current_user_id = '{user_id}'")
         logger.debug(f"RLS context set for user: {user_id}")
     except Exception as e:
         logger.error(f"Failed to set RLS context: {e}")
@@ -88,9 +87,8 @@ async def set_rls_context_async(session: AsyncSession, user_id: str) -> None:
     """
     try:
         from sqlalchemy import text
-        await session.execute(
-            text(f"SET LOCAL app.current_user_id = '{user_id}'")
-        )
+
+        await session.execute(text(f"SET LOCAL app.current_user_id = '{user_id}'"))
         logger.debug(f"RLS context set for user: {user_id}")
     except Exception as e:
         logger.error(f"Failed to set RLS context: {e}")
@@ -220,7 +218,7 @@ async def get_async_db_with_rls(request: any = None) -> AsyncGenerator[AsyncSess
                 if user_id:
                     await set_rls_context_async(session, user_id)
                     logger.debug(f"Database session created with RLS context for user: {user_id}")
-            
+
             yield session
             await session.commit()
         except Exception as e:

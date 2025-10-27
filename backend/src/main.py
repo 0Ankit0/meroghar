@@ -139,4 +139,3 @@ from .api.v1 import api_router
 app.include_router(api_router, prefix="/api")
 
 logger.info(f"FastAPI application configured with prefix: /api/{settings.api_version}")
-

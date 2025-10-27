@@ -1,8 +1,9 @@
 """
 Message request and response schemas.
 """
-from typing import Optional, List
+
 from datetime import datetime
+
 from pydantic import BaseModel, Field
 
 from ..models.message import MessageChannel, MessageStatus, MessageTemplate
@@ -10,28 +11,28 @@ from ..models.message import MessageChannel, MessageStatus, MessageTemplate
 
 class MessageTemplateVariable(BaseModel):
     """Template variable for personalization."""
-    
-    tenant_name: Optional[str] = None
-    property_name: Optional[str] = None
-    amount_due: Optional[float] = None
-    due_date: Optional[str] = None
-    payment_link: Optional[str] = None
+
+    tenant_name: str | None = None
+    property_name: str | None = None
+    amount_due: float | None = None
+    due_date: str | None = None
+    payment_link: str | None = None
 
 
 class MessageCreate(BaseModel):
     """Schema for creating a single message."""
-    
+
     tenant_id: int = Field(..., description="Recipient tenant ID")
-    property_id: Optional[int] = Field(None, description="Related property ID")
+    property_id: int | None = Field(None, description="Related property ID")
     template: MessageTemplate = Field(..., description="Message template")
     channel: MessageChannel = Field(..., description="Delivery channel")
-    subject: Optional[str] = Field(None, description="Message subject (for email)")
+    subject: str | None = Field(None, description="Message subject (for email)")
     content: str = Field(..., description="Message content")
-    recipient_phone: Optional[str] = Field(None, description="Phone number")
-    recipient_email: Optional[str] = Field(None, description="Email address")
-    scheduled_at: Optional[datetime] = Field(None, description="Schedule send time")
-    metadata: Optional[dict] = Field(None, description="Additional metadata")
-    
+    recipient_phone: str | None = Field(None, description="Phone number")
+    recipient_email: str | None = Field(None, description="Email address")
+    scheduled_at: datetime | None = Field(None, description="Schedule send time")
+    metadata: dict | None = Field(None, description="Additional metadata")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -41,21 +42,21 @@ class MessageCreate(BaseModel):
                 "channel": "sms",
                 "content": "Hi {tenant_name}, your rent of Rs. {amount_due} is due on {due_date}. Please pay at your earliest convenience.",
                 "recipient_phone": "+9779812345678",
-                "scheduled_at": "2025-01-27T10:00:00Z"
+                "scheduled_at": "2025-01-27T10:00:00Z",
             }
         }
 
 
 class BulkMessageCreate(BaseModel):
     """Schema for creating bulk messages."""
-    
-    tenant_ids: List[int] = Field(..., description="List of tenant IDs")
+
+    tenant_ids: list[int] = Field(..., description="List of tenant IDs")
     template: MessageTemplate = Field(..., description="Message template")
     channel: MessageChannel = Field(..., description="Delivery channel")
-    subject: Optional[str] = Field(None, description="Message subject (for email)")
+    subject: str | None = Field(None, description="Message subject (for email)")
     content: str = Field(..., description="Message content with placeholders")
-    scheduled_at: Optional[datetime] = Field(None, description="Schedule send time")
-    
+    scheduled_at: datetime | None = Field(None, description="Schedule send time")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -63,20 +64,20 @@ class BulkMessageCreate(BaseModel):
                 "template": "payment_overdue",
                 "channel": "whatsapp",
                 "content": "Dear {tenant_name}, your rent payment of Rs. {amount_due} for {property_name} is overdue. Please pay immediately to avoid late fees.",
-                "scheduled_at": None
+                "scheduled_at": None,
             }
         }
 
 
 class MessageSchedule(BaseModel):
     """Schema for scheduling a message."""
-    
-    tenant_ids: List[int] = Field(..., description="List of tenant IDs")
+
+    tenant_ids: list[int] = Field(..., description="List of tenant IDs")
     template: MessageTemplate = Field(..., description="Message template")
     channel: MessageChannel = Field(..., description="Delivery channel")
     content: str = Field(..., description="Message content")
     scheduled_at: datetime = Field(..., description="Scheduled send time")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -84,36 +85,36 @@ class MessageSchedule(BaseModel):
                 "template": "payment_reminder",
                 "channel": "sms",
                 "content": "Rent reminder: Rs. {amount_due} due on {due_date}",
-                "scheduled_at": "2025-02-01T09:00:00Z"
+                "scheduled_at": "2025-02-01T09:00:00Z",
             }
         }
 
 
 class MessageResponse(BaseModel):
     """Schema for message response."""
-    
+
     id: int
     tenant_id: int
     sent_by: int
-    property_id: Optional[int]
+    property_id: int | None
     template: MessageTemplate
-    subject: Optional[str]
+    subject: str | None
     content: str
     channel: MessageChannel
-    recipient_phone: Optional[str]
-    recipient_email: Optional[str]
+    recipient_phone: str | None
+    recipient_email: str | None
     status: MessageStatus
-    scheduled_at: Optional[datetime]
-    sent_at: Optional[datetime]
-    delivered_at: Optional[datetime]
-    error_message: Optional[str]
+    scheduled_at: datetime | None
+    sent_at: datetime | None
+    delivered_at: datetime | None
+    error_message: str | None
     retry_count: int
     max_retries: int
-    provider_message_id: Optional[str]
-    bulk_message_id: Optional[str]
+    provider_message_id: str | None
+    bulk_message_id: str | None
     created_at: datetime
     updated_at: datetime
-    
+
     class Config:
         from_attributes = True
         json_schema_extra = {
@@ -138,20 +139,20 @@ class MessageResponse(BaseModel):
                 "provider_message_id": "SM1234567890",
                 "bulk_message_id": "bulk-abc-123",
                 "created_at": "2025-01-26T14:29:50Z",
-                "updated_at": "2025-01-26T14:30:05Z"
+                "updated_at": "2025-01-26T14:30:05Z",
             }
         }
 
 
 class BulkMessageResponse(BaseModel):
     """Response for bulk message operation."""
-    
+
     bulk_message_id: str = Field(..., description="Bulk message batch ID")
     total_messages: int = Field(..., description="Total messages created")
     successful: int = Field(..., description="Successfully queued messages")
     failed: int = Field(..., description="Failed messages")
-    messages: List[MessageResponse] = Field(..., description="Individual message details")
-    
+    messages: list[MessageResponse] = Field(..., description="Individual message details")
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -159,21 +160,21 @@ class BulkMessageResponse(BaseModel):
                 "total_messages": 10,
                 "successful": 9,
                 "failed": 1,
-                "messages": []
+                "messages": [],
             }
         }
 
 
 class MessageStatistics(BaseModel):
     """Message delivery statistics."""
-    
+
     total_messages: int
     sent: int
     delivered: int
     failed: int
     pending: int
     delivery_rate: float = Field(..., description="Delivery success rate (0-100)")
-    
+
     class Config:
         json_schema_extra = {
             "example": {
@@ -182,6 +183,6 @@ class MessageStatistics(BaseModel):
                 "delivered": 90,
                 "failed": 5,
                 "pending": 0,
-                "delivery_rate": 94.7
+                "delivery_rate": 94.7,
             }
         }

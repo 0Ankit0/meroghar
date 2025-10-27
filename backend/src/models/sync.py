@@ -2,22 +2,13 @@
 
 Implements T141 from tasks.md.
 """
+
 from datetime import datetime
 from enum import Enum as PyEnum
-from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Index,
-    Integer,
-    String,
-    Text,
-)
+from sqlalchemy import (Column, DateTime, Enum, ForeignKey, Index, Integer,
+                        String, Text)
 from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import relationship
 
@@ -26,7 +17,7 @@ from ..core.database import Base
 
 class SyncStatus(str, PyEnum):
     """Sync operation status."""
-    
+
     PENDING = "pending"
     IN_PROGRESS = "in_progress"
     SUCCESS = "success"
@@ -36,7 +27,7 @@ class SyncStatus(str, PyEnum):
 
 class SyncOperation(str, PyEnum):
     """Type of sync operation."""
-    
+
     CREATE = "create"
     UPDATE = "update"
     DELETE = "delete"
@@ -45,14 +36,14 @@ class SyncOperation(str, PyEnum):
 
 class SyncLog(Base):
     """SyncLog model for tracking offline synchronization operations.
-    
+
     Records all sync attempts including:
     - Timestamp of sync operation
     - Status (pending, success, failed, conflict)
     - Number of records synced
     - Device information
     - Conflict details for resolution
-    
+
     Features:
     - Tracks sync operations per user and device
     - Records success/failure with error messages
@@ -191,7 +182,7 @@ class SyncLog(Base):
         return self.status in [SyncStatus.SUCCESS, SyncStatus.FAILED]
 
     @property
-    def duration_seconds(self) -> Optional[float]:
+    def duration_seconds(self) -> float | None:
         """Calculate sync duration in seconds."""
         if self.completed_at and self.started_at:
             return (self.completed_at - self.started_at).total_seconds()

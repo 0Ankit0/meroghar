@@ -9,43 +9,42 @@ Provides customizable report templates for:
 - Profit & Loss statements
 - Cash flow reports
 """
+
 from datetime import datetime
 from enum import Enum as PyEnum
-from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import Boolean, Column, DateTime, Enum, JSON, String, Text
+from sqlalchemy import JSON, Boolean, Column, DateTime, Enum, String, Text
 from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
 
 from ..core.database import Base
 
 
 class ReportType(str, PyEnum):
     """Report type enumeration."""
-    
+
     # Tax reports
     TAX_INCOME = "tax_income"  # Annual income statement for tax filing
     TAX_DEDUCTIONS = "tax_deductions"  # Expense deductions report
     TAX_GST = "tax_gst"  # GST/VAT report
-    
+
     # Financial reports
     PROFIT_LOSS = "profit_loss"  # Profit & Loss statement
     CASH_FLOW = "cash_flow"  # Cash flow report
     BALANCE_SHEET = "balance_sheet"  # Balance sheet
-    
+
     # Operational reports
     RENT_COLLECTION = "rent_collection"  # Rent collection summary
     EXPENSE_BREAKDOWN = "expense_breakdown"  # Expense category breakdown
     OCCUPANCY = "occupancy"  # Occupancy rate report
-    
+
     # Custom
     CUSTOM = "custom"  # User-defined custom report
 
 
 class ReportPeriod(str, PyEnum):
     """Report period enumeration."""
-    
+
     MONTHLY = "monthly"
     QUARTERLY = "quarterly"
     ANNUAL = "annual"
@@ -54,7 +53,7 @@ class ReportPeriod(str, PyEnum):
 
 class ReportFormat(str, PyEnum):
     """Report output format enumeration."""
-    
+
     PDF = "pdf"
     EXCEL = "excel"
     CSV = "csv"
@@ -63,22 +62,22 @@ class ReportFormat(str, PyEnum):
 
 class ReportTemplate(Base):
     """Report template model for customizable financial and tax reports.
-    
+
     Templates define:
     - Report structure and layout
     - Data sources and calculations
     - Formatting rules
     - Schedule and recurrence
-    
+
     Features:
     - Predefined templates for common reports
     - Custom templates with user-defined configuration
     - Scheduled report generation
     - Multi-format output (PDF, Excel, CSV)
     """
-    
+
     __tablename__ = "report_templates"
-    
+
     # Primary Key
     id = Column(
         UUID(as_uuid=True),
@@ -87,7 +86,7 @@ class ReportTemplate(Base):
         index=True,
         comment="Unique report template identifier",
     )
-    
+
     # Template Information
     name = Column(
         String(255),
@@ -105,7 +104,7 @@ class ReportTemplate(Base):
         index=True,
         comment="Type of report (tax, financial, operational, custom)",
     )
-    
+
     # Configuration
     config = Column(
         JSON,
@@ -138,7 +137,7 @@ class ReportTemplate(Base):
         ]
     }
     """
-    
+
     # Schedule
     is_scheduled = Column(
         Boolean,
@@ -161,7 +160,7 @@ class ReportTemplate(Base):
         "enabled": true
     }
     """
-    
+
     # Output
     default_format = Column(
         Enum(ReportFormat, name="report_format"),
@@ -169,7 +168,7 @@ class ReportTemplate(Base):
         default=ReportFormat.PDF,
         comment="Default output format",
     )
-    
+
     # Ownership
     created_by = Column(
         UUID(as_uuid=True),
@@ -188,7 +187,7 @@ class ReportTemplate(Base):
         nullable=False,
         comment="Whether template is a system-provided template",
     )
-    
+
     # Status
     is_active = Column(
         Boolean,
@@ -196,7 +195,7 @@ class ReportTemplate(Base):
         nullable=False,
         comment="Whether template is active",
     )
-    
+
     # Timestamps
     created_at = Column(
         DateTime,
@@ -216,10 +215,10 @@ class ReportTemplate(Base):
         nullable=True,
         comment="Last time report was generated from this template",
     )
-    
+
     def __repr__(self) -> str:
         return f"<ReportTemplate(id={self.id}, name={self.name}, type={self.report_type})>"
-    
+
     @property
     def is_tax_report(self) -> bool:
         """Check if this is a tax-related report."""
@@ -228,7 +227,7 @@ class ReportTemplate(Base):
             ReportType.TAX_DEDUCTIONS,
             ReportType.TAX_GST,
         ]
-    
+
     @property
     def is_financial_report(self) -> bool:
         """Check if this is a financial report."""
@@ -241,13 +240,13 @@ class ReportTemplate(Base):
 
 class GeneratedReport(Base):
     """Generated report instance model.
-    
+
     Stores metadata and file references for generated reports.
     Actual report files are stored in S3 or local storage.
     """
-    
+
     __tablename__ = "generated_reports"
-    
+
     # Primary Key
     id = Column(
         UUID(as_uuid=True),
@@ -256,14 +255,14 @@ class GeneratedReport(Base):
         index=True,
         comment="Unique generated report identifier",
     )
-    
+
     # Template Reference
     template_id = Column(
         UUID(as_uuid=True),
         nullable=True,
         comment="Template used to generate report (null for ad-hoc reports)",
     )
-    
+
     # Report Information
     name = Column(
         String(255),
@@ -286,7 +285,7 @@ class GeneratedReport(Base):
         nullable=True,
         comment="Report period end date",
     )
-    
+
     # File Information
     file_url = Column(
         String(500),
@@ -303,7 +302,7 @@ class GeneratedReport(Base):
         nullable=True,
         comment="File size (human-readable, e.g., '1.2 MB')",
     )
-    
+
     # Metadata
     generated_by = Column(
         UUID(as_uuid=True),
@@ -315,7 +314,7 @@ class GeneratedReport(Base):
         nullable=True,
         comment="Parameters used to generate report",
     )
-    
+
     # Sharing
     share_token = Column(
         String(100),
@@ -328,7 +327,7 @@ class GeneratedReport(Base):
         nullable=True,
         comment="Share link expiration timestamp",
     )
-    
+
     # Timestamps
     generated_at = Column(
         DateTime,
@@ -342,10 +341,10 @@ class GeneratedReport(Base):
         nullable=True,
         comment="Last access timestamp",
     )
-    
+
     def __repr__(self) -> str:
         return f"<GeneratedReport(id={self.id}, name={self.name}, type={self.report_type})>"
-    
+
     @property
     def is_shared(self) -> bool:
         """Check if report has an active share link."""

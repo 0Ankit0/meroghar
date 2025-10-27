@@ -2,27 +2,24 @@
 
 Implements T036-T037 from tasks.md.
 """
+
 import logging
 from datetime import datetime
 from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
+from ...api.dependencies import require_role
 from ...core.database import get_async_db
 from ...models.property import Property, PropertyAssignment
 from ...models.user import User, UserRole
-from ...schemas import (
-    PropertyAssignIntermediaryRequest,
-    PropertyAssignmentResponse,
-    PropertyCreateRequest,
-    PropertyResponse,
-    SuccessResponse,
-)
-from ...api.dependencies import get_current_user, require_role
+from ...schemas import (PropertyAssignIntermediaryRequest,
+                        PropertyAssignmentResponse, PropertyCreateRequest,
+                        PropertyResponse, SuccessResponse)
 
 # Configure logger for property endpoints
 logger = logging.getLogger(__name__)
@@ -43,65 +40,65 @@ async def create_property(
     session: Annotated[AsyncSession, Depends(get_async_db)],
 ) -> SuccessResponse[PropertyResponse]:
     """Create a new property.
-    
+
     Only owners can create properties.
-    
+
     Args:
         request: Property creation request
         current_user: Authenticated owner user
         session: Database session
-        
+
     Returns:
         Created property details
-        
+
     Raises:
         403: If user is not an owner
         500: If database error occurs
     """
     try:
         # ==================== Enhanced Validation (T054) ====================
-        
+
         # Validate total_units is positive
         if request.total_units <= 0:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Total units must be greater than 0",
             )
-        
+
         # Validate postal code format (basic validation)
         if request.postal_code and len(request.postal_code.strip()) < 3:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Postal code must be at least 3 characters",
             )
-        
+
         # Validate required address fields are not empty
         if not request.address_line1.strip():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Address line 1 is required",
             )
-        
+
         if not request.city.strip():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="City is required",
             )
-        
+
         if not request.state.strip():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="State is required",
             )
-        
+
         if not request.country.strip():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Country is required",
             )
-        
+
         # ==================== Create Property ====================
-        
+
         # Create new property
         new_property = Property(
             owner_id=current_user.id,
@@ -115,17 +112,17 @@ async def create_property(
             total_units=request.total_units,
             base_currency=request.base_currency,
         )
-        
+
         session.add(new_property)
         await session.commit()
         await session.refresh(new_property)
-        
+
         return SuccessResponse(
             success=True,
             message="Property created successfully",
             data=PropertyResponse.model_validate(new_property),
         )
-        
+
     except HTTPException:
         raise
     except IntegrityError as e:
@@ -156,18 +153,18 @@ async def assign_intermediary(
     session: Annotated[AsyncSession, Depends(get_async_db)],
 ) -> SuccessResponse[PropertyAssignmentResponse]:
     """Assign intermediary to property.
-    
+
     Only the property owner can assign intermediaries.
-    
+
     Args:
         property_id: Property ID
         request: Intermediary assignment request
         current_user: Authenticated owner user
         session: Database session
-        
+
     Returns:
         Assignment details
-        
+
     Raises:
         403: If user is not the property owner
         404: If property or intermediary not found
@@ -176,63 +173,59 @@ async def assign_intermediary(
     """
     try:
         # Get property and verify ownership
-        result = await session.execute(
-            select(Property).where(Property.id == property_id)
-        )
+        result = await session.execute(select(Property).where(Property.id == property_id))
         property_obj = result.scalar_one_or_none()
-        
+
         if not property_obj:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Property {property_id} not found",
             )
-        
+
         if property_obj.owner_id != current_user.id:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail="You can only assign intermediaries to your own properties",
             )
-        
+
         # Get intermediary user and verify role
-        result = await session.execute(
-            select(User).where(User.id == request.intermediary_id)
-        )
+        result = await session.execute(select(User).where(User.id == request.intermediary_id))
         intermediary = result.scalar_one_or_none()
-        
+
         if not intermediary:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Intermediary {request.intermediary_id} not found",
             )
-        
+
         if intermediary.role != UserRole.INTERMEDIARY:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"User {intermediary.email} is not an intermediary",
             )
-        
+
         if not intermediary.is_active:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Intermediary {intermediary.email} is not active",
             )
-        
+
         # Check if assignment already exists
         result = await session.execute(
             select(PropertyAssignment).where(
                 PropertyAssignment.property_id == property_id,
                 PropertyAssignment.intermediary_id == request.intermediary_id,
-                PropertyAssignment.is_active == True,
+                PropertyAssignment.is_active,
             )
         )
         existing_assignment = result.scalar_one_or_none()
-        
+
         if existing_assignment:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=f"Intermediary {intermediary.email} is already assigned to this property",
             )
-        
+
         # Create assignment
         assignment = PropertyAssignment(
             property_id=property_id,
@@ -241,24 +234,24 @@ async def assign_intermediary(
             assigned_at=datetime.utcnow(),
             is_active=True,
         )
-        
+
         session.add(assignment)
         await session.commit()
         await session.refresh(assignment)
-        
+
         # Log successful intermediary assignment (T055)
         logger.info(
             f"Intermediary assigned: assignment_id={assignment.id}, property_id={property_id}, "
             f"intermediary_id={request.intermediary_id}, assigned_by={current_user.id}, "
             f"intermediary_email={intermediary.email}"
         )
-        
+
         return SuccessResponse(
             success=True,
             message="Intermediary assigned successfully",
             data=PropertyAssignmentResponse.model_validate(assignment),
         )
-        
+
     except HTTPException:
         raise
     except Exception as e:

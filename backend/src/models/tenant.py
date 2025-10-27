@@ -2,24 +2,13 @@
 
 Implements T027 from tasks.md.
 """
+
 from datetime import date, datetime
-from decimal import Decimal
 from enum import Enum as PyEnum
-from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import (
-    CheckConstraint,
-    Column,
-    Date,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Index,
-    Numeric,
-    String,
-    UniqueConstraint,
-)
+from sqlalchemy import (CheckConstraint, Column, Date, DateTime, Enum,
+                        ForeignKey, Numeric)
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import relationship
 
@@ -36,23 +25,23 @@ class TenantStatus(str, PyEnum):
 
 class Tenant(Base):
     """Tenant model representing a property renter.
-    
+
     Tenants are users with role='tenant' who live in a property.
     Each tenant has an associated User account for login.
-    
+
     Features:
     - Move-in/move-out date tracking
     - Monthly rent and security deposit
     - Electricity rate tracking for bill splitting
     - Status tracking (active, pending move out, inactive)
     - Managed by assigned intermediary
-    
+
     Financial Tracking:
     - Monthly rent amount
     - Security deposit
     - Per-unit electricity rate (optional)
     - Current balance calculated from payments and allocations
-    
+
     Access Control:
     - Tenants see only themselves via RLS
     - Intermediaries see tenants in their assigned properties
@@ -128,7 +117,7 @@ class Tenant(Base):
         nullable=True,
         comment="Per-unit electricity rate (for bill splitting)",
     )
-    
+
     # Rent Increment Policy (T191, T192)
     rent_increment_policy = Column(
         JSON,

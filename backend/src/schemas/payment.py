@@ -2,15 +2,15 @@
 
 Implements T059 from tasks.md.
 """
+
 from datetime import date, datetime
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
 
-from ..models.payment import PaymentMethod, PaymentStatus, PaymentType, TransactionStatus
-
+from ..models.payment import (PaymentMethod, PaymentStatus, PaymentType,
+                              TransactionStatus)
 
 # ==================== Request Schemas ====================
 
@@ -25,26 +25,30 @@ class PaymentCreateRequest(BaseModel):
     payment_method: PaymentMethod = Field(..., description="Payment method used")
     payment_type: PaymentType = Field(default=PaymentType.RENT, description="Type of payment")
     payment_date: date = Field(default_factory=date.today, description="Date payment was received")
-    payment_period_start: Optional[date] = Field(None, description="Start of payment period (for rent)")
-    payment_period_end: Optional[date] = Field(None, description="End of payment period (for rent)")
-    transaction_reference: Optional[str] = Field(None, max_length=255, description="Transaction reference number")
-    notes: Optional[str] = Field(None, description="Additional notes")
+    payment_period_start: date | None = Field(
+        None, description="Start of payment period (for rent)"
+    )
+    payment_period_end: date | None = Field(None, description="End of payment period (for rent)")
+    transaction_reference: str | None = Field(
+        None, max_length=255, description="Transaction reference number"
+    )
+    notes: str | None = Field(None, description="Additional notes")
 
-    @field_validator('amount')
+    @field_validator("amount")
     @classmethod
     def validate_amount(cls, v: Decimal) -> Decimal:
         """Validate payment amount is positive."""
         if v <= 0:
-            raise ValueError('Amount must be greater than 0')
+            raise ValueError("Amount must be greater than 0")
         return v
 
-    @field_validator('payment_period_end')
+    @field_validator("payment_period_end")
     @classmethod
-    def validate_period_dates(cls, v: Optional[date], info) -> Optional[date]:
+    def validate_period_dates(cls, v: date | None, info) -> date | None:
         """Validate period end date is after start date."""
-        if v is not None and info.data.get('payment_period_start') is not None:
-            if v <= info.data['payment_period_start']:
-                raise ValueError('Payment period end must be after start date')
+        if v is not None and info.data.get("payment_period_start") is not None:
+            if v <= info.data["payment_period_start"]:
+                raise ValueError("Payment period end must be after start date")
         return v
 
     class Config:
@@ -60,7 +64,7 @@ class PaymentCreateRequest(BaseModel):
                 "payment_period_start": "2025-10-01",
                 "payment_period_end": "2025-10-31",
                 "transaction_reference": "UPI-123456789",
-                "notes": "Monthly rent for October 2025"
+                "notes": "Monthly rent for October 2025",
             }
         }
 
@@ -68,16 +72,16 @@ class PaymentCreateRequest(BaseModel):
 class PaymentUpdateRequest(BaseModel):
     """Request schema for updating a payment."""
 
-    status: Optional[PaymentStatus] = Field(None, description="Payment status")
-    notes: Optional[str] = Field(None, description="Additional notes")
-    receipt_url: Optional[str] = Field(None, max_length=500, description="Receipt URL")
+    status: PaymentStatus | None = Field(None, description="Payment status")
+    notes: str | None = Field(None, description="Additional notes")
+    receipt_url: str | None = Field(None, max_length=500, description="Receipt URL")
 
     class Config:
         json_schema_extra = {
             "example": {
                 "status": "completed",
                 "notes": "Payment confirmed",
-                "receipt_url": "https://storage.example.com/receipts/receipt-123.pdf"
+                "receipt_url": "https://storage.example.com/receipts/receipt-123.pdf",
             }
         }
 
@@ -91,17 +95,17 @@ class PaymentResponse(BaseModel):
     id: UUID
     tenant_id: UUID
     property_id: UUID
-    recorded_by: Optional[UUID]
+    recorded_by: UUID | None
     amount: Decimal
     currency: str
     payment_method: PaymentMethod
     payment_type: PaymentType
     status: PaymentStatus
-    payment_period_start: Optional[date]
-    payment_period_end: Optional[date]
-    transaction_reference: Optional[str]
-    notes: Optional[str]
-    receipt_url: Optional[str]
+    payment_period_start: date | None
+    payment_period_end: date | None
+    transaction_reference: str | None
+    notes: str | None
+    receipt_url: str | None
     payment_date: date
     created_at: datetime
     updated_at: datetime
@@ -126,7 +130,7 @@ class PaymentResponse(BaseModel):
                 "receipt_url": "https://storage.example.com/receipts/receipt-123.pdf",
                 "payment_date": "2025-10-27",
                 "created_at": "2025-10-27T09:00:00Z",
-                "updated_at": "2025-10-27T09:00:00Z"
+                "updated_at": "2025-10-27T09:00:00Z",
             }
         }
 
@@ -150,12 +154,12 @@ class PaymentListResponse(BaseModel):
                         "payment_method": "upi",
                         "payment_type": "rent",
                         "status": "completed",
-                        "payment_date": "2025-10-27"
+                        "payment_date": "2025-10-27",
                     }
                 ],
                 "total": 1,
                 "skip": 0,
-                "limit": 50
+                "limit": 50,
             }
         }
 
@@ -168,8 +172,8 @@ class TenantBalanceResponse(BaseModel):
     total_paid: Decimal = Field(default=Decimal("0.00"), description="Total amount paid")
     total_due: Decimal = Field(default=Decimal("0.00"), description="Total amount due")
     outstanding_balance: Decimal = Field(default=Decimal("0.00"), description="Outstanding balance")
-    last_payment_date: Optional[date] = Field(None, description="Date of last payment")
-    last_payment_amount: Optional[Decimal] = Field(None, description="Amount of last payment")
+    last_payment_date: date | None = Field(None, description="Date of last payment")
+    last_payment_amount: Decimal | None = Field(None, description="Amount of last payment")
     months_behind: int = Field(default=0, description="Number of months behind on rent")
 
     class Config:
@@ -182,7 +186,7 @@ class TenantBalanceResponse(BaseModel):
                 "outstanding_balance": 25000.00,
                 "last_payment_date": "2025-09-27",
                 "last_payment_amount": 25000.00,
-                "months_behind": 1
+                "months_behind": 1,
             }
         }
 
@@ -191,17 +195,17 @@ class TransactionResponse(BaseModel):
     """Response schema for transaction details."""
 
     id: UUID
-    payment_id: Optional[UUID]
+    payment_id: UUID | None
     gateway_name: str
     gateway_transaction_id: str
-    gateway_order_id: Optional[str]
+    gateway_order_id: str | None
     amount: Decimal
     currency: str
     status: TransactionStatus
-    gateway_response: Optional[str]
-    error_message: Optional[str]
+    gateway_response: str | None
+    error_message: str | None
     initiated_at: datetime
-    completed_at: Optional[datetime]
+    completed_at: datetime | None
     created_at: datetime
     updated_at: datetime
 
@@ -222,7 +226,7 @@ class TransactionResponse(BaseModel):
                 "initiated_at": "2025-10-27T09:00:00Z",
                 "completed_at": "2025-10-27T09:00:10Z",
                 "created_at": "2025-10-27T09:00:00Z",
-                "updated_at": "2025-10-27T09:00:10Z"
+                "updated_at": "2025-10-27T09:00:10Z",
             }
         }
 

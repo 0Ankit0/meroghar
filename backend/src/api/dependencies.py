@@ -4,13 +4,12 @@ Implements T014 from tasks.md - Updated for async support.
 """
 
 import logging
-from typing import Optional
 from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from ..core.database import get_async_db
 from ..core.security import decode_token
@@ -86,10 +85,8 @@ async def get_current_user_id(
 
 
 async def get_optional_current_user_id(
-    credentials: Optional[HTTPAuthorizationCredentials] = Depends(
-        HTTPBearer(auto_error=False)
-    ),
-) -> Optional[UUID]:
+    credentials: HTTPAuthorizationCredentials | None = Depends(HTTPBearer(auto_error=False)),
+) -> UUID | None:
     """
     Extract current user ID from JWT token if present (optional authentication).
 
@@ -137,9 +134,7 @@ async def get_current_user(
     Raises:
         HTTPException: If user not found or inactive
     """
-    result = await session.execute(
-        select(User).where(User.id == user_id)
-    )
+    result = await session.execute(select(User).where(User.id == user_id))
     user = result.scalar_one_or_none()
 
     if not user:

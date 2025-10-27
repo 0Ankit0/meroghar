@@ -22,11 +22,12 @@ Flow:
 5. Verify payment using status API
 6. Process payment confirmation
 """
+
 import hashlib
 import hmac
 import logging
 from decimal import Decimal
-from typing import Any, Dict, Optional
+from typing import Any
 from uuid import uuid4
 
 import httpx
@@ -58,8 +59,8 @@ class ESewaPaymentGateway:
 
     def __init__(
         self,
-        merchant_id: Optional[str] = None,
-        merchant_secret: Optional[str] = None,
+        merchant_id: str | None = None,
+        merchant_secret: str | None = None,
         is_sandbox: bool = True,
         timeout: int = 30,
     ):
@@ -77,9 +78,7 @@ class ESewaPaymentGateway:
         self.timeout = timeout
 
         # Set appropriate URLs based on environment
-        self.base_url = (
-            self.SANDBOX_BASE_URL if is_sandbox else self.PRODUCTION_BASE_URL
-        )
+        self.base_url = self.SANDBOX_BASE_URL if is_sandbox else self.PRODUCTION_BASE_URL
         self.payment_portal_url = (
             self.SANDBOX_PAYMENT_URL if is_sandbox else self.PRODUCTION_PAYMENT_URL
         )
@@ -131,6 +130,7 @@ class ESewaPaymentGateway:
 
         # Convert to base64
         import base64
+
         return base64.b64encode(signature).decode("utf-8")
 
     async def initiate_payment(
@@ -140,11 +140,11 @@ class ESewaPaymentGateway:
         product_name: str,
         success_url: str,
         failure_url: str,
-        transaction_uuid: Optional[str] = None,
-        tax_amount: Optional[Decimal] = None,
-        service_charge: Optional[Decimal] = None,
-        delivery_charge: Optional[Decimal] = None,
-    ) -> Dict[str, Any]:
+        transaction_uuid: str | None = None,
+        tax_amount: Decimal | None = None,
+        service_charge: Decimal | None = None,
+        delivery_charge: Decimal | None = None,
+    ) -> dict[str, Any]:
         """Initiate a payment request with eSewa.
 
         Args:
@@ -232,8 +232,8 @@ class ESewaPaymentGateway:
         transaction_uuid: str,
         product_code: str,
         total_amount: Decimal,
-        reference_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        reference_id: str | None = None,
+    ) -> dict[str, Any]:
         """Verify payment status using eSewa transaction status API.
 
         This should be called after receiving the success callback to confirm
@@ -308,8 +308,7 @@ class ESewaPaymentGateway:
         except httpx.HTTPStatusError as e:
             error_detail = e.response.json() if e.response.text else {}
             logger.error(
-                f"eSewa payment verification failed: {e.response.status_code} - "
-                f"{error_detail}"
+                f"eSewa payment verification failed: {e.response.status_code} - " f"{error_detail}"
             )
             raise ValueError(f"Payment verification failed: {error_detail}")
 
@@ -349,9 +348,7 @@ class ESewaPaymentGateway:
             if is_valid:
                 logger.info(f"eSewa callback signature verified: uuid={transaction_uuid}")
             else:
-                logger.warning(
-                    f"eSewa callback signature mismatch: uuid={transaction_uuid}"
-                )
+                logger.warning(f"eSewa callback signature mismatch: uuid={transaction_uuid}")
 
             return is_valid
 

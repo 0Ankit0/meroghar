@@ -8,24 +8,17 @@ All model files should be imported here.
 """
 
 # Phase 3 - User Story 1 Models
-from .user import User, UserRole
-from .property import Property, PropertyAssignment
-from .tenant import Tenant, TenantStatus
-from .payment import Payment, PaymentMethod, PaymentType, PaymentStatus
-from .bill import (
-    Bill,
-    BillAllocation,
-    RecurringBill,
-    BillType,
-    BillStatus,
-    AllocationMethod,
-    RecurringFrequency,
-)
+from .bill import (AllocationMethod, Bill, BillAllocation, BillStatus,
+                   BillType, RecurringBill, RecurringFrequency)
+from .document import Document, DocumentStatus, DocumentType
 from .expense import Expense, ExpenseCategory, ExpenseStatus
-from .sync import SyncLog, SyncStatus, SyncOperation
 from .message import Message, MessageChannel, MessageStatus, MessageTemplate
-from .document import Document, DocumentType, DocumentStatus
-from .notification import Notification, NotificationType, NotificationPriority
+from .notification import Notification, NotificationPriority, NotificationType
+from .payment import Payment, PaymentMethod, PaymentStatus, PaymentType
+from .property import Property, PropertyAssignment
+from .sync import SyncLog, SyncOperation, SyncStatus
+from .tenant import Tenant, TenantStatus
+from .user import User, UserRole
 
 __all__ = [
     # User
@@ -72,4 +65,3 @@ __all__ = [
     "NotificationType",
     "NotificationPriority",
 ]
-

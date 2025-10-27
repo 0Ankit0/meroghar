@@ -2,23 +2,17 @@
 
 Implements T056-T057 from tasks.md.
 """
+
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from uuid import UUID, uuid4
 
-from sqlalchemy import (
-    Boolean,
-    DateTime,
-    Enum as SQLEnum,
-    ForeignKey,
-    Numeric,
-    String,
-    Text,
-    Date,
-    JSON,
-)
-from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
+from sqlalchemy import Date, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Numeric, String, Text
+from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
@@ -56,16 +50,14 @@ class PaymentType(str, Enum):
 
 class Payment(Base):
     """Payment records for rent and other charges.
-    
+
     Tracks all payments made by tenants including rent, deposits, and utilities.
     """
 
     __tablename__ = "payments"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
 
     # Foreign keys
     tenant_id: Mapped[UUID] = mapped_column(
@@ -79,9 +71,7 @@ class Payment(Base):
     )
 
     # Payment details
-    amount: Mapped[Decimal] = mapped_column(
-        Numeric(precision=10, scale=2), nullable=False
-    )
+    amount: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="INR")
     payment_method: Mapped[PaymentMethod] = mapped_column(
         SQLEnum(PaymentMethod, name="payment_method", create_type=False),
@@ -107,20 +97,20 @@ class Payment(Base):
     transaction_reference: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True
     )
-    
+
     # Gateway transaction ID (from payment gateway)
     gateway_transaction_id: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True
     )
-    
+
     # T124: Gateway fee tracking for online payments
     gateway_fee: Mapped[Decimal | None] = mapped_column(
         Numeric(precision=10, scale=2), nullable=True, default=Decimal("0.00")
     )
-    
+
     # Metadata for storing gateway-specific information (pidx, verification status, etc.)
     metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
-    
+
     # Notes
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
 
@@ -142,7 +132,9 @@ class Payment(Base):
     # Relationships
     tenant: Mapped["Tenant"] = relationship("Tenant", back_populates="payments")
     property: Mapped["Property"] = relationship("Property", back_populates="payments")
-    recorder: Mapped["User"] = relationship("User", foreign_keys=[recorded_by], back_populates="created_payments")
+    recorder: Mapped["User"] = relationship(
+        "User", foreign_keys=[recorded_by], back_populates="created_payments"
+    )
     transaction: Mapped["Transaction"] = relationship(
         "Transaction", back_populates="payment", uselist=False
     )
@@ -167,7 +159,7 @@ class TransactionStatus(str, Enum):
 
 class Transaction(Base):
     """Transaction records for payment gateway integration.
-    
+
     Stores raw transaction data from payment gateways (Razorpay, Stripe, etc.)
     for audit trail and reconciliation.
     """
@@ -175,9 +167,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     # Primary key
-    id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
 
     # Foreign key to payment
     payment_id: Mapped[UUID | None] = mapped_column(
@@ -189,14 +179,10 @@ class Transaction(Base):
     gateway_transaction_id: Mapped[str] = mapped_column(
         String(255), nullable=False, unique=True, index=True
     )
-    gateway_order_id: Mapped[str | None] = mapped_column(
-        String(255), nullable=True, index=True
-    )
+    gateway_order_id: Mapped[str | None] = mapped_column(String(255), nullable=True, index=True)
 
     # Transaction details
-    amount: Mapped[Decimal] = mapped_column(
-        Numeric(precision=10, scale=2), nullable=False
-    )
+    amount: Mapped[Decimal] = mapped_column(Numeric(precision=10, scale=2), nullable=False)
     currency: Mapped[str] = mapped_column(String(3), nullable=False, default="INR")
     status: Mapped[TransactionStatus] = mapped_column(
         SQLEnum(TransactionStatus, name="transaction_status", create_type=False),
@@ -212,9 +198,7 @@ class Transaction(Base):
     initiated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow
     )
-    completed_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True
-    )
+    completed_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=datetime.utcnow
     )

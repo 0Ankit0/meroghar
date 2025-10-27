@@ -2,34 +2,27 @@
 
 Implements T034 from tasks.md.
 """
+
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from ...core.database import get_async_db
-from ...schemas import (
-    AuthResponse,
-    LoginRequest,
-    LogoutResponse,
-    RefreshTokenRequest,
-    RegisterRequest,
-    SuccessResponse,
-    TokenPair,
-)
+from ...schemas import (AuthResponse, LoginRequest, LogoutResponse,
+                        RefreshTokenRequest, RegisterRequest, SuccessResponse,
+                        TokenPair)
 from ...services.auth_service import AuthService
 
 router = APIRouter()
 
 
-def get_auth_service(
-    session: Annotated[AsyncSession, Depends(get_async_db)]
-) -> AuthService:
+def get_auth_service(session: Annotated[AsyncSession, Depends(get_async_db)]) -> AuthService:
     """Get auth service instance.
-    
+
     Args:
         session: Database session from dependency
-        
+
     Returns:
         AuthService instance
     """
@@ -48,14 +41,14 @@ async def register(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> SuccessResponse[AuthResponse]:
     """Register a new user.
-    
+
     Args:
         request: Registration request with user details
         auth_service: Auth service instance
-        
+
     Returns:
         Success response with user details and JWT tokens
-        
+
     Raises:
         HTTPException 400: If email already exists or validation fails
         HTTPException 500: If server error occurs
@@ -90,14 +83,14 @@ async def login(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> SuccessResponse[AuthResponse]:
     """User login.
-    
+
     Args:
         request: Login request with email and password
         auth_service: Auth service instance
-        
+
     Returns:
         Success response with user details and JWT tokens
-        
+
     Raises:
         HTTPException 401: If credentials invalid
         HTTPException 403: If account inactive
@@ -145,14 +138,14 @@ async def refresh_token(
     auth_service: Annotated[AuthService, Depends(get_auth_service)],
 ) -> SuccessResponse[TokenPair]:
     """Refresh access token.
-    
+
     Args:
         request: Refresh token request
         auth_service: Auth service instance
-        
+
     Returns:
         Success response with new token pair
-        
+
     Raises:
         HTTPException 401: If refresh token invalid or expired
         HTTPException 403: If account inactive
@@ -192,11 +185,11 @@ async def refresh_token(
 )
 async def logout() -> SuccessResponse[LogoutResponse]:
     """User logout.
-    
+
     Note: JWT tokens are stateless, so logout is handled client-side
     by deleting the stored tokens. This endpoint exists for consistency
     and to allow future server-side token blacklisting if needed.
-    
+
     Returns:
         Success response with logout message
     """

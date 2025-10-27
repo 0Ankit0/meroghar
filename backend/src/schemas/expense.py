@@ -2,9 +2,9 @@
 
 Implements T127 from tasks.md.
 """
+
 from datetime import date
 from decimal import Decimal
-from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel, Field, field_validator
@@ -20,14 +20,20 @@ class ExpenseCreateRequest(BaseModel):
     currency: str = Field(default="NPR", max_length=3, description="Currency code")
     category: ExpenseCategory = Field(..., description="Expense category")
     description: str = Field(..., min_length=1, max_length=2000, description="Expense description")
-    vendor_name: Optional[str] = Field(None, max_length=255, description="Vendor/service provider name")
-    invoice_number: Optional[str] = Field(None, max_length=100, description="Invoice or receipt number")
-    paid_by: str = Field(default="intermediary", max_length=100, description="Who paid for this expense")
+    vendor_name: str | None = Field(
+        None, max_length=255, description="Vendor/service provider name"
+    )
+    invoice_number: str | None = Field(
+        None, max_length=100, description="Invoice or receipt number"
+    )
+    paid_by: str = Field(
+        default="intermediary", max_length=100, description="Who paid for this expense"
+    )
     is_reimbursable: bool = Field(default=True, description="Whether expense is reimbursable")
     expense_date: date = Field(..., description="Date when expense was incurred")
-    notes: Optional[str] = Field(None, max_length=2000, description="Additional notes")
+    notes: str | None = Field(None, max_length=2000, description="Additional notes")
 
-    @field_validator('expense_date')
+    @field_validator("expense_date")
     @classmethod
     def validate_expense_date(cls, v: date) -> date:
         """Validate expense date is not in the future."""
@@ -35,7 +41,7 @@ class ExpenseCreateRequest(BaseModel):
             raise ValueError("Expense date cannot be in the future")
         return v
 
-    @field_validator('amount')
+    @field_validator("amount")
     @classmethod
     def validate_amount(cls, v: Decimal) -> Decimal:
         """Validate amount has max 2 decimal places."""
@@ -65,17 +71,17 @@ class ExpenseCreateRequest(BaseModel):
 class ExpenseUpdateRequest(BaseModel):
     """Request schema for updating an expense."""
 
-    amount: Optional[Decimal] = Field(None, gt=0, description="Expense amount")
-    category: Optional[ExpenseCategory] = Field(None, description="Expense category")
-    description: Optional[str] = Field(None, min_length=1, max_length=2000)
-    vendor_name: Optional[str] = Field(None, max_length=255)
-    invoice_number: Optional[str] = Field(None, max_length=100)
-    expense_date: Optional[date] = Field(None, description="Date when expense was incurred")
-    notes: Optional[str] = Field(None, max_length=2000)
+    amount: Decimal | None = Field(None, gt=0, description="Expense amount")
+    category: ExpenseCategory | None = Field(None, description="Expense category")
+    description: str | None = Field(None, min_length=1, max_length=2000)
+    vendor_name: str | None = Field(None, max_length=255)
+    invoice_number: str | None = Field(None, max_length=100)
+    expense_date: date | None = Field(None, description="Date when expense was incurred")
+    notes: str | None = Field(None, max_length=2000)
 
-    @field_validator('expense_date')
+    @field_validator("expense_date")
     @classmethod
-    def validate_expense_date(cls, v: Optional[date]) -> Optional[date]:
+    def validate_expense_date(cls, v: date | None) -> date | None:
         """Validate expense date is not in the future."""
         if v and v > date.today():
             raise ValueError("Expense date cannot be in the future")
@@ -86,9 +92,9 @@ class ExpenseApprovalRequest(BaseModel):
     """Request schema for approving/rejecting an expense."""
 
     status: ExpenseStatus = Field(..., description="Approval status (approved/rejected)")
-    rejection_reason: Optional[str] = Field(None, max_length=1000, description="Reason if rejected")
+    rejection_reason: str | None = Field(None, max_length=1000, description="Reason if rejected")
 
-    @field_validator('status')
+    @field_validator("status")
     @classmethod
     def validate_status(cls, v: ExpenseStatus) -> ExpenseStatus:
         """Validate status is either approved or rejected."""
@@ -96,11 +102,11 @@ class ExpenseApprovalRequest(BaseModel):
             raise ValueError("Status must be either 'approved' or 'rejected'")
         return v
 
-    @field_validator('rejection_reason')
+    @field_validator("rejection_reason")
     @classmethod
-    def validate_rejection_reason(cls, v: Optional[str], info) -> Optional[str]:
+    def validate_rejection_reason(cls, v: str | None, info) -> str | None:
         """Require rejection reason if status is rejected."""
-        status = info.data.get('status')
+        status = info.data.get("status")
         if status == ExpenseStatus.REJECTED and not v:
             raise ValueError("Rejection reason is required when rejecting an expense")
         return v
@@ -111,7 +117,7 @@ class ExpenseReimbursementRequest(BaseModel):
 
     reimbursed_date: date = Field(..., description="Date when reimbursement was made")
 
-    @field_validator('reimbursed_date')
+    @field_validator("reimbursed_date")
     @classmethod
     def validate_reimbursed_date(cls, v: date) -> date:
         """Validate reimbursed date is not in the future."""
@@ -126,25 +132,25 @@ class ExpenseResponse(BaseModel):
     id: UUID
     property_id: UUID
     recorded_by: UUID
-    approved_by: Optional[UUID]
+    approved_by: UUID | None
     amount: Decimal
     currency: str
     category: ExpenseCategory
     status: ExpenseStatus
     description: str
-    vendor_name: Optional[str]
-    invoice_number: Optional[str]
-    receipt_url: Optional[str]
+    vendor_name: str | None
+    invoice_number: str | None
+    receipt_url: str | None
     paid_by: str
     is_reimbursable: bool
     is_reimbursed: bool
-    reimbursed_date: Optional[date]
+    reimbursed_date: date | None
     expense_date: date
-    approved_date: Optional[date]
+    approved_date: date | None
     created_at: str
     updated_at: str
-    notes: Optional[str]
-    rejection_reason: Optional[str]
+    notes: str | None
+    rejection_reason: str | None
 
     model_config = {"from_attributes": True}
 

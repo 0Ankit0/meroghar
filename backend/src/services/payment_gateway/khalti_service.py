@@ -21,11 +21,10 @@ Flow:
 5. Verify payment using lookup API with pidx
 6. Process payment confirmation
 """
+
 import logging
-from datetime import datetime, timedelta
 from decimal import Decimal
-from typing import Any, Dict, Optional
-from uuid import UUID
+from typing import Any
 
 import httpx
 
@@ -57,7 +56,7 @@ class KhaltiPaymentGateway:
 
     def __init__(
         self,
-        secret_key: Optional[str] = None,
+        secret_key: str | None = None,
         is_sandbox: bool = True,
         timeout: int = 30,
     ):
@@ -73,9 +72,7 @@ class KhaltiPaymentGateway:
         self.timeout = timeout
 
         # Set appropriate URLs based on environment
-        self.base_url = (
-            self.SANDBOX_BASE_URL if is_sandbox else self.PRODUCTION_BASE_URL
-        )
+        self.base_url = self.SANDBOX_BASE_URL if is_sandbox else self.PRODUCTION_BASE_URL
         self.payment_portal_url = (
             self.SANDBOX_PAYMENT_URL if is_sandbox else self.PRODUCTION_PAYMENT_URL
         )
@@ -106,13 +103,13 @@ class KhaltiPaymentGateway:
         purchase_order_name: str,
         return_url: str,
         website_url: str,
-        customer_name: Optional[str] = None,
-        customer_email: Optional[str] = None,
-        customer_phone: Optional[str] = None,
-        amount_breakdown: Optional[list[Dict[str, Any]]] = None,
-        product_details: Optional[list[Dict[str, Any]]] = None,
+        customer_name: str | None = None,
+        customer_email: str | None = None,
+        customer_phone: str | None = None,
+        amount_breakdown: list[dict[str, Any]] | None = None,
+        product_details: list[dict[str, Any]] | None = None,
         **merchant_extra,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Initiate a payment request with Khalti.
 
         Args:
@@ -187,8 +184,7 @@ class KhaltiPaymentGateway:
 
         try:
             logger.info(
-                f"Initiating Khalti payment: order={purchase_order_id}, "
-                f"amount=Rs.{amount}"
+                f"Initiating Khalti payment: order={purchase_order_id}, " f"amount=Rs.{amount}"
             )
 
             response = await self.client.post("/epayment/initiate/", json=payload)
@@ -206,8 +202,7 @@ class KhaltiPaymentGateway:
         except httpx.HTTPStatusError as e:
             error_detail = e.response.json() if e.response.text else {}
             logger.error(
-                f"Khalti payment initiation failed: {e.response.status_code} - "
-                f"{error_detail}"
+                f"Khalti payment initiation failed: {e.response.status_code} - " f"{error_detail}"
             )
             raise ValueError(f"Payment initiation failed: {error_detail}")
 
@@ -215,7 +210,7 @@ class KhaltiPaymentGateway:
             logger.error(f"Unexpected error during payment initiation: {str(e)}")
             raise
 
-    async def verify_payment(self, pidx: str) -> Dict[str, Any]:
+    async def verify_payment(self, pidx: str) -> dict[str, Any]:
         """Verify payment status using lookup API.
 
         This should be called after receiving the payment callback to confirm
@@ -258,8 +253,7 @@ class KhaltiPaymentGateway:
         except httpx.HTTPStatusError as e:
             error_detail = e.response.json() if e.response.text else {}
             logger.error(
-                f"Khalti payment verification failed: {e.response.status_code} - "
-                f"{error_detail}"
+                f"Khalti payment verification failed: {e.response.status_code} - " f"{error_detail}"
             )
             raise ValueError(f"Payment verification failed: {error_detail}")
 
@@ -267,7 +261,7 @@ class KhaltiPaymentGateway:
             logger.error(f"Unexpected error during payment verification: {str(e)}")
             raise
 
-    def is_payment_successful(self, verification_result: Dict[str, Any]) -> bool:
+    def is_payment_successful(self, verification_result: dict[str, Any]) -> bool:
         """Check if payment was successful based on verification result.
 
         Only "Completed" status should be treated as success.
@@ -281,9 +275,7 @@ class KhaltiPaymentGateway:
         status = verification_result.get("status", "")
         return status == self.STATUS_COMPLETED
 
-    def get_transaction_amount_in_rupees(
-        self, verification_result: Dict[str, Any]
-    ) -> Decimal:
+    def get_transaction_amount_in_rupees(self, verification_result: dict[str, Any]) -> Decimal:
         """Get transaction amount in rupees from verification result.
 
         Args:
@@ -295,7 +287,7 @@ class KhaltiPaymentGateway:
         amount_in_paisa = verification_result.get("total_amount", 0)
         return Decimal(amount_in_paisa) / 100
 
-    def get_transaction_id(self, verification_result: Dict[str, Any]) -> Optional[str]:
+    def get_transaction_id(self, verification_result: dict[str, Any]) -> str | None:
         """Get Khalti transaction ID from verification result.
 
         Args:
@@ -306,7 +298,7 @@ class KhaltiPaymentGateway:
         """
         return verification_result.get("transaction_id")
 
-    def parse_callback_params(self, callback_params: Dict[str, str]) -> Dict[str, Any]:
+    def parse_callback_params(self, callback_params: dict[str, str]) -> dict[str, Any]:
         """Parse and validate callback parameters from return_url.
 
         Khalti redirects to return_url with query parameters after payment.
@@ -338,7 +330,7 @@ class KhaltiPaymentGateway:
 
 
 # Singleton instance for the application
-_khalti_gateway: Optional[KhaltiPaymentGateway] = None
+_khalti_gateway: KhaltiPaymentGateway | None = None
 
 
 def get_khalti_gateway() -> KhaltiPaymentGateway:

@@ -3,11 +3,11 @@ Document model for file storage and management.
 
 Implements T175 from tasks.md.
 """
+
 from datetime import datetime
 from enum import Enum as PyEnum
-from typing import Optional
 
-from sqlalchemy import String, Text, Integer, DateTime, Enum, ForeignKey, Index
+from sqlalchemy import DateTime, Enum, ForeignKey, Index, Integer, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
@@ -15,6 +15,7 @@ from ..core.database import Base
 
 class DocumentType(str, PyEnum):
     """Document type enumeration."""
+
     LEASE_AGREEMENT = "lease_agreement"
     ID_PROOF = "id_proof"
     INCOME_PROOF = "income_proof"
@@ -29,6 +30,7 @@ class DocumentType(str, PyEnum):
 
 class DocumentStatus(str, PyEnum):
     """Document status enumeration."""
+
     ACTIVE = "active"
     EXPIRED = "expired"
     ARCHIVED = "archived"
@@ -38,7 +40,7 @@ class DocumentStatus(str, PyEnum):
 class Document(Base):
     """
     Document model for storing file references and metadata.
-    
+
     Supports:
     - Multiple document types (lease, ID, receipts, etc.)
     - Expiration tracking with automatic reminders
@@ -46,6 +48,7 @@ class Document(Base):
     - Secure access control via RLS
     - S3/cloud storage integration
     """
+
     __tablename__ = "documents"
 
     # Primary key
@@ -53,17 +56,15 @@ class Document(Base):
 
     # Document metadata
     title: Mapped[str] = mapped_column(String(255), nullable=False)
-    description: Mapped[Optional[str]] = mapped_column(Text, nullable=True)
+    description: Mapped[str | None] = mapped_column(Text, nullable=True)
     document_type: Mapped[DocumentType] = mapped_column(
-        Enum(DocumentType, native_enum=False),
-        nullable=False,
-        index=True
+        Enum(DocumentType, native_enum=False), nullable=False, index=True
     )
     status: Mapped[DocumentStatus] = mapped_column(
         Enum(DocumentStatus, native_enum=False),
         nullable=False,
         default=DocumentStatus.ACTIVE,
-        index=True
+        index=True,
     )
 
     # File information
@@ -74,50 +75,35 @@ class Document(Base):
     storage_key: Mapped[str] = mapped_column(String(500), nullable=False, unique=True)
 
     # Expiration tracking
-    expiration_date: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True, index=True)
+    expiration_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, index=True)
     reminder_sent: Mapped[bool] = mapped_column(default=False)
-    reminder_days_before: Mapped[int] = mapped_column(Integer, default=30)  # Days before expiration to send reminder
+    reminder_days_before: Mapped[int] = mapped_column(
+        Integer, default=30
+    )  # Days before expiration to send reminder
 
     # Version control
     version: Mapped[int] = mapped_column(Integer, default=1)
-    parent_document_id: Mapped[Optional[int]] = mapped_column(
-        Integer,
-        ForeignKey("documents.id", ondelete="SET NULL"),
-        nullable=True
+    parent_document_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("documents.id", ondelete="SET NULL"), nullable=True
     )
 
     # Relationships
     uploaded_by: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("users.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True
+        Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
-    tenant_id: Mapped[Optional[int]] = mapped_column(
-        Integer,
-        ForeignKey("tenants.id", ondelete="CASCADE"),
-        nullable=True,
-        index=True
+    tenant_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("tenants.id", ondelete="CASCADE"), nullable=True, index=True
     )
-    property_id: Mapped[Optional[int]] = mapped_column(
-        Integer,
-        ForeignKey("properties.id", ondelete="CASCADE"),
-        nullable=True,
-        index=True
+    property_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("properties.id", ondelete="CASCADE"), nullable=True, index=True
     )
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(
-        DateTime,
-        default=datetime.utcnow,
-        nullable=False,
-        index=True
+        DateTime, default=datetime.utcnow, nullable=False, index=True
     )
-    updated_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime,
-        default=datetime.utcnow,
-        onupdate=datetime.utcnow,
-        nullable=True
+    updated_at: Mapped[datetime | None] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=True
     )
 
     # Relationships
@@ -141,7 +127,7 @@ class Document(Base):
         return datetime.utcnow() > self.expiration_date
 
     @property
-    def days_until_expiration(self) -> Optional[int]:
+    def days_until_expiration(self) -> int | None:
         """Calculate days until expiration."""
         if not self.expiration_date:
             return None

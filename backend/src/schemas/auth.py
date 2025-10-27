@@ -2,14 +2,12 @@
 
 Implements T029 from tasks.md.
 """
-from datetime import datetime
-from typing import Optional
+
 from uuid import UUID
 
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 from ..models.user import UserRole
-
 
 # ==================== Request Schemas ====================
 
@@ -24,10 +22,8 @@ class RegisterRequest(BaseModel):
         max_length=100,
         description="Password (min 8 characters)",
     )
-    full_name: str = Field(
-        ..., min_length=1, max_length=255, description="User's full name"
-    )
-    phone: Optional[str] = Field(
+    full_name: str = Field(..., min_length=1, max_length=255, description="User's full name")
+    phone: str | None = Field(
         None, max_length=20, description="Contact phone number (E.164 format)"
     )
     role: UserRole = Field(..., description="User role (owner, intermediary, tenant)")
@@ -48,7 +44,7 @@ class RegisterRequest(BaseModel):
 
     @field_validator("phone")
     @classmethod
-    def validate_phone_format(cls, v: Optional[str]) -> Optional[str]:
+    def validate_phone_format(cls, v: str | None) -> str | None:
         """Validate phone number format (E.164)."""
         if v is None:
             return v
@@ -61,13 +57,17 @@ class RegisterRequest(BaseModel):
             raise ValueError("Phone number must be between 8 and 20 characters")
         return v
 
-    model_config = {"json_schema_extra": {"example": {
-        "email": "owner@example.com",
-        "password": "SecurePass123",
-        "full_name": "John Doe",
-        "phone": "+911234567890",
-        "role": "owner",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "email": "owner@example.com",
+                "password": "SecurePass123",
+                "full_name": "John Doe",
+                "phone": "+911234567890",
+                "role": "owner",
+            }
+        }
+    }
 
 
 class LoginRequest(BaseModel):
@@ -76,10 +76,14 @@ class LoginRequest(BaseModel):
     email: EmailStr = Field(..., description="User email address")
     password: str = Field(..., description="User password")
 
-    model_config = {"json_schema_extra": {"example": {
-        "email": "owner@example.com",
-        "password": "SecurePass123",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "email": "owner@example.com",
+                "password": "SecurePass123",
+            }
+        }
+    }
 
 
 class RefreshTokenRequest(BaseModel):
@@ -87,9 +91,13 @@ class RefreshTokenRequest(BaseModel):
 
     refresh_token: str = Field(..., description="JWT refresh token")
 
-    model_config = {"json_schema_extra": {"example": {
-        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+            }
+        }
+    }
 
 
 # ==================== Response Schemas ====================
@@ -102,11 +110,15 @@ class TokenPair(BaseModel):
     refresh_token: str = Field(..., description="JWT refresh token")
     token_type: str = Field(default="bearer", description="Token type")
 
-    model_config = {"json_schema_extra": {"example": {
-        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "token_type": "bearer",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer",
+            }
+        }
+    }
 
 
 class AuthResponse(BaseModel):
@@ -120,15 +132,19 @@ class AuthResponse(BaseModel):
     refresh_token: str = Field(..., description="JWT refresh token")
     token_type: str = Field(default="bearer", description="Token type")
 
-    model_config = {"json_schema_extra": {"example": {
-        "user_id": "550e8400-e29b-41d4-a716-446655440000",
-        "email": "owner@example.com",
-        "full_name": "John Doe",
-        "role": "owner",
-        "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-        "token_type": "bearer",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "user_id": "550e8400-e29b-41d4-a716-446655440000",
+                "email": "owner@example.com",
+                "full_name": "John Doe",
+                "role": "owner",
+                "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                "token_type": "bearer",
+            }
+        }
+    }
 
 
 class LogoutResponse(BaseModel):
@@ -136,6 +152,10 @@ class LogoutResponse(BaseModel):
 
     message: str = Field(default="Successfully logged out", description="Logout message")
 
-    model_config = {"json_schema_extra": {"example": {
-        "message": "Successfully logged out",
-    }}}
+    model_config = {
+        "json_schema_extra": {
+            "example": {
+                "message": "Successfully logged out",
+            }
+        }
+    }

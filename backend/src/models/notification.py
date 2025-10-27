@@ -2,21 +2,13 @@
 
 Implements T235 from tasks.md.
 """
+
 from datetime import datetime
 from enum import Enum as PyEnum
-from typing import Optional
 from uuid import uuid4
 
-from sqlalchemy import (
-    Boolean,
-    Column,
-    DateTime,
-    Enum,
-    ForeignKey,
-    Index,
-    String,
-    Text,
-)
+from sqlalchemy import (Boolean, Column, DateTime, Enum, ForeignKey, Index,
+                        String, Text)
 from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import relationship
 
@@ -25,7 +17,7 @@ from ..core.database import Base
 
 class NotificationType(str, PyEnum):
     """Notification type enumeration."""
-    
+
     PAYMENT_RECEIVED = "payment_received"
     PAYMENT_OVERDUE = "payment_overdue"
     BILL_CREATED = "bill_created"
@@ -43,7 +35,7 @@ class NotificationType(str, PyEnum):
 
 class NotificationPriority(str, PyEnum):
     """Notification priority level."""
-    
+
     LOW = "low"
     NORMAL = "normal"
     HIGH = "high"
@@ -52,10 +44,10 @@ class NotificationPriority(str, PyEnum):
 
 class Notification(Base):
     """Notification model for push notifications.
-    
+
     Stores notification records for push notifications sent to users.
     Integrates with Firebase Cloud Messaging (FCM) for mobile push.
-    
+
     Features:
     - Multiple notification types for different events
     - Priority levels for notification importance
@@ -63,7 +55,7 @@ class Notification(Base):
     - Deep link support for navigation
     - Metadata for additional context
     - FCM message ID tracking
-    
+
     Access Control via RLS:
     - Users see only their own notifications
     """
@@ -186,7 +178,12 @@ class Notification(Base):
     __table_args__ = (
         Index("ix_notifications_user_unread", "user_id", "is_read"),
         Index("ix_notifications_user_type", "user_id", "notification_type"),
-        Index("ix_notifications_created_desc", "created_at", postgresql_using="btree", postgresql_ops={"created_at": "DESC"}),
+        Index(
+            "ix_notifications_created_desc",
+            "created_at",
+            postgresql_using="btree",
+            postgresql_ops={"created_at": "DESC"},
+        ),
     )
 
     def __repr__(self) -> str:

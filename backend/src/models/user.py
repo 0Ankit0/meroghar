@@ -2,9 +2,9 @@
 
 Implements T024 from tasks.md.
 """
+
 from datetime import datetime
 from enum import Enum as PyEnum
-from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import Boolean, Column, DateTime, Enum, Index, String
@@ -24,17 +24,17 @@ class UserRole(str, PyEnum):
 
 class User(Base):
     """User model representing all system users.
-    
+
     Roles:
     - owner: Property owner who can manage properties and assign intermediaries
     - intermediary: Property manager who handles day-to-day tenant operations
     - tenant: Renter living in a property
-    
+
     Authentication:
     - Email-based login
     - bcrypt password hashing with cost factor 12+
     - JWT token-based authentication
-    
+
     Security:
     - RLS policies ensure users can only access their own data
     - Role is immutable after creation
@@ -186,9 +186,7 @@ class User(Base):
     )
 
     # Indexes
-    __table_args__ = (
-        Index("idx_users_active", "is_active", postgresql_where=(is_active == True)),
-    )
+    __table_args__ = (Index("idx_users_active", "is_active", postgresql_where=(is_active)),)
 
     def __repr__(self) -> str:
         return f"<User(id={self.id}, email={self.email}, role={self.role})>"

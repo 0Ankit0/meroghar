@@ -5,7 +5,8 @@ Implements T015 from tasks.md.
 
 import logging
 import time
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -63,10 +64,7 @@ async def log_requests_middleware(request: Request, call_next: Callable) -> Any:
     process_time = time.time() - start_time
 
     # Log response
-    logger.info(
-        f"Response: {response.status_code} "
-        f"processed in {process_time:.3f}s"
-    )
+    logger.info(f"Response: {response.status_code} " f"processed in {process_time:.3f}s")
 
     # Add processing time header
     response.headers["X-Process-Time"] = str(process_time)
@@ -161,9 +159,7 @@ def setup_error_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(SQLAlchemyError)
-    async def database_exception_handler(
-        request: Request, exc: SQLAlchemyError
-    ) -> JSONResponse:
+    async def database_exception_handler(request: Request, exc: SQLAlchemyError) -> JSONResponse:
         """Handle database errors."""
         logger.error(f"Database error on {request.url.path}: {exc}", exc_info=True)
 
@@ -177,13 +173,9 @@ def setup_error_handlers(app: FastAPI) -> None:
         )
 
     @app.exception_handler(Exception)
-    async def general_exception_handler(
-        request: Request, exc: Exception
-    ) -> JSONResponse:
+    async def general_exception_handler(request: Request, exc: Exception) -> JSONResponse:
         """Handle all other unhandled exceptions."""
-        logger.error(
-            f"Unhandled exception on {request.url.path}: {exc}", exc_info=True
-        )
+        logger.error(f"Unhandled exception on {request.url.path}: {exc}", exc_info=True)
 
         # Don't expose internal errors in production
         detail = str(exc) if settings.debug else "An unexpected error occurred"

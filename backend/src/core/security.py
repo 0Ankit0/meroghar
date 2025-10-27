@@ -5,7 +5,7 @@ Implements T012 and T013 from tasks.md.
 
 import logging
 from datetime import datetime, timedelta
-from typing import Any, Dict, Optional
+from typing import Any
 
 import bcrypt
 from jose import JWTError, jwt
@@ -83,8 +83,8 @@ class JWTManager:
 
     @staticmethod
     def create_access_token(
-        data: Dict[str, Any],
-        expires_delta: Optional[timedelta] = None,
+        data: dict[str, Any],
+        expires_delta: timedelta | None = None,
     ) -> str:
         """
         Create a new JWT access token.
@@ -102,9 +102,7 @@ class JWTManager:
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(
-                minutes=settings.jwt_access_token_expire_minutes
-            )
+            expire = datetime.utcnow() + timedelta(minutes=settings.jwt_access_token_expire_minutes)
 
         to_encode.update(
             {
@@ -126,8 +124,8 @@ class JWTManager:
 
     @staticmethod
     def create_refresh_token(
-        data: Dict[str, Any],
-        expires_delta: Optional[timedelta] = None,
+        data: dict[str, Any],
+        expires_delta: timedelta | None = None,
     ) -> str:
         """
         Create a new JWT refresh token.
@@ -145,9 +143,7 @@ class JWTManager:
         if expires_delta:
             expire = datetime.utcnow() + expires_delta
         else:
-            expire = datetime.utcnow() + timedelta(
-                days=settings.jwt_refresh_token_expire_days
-            )
+            expire = datetime.utcnow() + timedelta(days=settings.jwt_refresh_token_expire_days)
 
         to_encode.update(
             {
@@ -168,7 +164,7 @@ class JWTManager:
         return encoded_jwt
 
     @staticmethod
-    def decode_token(token: str) -> Dict[str, Any]:
+    def decode_token(token: str) -> dict[str, Any]:
         """
         Decode and validate a JWT token.
 
@@ -193,7 +189,7 @@ class JWTManager:
             raise
 
     @staticmethod
-    def verify_token(token: str, token_type: str = "access") -> Optional[Dict[str, Any]]:
+    def verify_token(token: str, token_type: str = "access") -> dict[str, Any] | None:
         """
         Verify a JWT token and check its type.
 
@@ -221,7 +217,9 @@ class JWTManager:
             return None
 
     @staticmethod
-    def create_token_pair(user_id: str, additional_data: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+    def create_token_pair(
+        user_id: str, additional_data: dict[str, Any] | None = None
+    ) -> dict[str, str]:
         """
         Create both access and refresh tokens for a user.
 
@@ -257,27 +255,29 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return PasswordHasher.verify_password(plain_password, hashed_password)
 
 
-def create_access_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+def create_access_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     """Create a JWT access token."""
     return JWTManager.create_access_token(data, expires_delta)
 
 
-def create_refresh_token(data: Dict[str, Any], expires_delta: Optional[timedelta] = None) -> str:
+def create_refresh_token(data: dict[str, Any], expires_delta: timedelta | None = None) -> str:
     """Create a JWT refresh token."""
     return JWTManager.create_refresh_token(data, expires_delta)
 
 
-def decode_token(token: str) -> Dict[str, Any]:
+def decode_token(token: str) -> dict[str, Any]:
     """Decode a JWT token."""
     return JWTManager.decode_token(token)
 
 
-def verify_token(token: str, token_type: str = "access") -> Optional[Dict[str, Any]]:
+def verify_token(token: str, token_type: str = "access") -> dict[str, Any] | None:
     """Verify a JWT token."""
     return JWTManager.verify_token(token, token_type)
 
 
-def create_token_pair(user_id: str, additional_data: Optional[Dict[str, Any]] = None) -> Dict[str, str]:
+def create_token_pair(
+    user_id: str, additional_data: dict[str, Any] | None = None
+) -> dict[str, str]:
     """Create access and refresh token pair."""
     return JWTManager.create_token_pair(user_id, additional_data)
 

@@ -23,12 +23,12 @@ Flow:
 5. Verify payment using status API
 6. Process payment confirmation
 """
+
 import hashlib
 import logging
-import secrets
-from decimal import Decimal
-from typing import Any, Dict, Optional
 from datetime import datetime, timedelta
+from decimal import Decimal
+from typing import Any
 
 import httpx
 
@@ -60,9 +60,9 @@ class IMEPayPaymentGateway:
 
     def __init__(
         self,
-        merchant_code: Optional[str] = None,
-        merchant_username: Optional[str] = None,
-        merchant_password: Optional[str] = None,
+        merchant_code: str | None = None,
+        merchant_username: str | None = None,
+        merchant_password: str | None = None,
         is_sandbox: bool = True,
         timeout: int = 30,
     ):
@@ -82,9 +82,7 @@ class IMEPayPaymentGateway:
         self.timeout = timeout
 
         # Set appropriate URLs based on environment
-        self.base_url = (
-            self.SANDBOX_BASE_URL if is_sandbox else self.PRODUCTION_BASE_URL
-        )
+        self.base_url = self.SANDBOX_BASE_URL if is_sandbox else self.PRODUCTION_BASE_URL
         self.payment_portal_url = (
             self.SANDBOX_PAYMENT_URL if is_sandbox else self.PRODUCTION_PAYMENT_URL
         )
@@ -100,8 +98,8 @@ class IMEPayPaymentGateway:
         )
 
         # Authentication token (will be obtained on first API call)
-        self._auth_token: Optional[str] = None
-        self._token_expires: Optional[datetime] = None
+        self._auth_token: str | None = None
+        self._token_expires: datetime | None = None
 
         logger.info(
             f"IME Pay Payment Gateway initialized "
@@ -183,14 +181,14 @@ class IMEPayPaymentGateway:
         success_url: str,
         failure_url: str,
         cancel_url: str,
-        customer_name: Optional[str] = None,
-        customer_email: Optional[str] = None,
-        customer_phone: Optional[str] = None,
-        delivery_charge: Optional[Decimal] = None,
-        service_charge: Optional[Decimal] = None,
-        tax_amount: Optional[Decimal] = None,
-        product_details: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        customer_name: str | None = None,
+        customer_email: str | None = None,
+        customer_phone: str | None = None,
+        delivery_charge: Decimal | None = None,
+        service_charge: Decimal | None = None,
+        tax_amount: Decimal | None = None,
+        product_details: str | None = None,
+    ) -> dict[str, Any]:
         """Initiate a payment request with IME Pay.
 
         Args:
@@ -257,10 +255,7 @@ class IMEPayPaymentGateway:
         }
 
         try:
-            logger.info(
-                f"Initiating IME Pay payment: ref={reference_id}, "
-                f"amount=Rs.{amount}"
-            )
+            logger.info(f"Initiating IME Pay payment: ref={reference_id}, " f"amount=Rs.{amount}")
 
             response = await self.client.post(
                 "/WebCheckout/Checkout",
@@ -272,9 +267,7 @@ class IMEPayPaymentGateway:
 
             # Check response code
             if data.get("ResponseCode") != "0":
-                raise ValueError(
-                    f"Payment initiation failed: {data.get('ResponseMessage')}"
-                )
+                raise ValueError(f"Payment initiation failed: {data.get('ResponseMessage')}")
 
             transaction_id = data.get("TransactionId")
             payment_url = f"{self.payment_portal_url}/?TranToken={transaction_id}"
@@ -297,8 +290,7 @@ class IMEPayPaymentGateway:
         except httpx.HTTPStatusError as e:
             error_detail = e.response.json() if e.response.text else {}
             logger.error(
-                f"IME Pay payment initiation failed: {e.response.status_code} - "
-                f"{error_detail}"
+                f"IME Pay payment initiation failed: {e.response.status_code} - " f"{error_detail}"
             )
             raise ValueError(f"Payment initiation failed: {error_detail}")
 
@@ -311,7 +303,7 @@ class IMEPayPaymentGateway:
         transaction_id: str,
         reference_id: str,
         amount: Decimal,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         """Verify payment status using IME Pay confirmation API.
 
         This should be called after receiving the payment callback to confirm
@@ -370,9 +362,7 @@ class IMEPayPaymentGateway:
                 )
             elif response_code == "1":
                 status = self.STATUS_PENDING
-                logger.warning(
-                    f"IME Pay payment pending: txn={transaction_id}"
-                )
+                logger.warning(f"IME Pay payment pending: txn={transaction_id}")
             else:
                 status = self.STATUS_FAILED
                 logger.warning(
@@ -409,8 +399,8 @@ class IMEPayPaymentGateway:
         transaction_id: str,
         reference_id: str,
         amount: Decimal,
-        remarks: Optional[str] = None,
-    ) -> Dict[str, Any]:
+        remarks: str | None = None,
+    ) -> dict[str, Any]:
         """Request refund for a completed payment.
 
         Args:
@@ -439,10 +429,7 @@ class IMEPayPaymentGateway:
         }
 
         try:
-            logger.info(
-                f"Requesting IME Pay refund: txn={transaction_id}, "
-                f"amount=Rs.{amount}"
-            )
+            logger.info(f"Requesting IME Pay refund: txn={transaction_id}, " f"amount=Rs.{amount}")
 
             response = await self.client.post(
                 "/WebCheckout/ReconfirmTransaction",
@@ -460,7 +447,9 @@ class IMEPayPaymentGateway:
             return {
                 "transaction_id": transaction_id,
                 "reference_id": reference_id,
-                "status": self.STATUS_REFUNDED if data.get("ResponseCode") == "0" else self.STATUS_FAILED,
+                "status": (
+                    self.STATUS_REFUNDED if data.get("ResponseCode") == "0" else self.STATUS_FAILED
+                ),
                 "amount": float(amount),
                 "response_message": data.get("ResponseMessage"),
                 "raw_response": data,

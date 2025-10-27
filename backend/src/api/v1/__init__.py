@@ -2,20 +2,20 @@
 
 from fastapi import APIRouter
 
-from .auth import router as auth_router
-from .users import router as users_router
-from .properties import router as properties_router
-from .tenants import router as tenants_router
-from .payments import router as payments_router
-from .bills import router as bills_router
 from .analytics import router as analytics_router
-from .webhooks import router as webhooks_router
+from .auth import router as auth_router
+from .bills import router as bills_router
+from .documents import router as documents_router
 from .expenses import router as expenses_router
+from .messages import router as messages_router
+from .notifications import router as notifications_router
+from .payments import router as payments_router
+from .properties import router as properties_router
 from .reports import router as reports_router
 from .sync import router as sync_router
-from .messages import router as messages_router
-from .documents import router as documents_router
-from .notifications import router as notifications_router
+from .tenants import router as tenants_router
+from .users import router as users_router
+from .webhooks import router as webhooks_router
 
 # Create API v1 router
 api_router = APIRouter(prefix="/v1")

@@ -2,31 +2,21 @@
 
 Implements T033 from tasks.md.
 """
+
 import logging
-from datetime import datetime, timedelta
-from typing import Optional, Tuple
+from datetime import datetime
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from ..core.security import (
-    PasswordHasher,
-    JWTManager,
-    create_access_token,
-    create_refresh_token,
-    decode_token,
-    hash_password,
-    verify_password,
-)
-from ..models.user import User, UserRole
-from ..schemas.auth import (
-    AuthResponse,
-    LoginRequest,
-    RegisterRequest,
-    TokenPair,
-)
+from ..core.security import (JWTManager, PasswordHasher, create_access_token,
+                             create_refresh_token, decode_token, hash_password,
+                             verify_password)
+from ..models.user import User
+from ..schemas.auth import (AuthResponse, LoginRequest, RegisterRequest,
+                            TokenPair)
 
 # Configure logger for auth service
 logger = logging.getLogger(__name__)
@@ -37,7 +27,7 @@ class AuthService:
 
     def __init__(self, session: AsyncSession):
         """Initialize auth service with database session.
-        
+
         Args:
             session: SQLAlchemy async session
         """
@@ -47,19 +37,19 @@ class AuthService:
 
     async def register(self, request: RegisterRequest) -> AuthResponse:
         """Register a new user.
-        
+
         Args:
             request: Registration request with email, password, full_name, role
-            
+
         Returns:
             AuthResponse with user details and JWT tokens
-            
+
         Raises:
             ValueError: If email already exists or validation fails
             IntegrityError: If database constraint violated
         """
         logger.info(f"Registration attempt for email: {request.email}, role: {request.role.value}")
-        
+
         # Check if email already exists
         existing_user = await self._get_user_by_email(request.email)
         if existing_user:
@@ -83,7 +73,9 @@ class AuthService:
             self.session.add(user)
             await self.session.commit()
             await self.session.refresh(user)
-            logger.info(f"User registered successfully: {user.id} ({user.email}, role: {user.role.value})")
+            logger.info(
+                f"User registered successfully: {user.id} ({user.email}, role: {user.role.value})"
+            )
         except IntegrityError as e:
             await self.session.rollback()
             logger.error(f"Registration failed for {request.email}: {str(e)}")
@@ -105,13 +97,13 @@ class AuthService:
 
     async def login(self, request: LoginRequest) -> AuthResponse:
         """Authenticate user and return tokens.
-        
+
         Args:
             request: Login request with email and password
-            
+
         Returns:
             AuthResponse with user details and JWT tokens
-            
+
         Raises:
             ValueError: If credentials invalid or user inactive
         """
@@ -148,13 +140,13 @@ class AuthService:
 
     async def refresh_tokens(self, refresh_token: str) -> TokenPair:
         """Refresh access token using refresh token.
-        
+
         Args:
             refresh_token: JWT refresh token
-            
+
         Returns:
             TokenPair with new access and refresh tokens
-            
+
         Raises:
             ValueError: If token invalid, expired, or user not found
         """
@@ -191,12 +183,12 @@ class AuthService:
             token_type="bearer",
         )
 
-    async def verify_access_token(self, access_token: str) -> Optional[User]:
+    async def verify_access_token(self, access_token: str) -> User | None:
         """Verify access token and return user.
-        
+
         Args:
             access_token: JWT access token
-            
+
         Returns:
             User if token valid, None otherwise
         """
@@ -224,15 +216,15 @@ class AuthService:
         self, user_id: UUID, current_password: str, new_password: str
     ) -> bool:
         """Change user password.
-        
+
         Args:
             user_id: User ID
             current_password: Current password
             new_password: New password
-            
+
         Returns:
             True if password changed successfully
-            
+
         Raises:
             ValueError: If current password incorrect or user not found
         """
@@ -253,13 +245,13 @@ class AuthService:
 
     async def deactivate_user(self, user_id: UUID) -> bool:
         """Deactivate user account.
-        
+
         Args:
             user_id: User ID to deactivate
-            
+
         Returns:
             True if user deactivated
-            
+
         Raises:
             ValueError: If user not found
         """
@@ -275,30 +267,26 @@ class AuthService:
 
     # ==================== Private Helper Methods ====================
 
-    async def _get_user_by_email(self, email: str) -> Optional[User]:
+    async def _get_user_by_email(self, email: str) -> User | None:
         """Get user by email.
-        
+
         Args:
             email: User email
-            
+
         Returns:
             User if found, None otherwise
         """
-        result = await self.session.execute(
-            select(User).where(User.email == email)
-        )
+        result = await self.session.execute(select(User).where(User.email == email))
         return result.scalar_one_or_none()
 
-    async def _get_user_by_id(self, user_id: UUID) -> Optional[User]:
+    async def _get_user_by_id(self, user_id: UUID) -> User | None:
         """Get user by ID.
-        
+
         Args:
             user_id: User ID
-            
+
         Returns:
             User if found, None otherwise
         """
-        result = await self.session.execute(
-            select(User).where(User.id == user_id)
-        )
+        result = await self.session.execute(select(User).where(User.id == user_id))
         return result.scalar_one_or_none()

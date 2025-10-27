@@ -2,22 +2,15 @@
 
 Implements T075-T077 from tasks.md.
 """
+
 from datetime import date, datetime
 from decimal import Decimal
 from enum import Enum
 from uuid import UUID, uuid4
 
-from sqlalchemy import (
-    Boolean,
-    DateTime,
-    Enum as SQLEnum,
-    ForeignKey,
-    Numeric,
-    String,
-    Text,
-    Date,
-    Integer,
-)
+from sqlalchemy import Boolean, Date, DateTime
+from sqlalchemy import Enum as SQLEnum
+from sqlalchemy import ForeignKey, Integer, Numeric, String, Text
 from sqlalchemy.dialects.postgresql import UUID as PGUUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -64,36 +57,30 @@ class RecurringFrequency(str, Enum):
 
 class Bill(Base):
     """Model for utility bills and other expenses.
-    
+
     Implements T075 from tasks.md.
     """
 
     __tablename__ = "bills"
 
-    id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
     property_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("properties.id"), nullable=False, index=True
     )
-    bill_type: Mapped[BillType] = mapped_column(
-        SQLEnum(BillType, name="bill_type"), nullable=False
-    )
+    bill_type: Mapped[BillType] = mapped_column(SQLEnum(BillType, name="bill_type"), nullable=False)
     period_start: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     period_end: Mapped[date] = mapped_column(Date, nullable=False)
-    total_amount: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False
-    )
+    total_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
     status: Mapped[BillStatus] = mapped_column(
-        SQLEnum(BillStatus, name="bill_status"), 
-        nullable=False, 
+        SQLEnum(BillStatus, name="bill_status"),
+        nullable=False,
         default=BillStatus.PENDING,
-        index=True
+        index=True,
     )
     allocation_method: Mapped[AllocationMethod] = mapped_column(
-        SQLEnum(AllocationMethod, name="allocation_method"), 
+        SQLEnum(AllocationMethod, name="allocation_method"),
         nullable=False,
-        default=AllocationMethod.EQUAL
+        default=AllocationMethod.EQUAL,
     )
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     bill_number: Mapped[str | None] = mapped_column(String(100), nullable=True)
@@ -102,9 +89,7 @@ class Bill(Base):
     created_by: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
@@ -119,36 +104,28 @@ class Bill(Base):
 
 class BillAllocation(Base):
     """Model for bill allocation to individual tenants.
-    
+
     Implements T076 from tasks.md.
     """
 
     __tablename__ = "bill_allocations"
 
-    id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
     bill_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("bills.id"), nullable=False, index=True
     )
     tenant_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("tenants.id"), nullable=False, index=True
     )
-    allocated_amount: Mapped[Decimal] = mapped_column(
-        Numeric(12, 2), nullable=False
-    )
-    percentage: Mapped[Decimal | None] = mapped_column(
-        Numeric(5, 2), nullable=True
-    )
+    allocated_amount: Mapped[Decimal] = mapped_column(Numeric(12, 2), nullable=False)
+    percentage: Mapped[Decimal | None] = mapped_column(Numeric(5, 2), nullable=True)
     is_paid: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     paid_date: Mapped[date | None] = mapped_column(Date, nullable=True)
     payment_id: Mapped[UUID | None] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("payments.id"), nullable=True
     )
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )
@@ -161,33 +138,25 @@ class BillAllocation(Base):
 
 class RecurringBill(Base):
     """Model for recurring bill templates and schedules.
-    
+
     Implements T077 from tasks.md.
     """
 
     __tablename__ = "recurring_bills"
 
-    id: Mapped[UUID] = mapped_column(
-        PGUUID(as_uuid=True), primary_key=True, default=uuid4
-    )
+    id: Mapped[UUID] = mapped_column(PGUUID(as_uuid=True), primary_key=True, default=uuid4)
     property_id: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("properties.id"), nullable=False, index=True
     )
-    bill_type: Mapped[BillType] = mapped_column(
-        SQLEnum(BillType, name="bill_type"), nullable=False
-    )
+    bill_type: Mapped[BillType] = mapped_column(SQLEnum(BillType, name="bill_type"), nullable=False)
     frequency: Mapped[RecurringFrequency] = mapped_column(
         SQLEnum(RecurringFrequency, name="recurring_frequency"), nullable=False
     )
     allocation_method: Mapped[AllocationMethod] = mapped_column(
         SQLEnum(AllocationMethod, name="allocation_method"), nullable=False
     )
-    estimated_amount: Mapped[Decimal | None] = mapped_column(
-        Numeric(12, 2), nullable=True
-    )
-    day_of_month: Mapped[int] = mapped_column(
-        Integer, nullable=False, default=1
-    )
+    estimated_amount: Mapped[Decimal | None] = mapped_column(Numeric(12, 2), nullable=True)
+    day_of_month: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
     is_active: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
     last_generated: Mapped[date | None] = mapped_column(Date, nullable=True)
     next_generation: Mapped[date] = mapped_column(Date, nullable=False, index=True)
@@ -195,9 +164,7 @@ class RecurringBill(Base):
     created_by: Mapped[UUID] = mapped_column(
         PGUUID(as_uuid=True), ForeignKey("users.id"), nullable=False
     )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime, nullable=False, default=datetime.utcnow
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime, nullable=False, default=datetime.utcnow)
     updated_at: Mapped[datetime] = mapped_column(
         DateTime, nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow
     )

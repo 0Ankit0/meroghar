@@ -23,7 +23,7 @@ class SuccessResponse(BaseModel, Generic[T]):
 
     success: bool = Field(default=True, description="Indicates successful operation")
     data: T = Field(..., description="Response data")
-    message: Optional[str] = Field(default=None, description="Optional success message")
+    message: str | None = Field(default=None, description="Optional success message")
 
     class Config:
         json_schema_extra = {
@@ -49,7 +49,7 @@ class ErrorResponse(BaseModel):
     success: bool = Field(default=False, description="Indicates failed operation")
     error: str = Field(..., description="Error type or category")
     detail: str = Field(..., description="Detailed error message")
-    details: Optional[List[Dict[str, Any]]] = Field(
+    details: list[dict[str, Any]] | None = Field(
         default=None, description="Additional error details"
     )
 
@@ -77,9 +77,7 @@ class PaginationParams(BaseModel):
     """
 
     page: int = Field(default=1, ge=1, description="Page number (1-indexed)")
-    page_size: int = Field(
-        default=20, ge=1, le=100, description="Number of items per page"
-    )
+    page_size: int = Field(default=20, ge=1, le=100, description="Number of items per page")
 
     @property
     def skip(self) -> int:
@@ -101,7 +99,7 @@ class PaginatedResponse(BaseModel, Generic[T]):
     """
 
     success: bool = Field(default=True, description="Indicates successful operation")
-    data: List[T] = Field(..., description="List of items")
+    data: list[T] = Field(..., description="List of items")
     pagination: "PaginationMeta" = Field(..., description="Pagination metadata")
 
     class Config:
@@ -236,78 +234,33 @@ __all__ = [
 ]
 
 # Import schemas for convenient access
-from .auth import (
-    AuthResponse,
-    LoginRequest,
-    LogoutResponse,
-    RefreshTokenRequest,
-    RegisterRequest,
-    TokenPair,
-)
-from .bill import (
-    BillAllocationCreateRequest,
-    BillAllocationResponse,
-    BillAllocationUpdateRequest,
-    BillCreateRequest,
-    BillListResponse,
-    BillResponse,
-    BillUpdateRequest,
-    RecurringBillCreateRequest,
-    RecurringBillListResponse,
-    RecurringBillResponse,
-    RecurringBillUpdateRequest,
-)
-from .payment import (
-    PaymentCreateRequest,
-    PaymentListResponse,
-    PaymentResponse,
-    PaymentUpdateRequest,
-    TenantBalanceResponse as PaymentTenantBalanceResponse,
-    TransactionResponse,
-)
-from .property import (
-    PropertyAssignIntermediaryRequest,
-    PropertyAssignmentResponse,
-    PropertyCreateRequest,
-    PropertyListResponse,
-    PropertyRemoveIntermediaryRequest,
-    PropertyResponse,
-    PropertyUpdateRequest,
-)
-from .tenant import (
-    TenantBalanceResponse,
-    TenantCreateRequest,
-    TenantListResponse,
-    TenantMoveOutRequest,
-    TenantResponse,
-    TenantUpdateRequest,
-    TenantWithUserResponse,
-)
-from .user import (
-    PasswordChangeRequest,
-    UserCreateRequest,
-    UserListResponse,
-    UserProfileResponse,
-    UserResponse,
-    UserUpdateRequest,
-)
-from .document import (
-    DocumentCreate,
-    DocumentUploadResponse,
-    DocumentComplete,
-    DocumentResponse,
-    DocumentListResponse,
-    DocumentUpdateStatus,
-    DocumentVersionCreate,
-    DocumentDownloadResponse,
-)
-from .notification import (
-    NotificationCreateRequest,
-    NotificationMarkReadRequest,
-    NotificationUpdateFCMRequest,
-    NotificationFilterRequest,
-    NotificationResponse,
-    NotificationListResponse,
-    NotificationUnreadCountResponse,
-    NotificationBatchResponse,
-)
+from .auth import (AuthResponse, LoginRequest, LogoutResponse,
+                   RefreshTokenRequest, RegisterRequest, TokenPair)
+from .bill import (BillAllocationCreateRequest, BillAllocationResponse,
+                   BillAllocationUpdateRequest, BillCreateRequest,
+                   BillListResponse, BillResponse, BillUpdateRequest,
+                   RecurringBillCreateRequest, RecurringBillListResponse,
+                   RecurringBillResponse, RecurringBillUpdateRequest)
+from .document import (DocumentComplete, DocumentCreate,
+                       DocumentDownloadResponse, DocumentListResponse,
+                       DocumentResponse, DocumentUpdateStatus,
+                       DocumentUploadResponse, DocumentVersionCreate)
+from .notification import (NotificationBatchResponse,
+                           NotificationCreateRequest,
+                           NotificationFilterRequest, NotificationListResponse,
+                           NotificationMarkReadRequest, NotificationResponse,
+                           NotificationUnreadCountResponse,
+                           NotificationUpdateFCMRequest)
+from .payment import (PaymentCreateRequest, PaymentListResponse,
+                      PaymentResponse, PaymentUpdateRequest)
+from .payment import TenantBalanceResponse as PaymentTenantBalanceResponse
+from .payment import TransactionResponse
+from .property import (PropertyAssignIntermediaryRequest,
+                       PropertyAssignmentResponse, PropertyCreateRequest,
+                       PropertyListResponse, PropertyRemoveIntermediaryRequest,
+                       PropertyResponse, PropertyUpdateRequest)
+from .tenant import (TenantBalanceResponse, TenantCreateRequest,
+                     TenantListResponse, TenantMoveOutRequest, TenantResponse,
+                     TenantUpdateRequest, TenantWithUserResponse)
+from .user import (PasswordChangeRequest, UserCreateRequest, UserListResponse,
+                   UserProfileResponse, UserResponse, UserUpdateRequest)
