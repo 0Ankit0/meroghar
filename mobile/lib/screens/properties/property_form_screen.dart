@@ -254,7 +254,7 @@ class _PropertyFormScreenState extends State<PropertyFormScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<String>(
-                      value: _selectedCurrency,
+                      initialValue: _selectedCurrency,
                       decoration: const InputDecoration(
                         labelText: 'Base Currency *',
                         border: OutlineInputBorder(),

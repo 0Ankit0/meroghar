@@ -165,7 +165,7 @@ class _IntermediaryFormScreenState extends State<IntermediaryFormScreen> {
                     ),
                     const SizedBox(height: 16),
                     DropdownButtonFormField<UserRole>(
-                      value: _selectedRole,
+                      initialValue: _selectedRole,
                       decoration: const InputDecoration(
                         labelText: 'Role *',
                         border: OutlineInputBorder(),

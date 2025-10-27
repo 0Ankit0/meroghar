@@ -146,13 +146,15 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
       await file.writeAsBytes(_pdfData!);
 
       // Share the file using SharePlus
-      await Share.shareXFiles(
-        [XFile(filePath)],
-        subject: widget.tenantName != null
-            ? 'Payment Receipt - ${widget.tenantName}'
-            : 'Payment Receipt',
-        text:
-            'Payment receipt for transaction ${widget.paymentId.substring(0, 8)}',
+      await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(filePath)],
+          subject: widget.tenantName != null
+              ? 'Payment Receipt - ${widget.tenantName}'
+              : 'Payment Receipt',
+          text:
+              'Payment receipt for transaction ${widget.paymentId.substring(0, 8)}',
+        ),
       );
     } catch (e) {
       if (!mounted) return;

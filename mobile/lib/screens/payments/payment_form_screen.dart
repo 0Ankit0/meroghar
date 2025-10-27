@@ -182,7 +182,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<PaymentType>(
-                      value: _selectedType,
+                      initialValue: _selectedType,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
@@ -247,7 +247,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     ),
                     const SizedBox(height: 8),
                     DropdownButtonFormField<PaymentMethod>(
-                      value: _selectedMethod,
+                      initialValue: _selectedMethod,
                       decoration: const InputDecoration(
                         border: OutlineInputBorder(),
                         contentPadding: EdgeInsets.symmetric(
