@@ -108,10 +108,10 @@ async def health_check() -> HealthCheckResponse:
 
 
 # API Router setup
-# Additional routers will be added here as they are implemented
-# Example:
-# from .api.v1 import auth, users, properties, tenants
-# app.include_router(auth.router, prefix=f"/api/{settings.api_version}", tags=["Authentication"])
-# app.include_router(users.router, prefix=f"/api/{settings.api_version}", tags=["Users"])
+# Import and include API v1 routers
+from .api.v1 import api_router
+
+app.include_router(api_router, prefix="/api")
 
 logger.info(f"FastAPI application configured with prefix: /api/{settings.api_version}")
+
