@@ -30,6 +30,7 @@ from ..schemas.bill import (
     RecurringBillCreateRequest,
 )
 from .notification_service import NotificationService
+from ..core.cache import invalidate_cache
 
 logger = logging.getLogger(__name__)
 
@@ -140,6 +141,9 @@ class BillService:
             )
         
         await self.session.commit()
+        
+        # Invalidate analytics caches
+        invalidate_cache("cache:analytics:*")
         
         # Reload bill with allocations
         result = await self.session.execute(

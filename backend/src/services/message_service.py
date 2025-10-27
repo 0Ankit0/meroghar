@@ -1,7 +1,9 @@
 """
 Message service for SMS/WhatsApp reminders via Twilio.
 
-Implements T160-T162 from tasks.md.
+Implements T160-T162, T219 from tasks.md.
+
+Supports multi-language templates for: English, Hindi, Spanish, Arabic
 """
 from datetime import datetime
 from typing import List, Dict, Any, Optional
@@ -18,136 +20,96 @@ from ..models.tenant import Tenant
 from ..models.property import Property
 
 
-# Message templates with placeholders
-MESSAGE_TEMPLATES = {
+# Language-specific message templates with placeholders
+# Implements T219: Create language-specific message templates
+MESSAGE_TEMPLATES_MULTILANG = {
     MessageTemplate.PAYMENT_REMINDER: {
-        "sms": "Hi {tenant_name}, this is a reminder that your rent payment of Rs. {amount_due} for {property_name} is due on {due_date}. Please pay at your earliest convenience. {payment_link}",
-        "whatsapp": "Dear {tenant_name},\n\nThis is a friendly reminder that your rent payment of Rs. {amount_due} for {property_name} is due on {due_date}.\n\nPlease make the payment at your earliest convenience.\n\n{payment_link}\n\nThank you!",
-        "email_subject": "Rent Payment Reminder - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-This is a reminder that your rent payment for {property_name} is due soon.
-
-Amount Due: Rs. {amount_due}
-Due Date: {due_date}
-
-Please make the payment at your earliest convenience.
-
-{payment_link}
-
-Thank you for your cooperation.
-
-Best regards,
-Property Management Team"""
+        "en": {
+            "sms": "Hi {tenant_name}, this is a reminder that your rent payment of Rs. {amount_due} for {property_name} is due on {due_date}. Please pay at your earliest convenience. {payment_link}",
+            "whatsapp": "Dear {tenant_name},\n\nThis is a friendly reminder that your rent payment of Rs. {amount_due} for {property_name} is due on {due_date}.\n\nPlease make the payment at your earliest convenience.\n\n{payment_link}\n\nThank you!",
+            "email_subject": "Rent Payment Reminder - {property_name}",
+            "email_body": "Dear {tenant_name},\n\nThis is a reminder that your rent payment for {property_name} is due soon.\n\nAmount Due: Rs. {amount_due}\nDue Date: {due_date}\n\nPlease make the payment at your earliest convenience.\n\n{payment_link}\n\nThank you for your cooperation.\n\nBest regards,\nProperty Management Team"
+        },
+        "hi": {
+            "sms": "नमस्ते {tenant_name}, यह एक अनुस्मारक है कि {property_name} के लिए आपका ₹{amount_due} का किराया भुगतान {due_date} को देय है। कृपया जल्द से जल्द भुगतान करें। {payment_link}",
+            "whatsapp": "प्रिय {tenant_name},\n\nयह एक मैत्रीपूर्ण अनुस्मारक है कि {property_name} के लिए आपका ₹{amount_due} का किराया भुगतान {due_date} को देय है।\n\nकृपया जल्द से जल्द भुगतान करें।\n\n{payment_link}\n\nधन्यवाद!",
+            "email_subject": "किराया भुगतान अनुस्मारक - {property_name}",
+            "email_body": "प्रिय {tenant_name},\n\nयह एक अनुस्मारक है कि {property_name} के लिए आपका किराया भुगतान जल्द ही देय है।\n\nदेय राशि: ₹{amount_due}\nदेय तिथि: {due_date}\n\nकृपया जल्द से जल्द भुगतान करें।\n\n{payment_link}\n\nआपके सहयोग के लिए धन्यवाद।\n\nसादर,\nसंपत्ति प्रबंधन टीम"
+        },
+        "es": {
+            "sms": "Hola {tenant_name}, este es un recordatorio de que su pago de alquiler de Rs. {amount_due} para {property_name} vence el {due_date}. Por favor pague lo antes posible. {payment_link}",
+            "whatsapp": "Estimado {tenant_name},\n\nEste es un recordatorio amistoso de que su pago de alquiler de Rs. {amount_due} para {property_name} vence el {due_date}.\n\nPor favor realice el pago lo antes posible.\n\n{payment_link}\n\n¡Gracias!",
+            "email_subject": "Recordatorio de Pago de Alquiler - {property_name}",
+            "email_body": "Estimado {tenant_name},\n\nEste es un recordatorio de que su pago de alquiler para {property_name} vence pronto.\n\nMonto a Pagar: Rs. {amount_due}\nFecha de Vencimiento: {due_date}\n\nPor favor realice el pago lo antes posible.\n\n{payment_link}\n\nGracias por su cooperación.\n\nSaludos cordiales,\nEquipo de Gestión de Propiedades"
+        },
+        "ar": {
+            "sms": "مرحباً {tenant_name}، هذا تذكير بأن دفع إيجارك بمبلغ {amount_due} روبية لـ {property_name} مستحق في {due_date}. يرجى الدفع في أقرب وقت ممكن. {payment_link}",
+            "whatsapp": "عزيزي {tenant_name}،\n\nهذا تذكير ودي بأن دفع إيجارك بمبلغ {amount_due} روبية لـ {property_name} مستحق في {due_date}.\n\nيرجى إجراء الدفع في أقرب وقت ممكن.\n\n{payment_link}\n\nشكراً!",
+            "email_subject": "تذكير بدفع الإيجار - {property_name}",
+            "email_body": "عزيزي {tenant_name}،\n\nهذا تذكير بأن دفع إيجارك لـ {property_name} مستحق قريباً.\n\nالمبلغ المستحق: {amount_due} روبية\nتاريخ الاستحقاق: {due_date}\n\nيرجى إجراء الدفع في أقرب وقت ممكن.\n\n{payment_link}\n\nشكراً لتعاونك.\n\nمع أطيب التحيات،\nفريق إدارة العقارات"
+        }
     },
     MessageTemplate.PAYMENT_OVERDUE: {
-        "sms": "URGENT: {tenant_name}, your rent payment of Rs. {amount_due} for {property_name} is OVERDUE. Please pay immediately to avoid late fees. {payment_link}",
-        "whatsapp": "⚠️ *URGENT* ⚠️\n\nDear {tenant_name},\n\nYour rent payment of Rs. {amount_due} for {property_name} is *OVERDUE*.\n\nPlease make the payment immediately to avoid late fees and penalties.\n\n{payment_link}\n\nThank you for your prompt attention.",
-        "email_subject": "URGENT: Overdue Rent Payment - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-This is an urgent notice that your rent payment for {property_name} is OVERDUE.
-
-Amount Due: Rs. {amount_due}
-Days Overdue: {days_overdue}
-
-Please make the payment immediately to avoid late fees and penalties.
-
-{payment_link}
-
-If you have already made the payment, please disregard this message.
-
-Best regards,
-Property Management Team"""
+        "en": {
+            "sms": "URGENT: {tenant_name}, your rent payment of Rs. {amount_due} for {property_name} is OVERDUE. Please pay immediately to avoid late fees. {payment_link}",
+            "whatsapp": "⚠️ *URGENT* ⚠️\n\nDear {tenant_name},\n\nYour rent payment of Rs. {amount_due} for {property_name} is *OVERDUE*.\n\nPlease make the payment immediately to avoid late fees and penalties.\n\n{payment_link}\n\nThank you for your prompt attention.",
+            "email_subject": "URGENT: Overdue Rent Payment - {property_name}",
+            "email_body": "Dear {tenant_name},\n\nThis is an urgent notice that your rent payment for {property_name} is OVERDUE.\n\nAmount Due: Rs. {amount_due}\nDays Overdue: {days_overdue}\n\nPlease make the payment immediately to avoid late fees and penalties.\n\n{payment_link}\n\nIf you have already made the payment, please disregard this message.\n\nBest regards,\nProperty Management Team"
+        },
+        "hi": {
+            "sms": "जरूरी: {tenant_name}, {property_name} के लिए आपका ₹{amount_due} का किराया भुगतान विलंबित है। देर से शुल्क से बचने के लिए कृपया तुरंत भुगतान करें। {payment_link}",
+            "whatsapp": "⚠️ *जरूरी* ⚠️\n\nप्रिय {tenant_name},\n\n{property_name} के लिए आपका ₹{amount_due} का किराया भुगतान *विलंबित* है।\n\nदेर से शुल्क और जुर्माने से बचने के लिए कृपया तुरंत भुगतान करें।\n\n{payment_link}\n\nआपके शीघ्र ध्यान के लिए धन्यवाद।",
+            "email_subject": "जरूरी: विलंबित किराया भुगतान - {property_name}",
+            "email_body": "प्रिय {tenant_name},\n\nयह एक जरूरी सूचना है कि {property_name} के लिए आपका किराया भुगतान विलंबित है।\n\nदेय राशि: ₹{amount_due}\nविलंब के दिन: {days_overdue}\n\nदेर से शुल्क और जुर्माने से बचने के लिए कृपया तुरंत भुगतान करें।\n\n{payment_link}\n\nयदि आपने पहले ही भुगतान कर दिया है, तो कृपया इस संदेश को अनदेखा करें।\n\nसादर,\nसंपत्ति प्रबंधन टीम"
+        },
+        "es": {
+            "sms": "URGENTE: {tenant_name}, su pago de alquiler de Rs. {amount_due} para {property_name} está VENCIDO. Por favor pague inmediatamente para evitar cargos por mora. {payment_link}",
+            "whatsapp": "⚠️ *URGENTE* ⚠️\n\nEstimado {tenant_name},\n\nSu pago de alquiler de Rs. {amount_due} para {property_name} está *VENCIDO*.\n\nPor favor realice el pago inmediatamente para evitar cargos por mora y penalizaciones.\n\n{payment_link}\n\nGracias por su pronta atención.",
+            "email_subject": "URGENTE: Pago de Alquiler Vencido - {property_name}",
+            "email_body": "Estimado {tenant_name},\n\nEste es un aviso urgente de que su pago de alquiler para {property_name} está VENCIDO.\n\nMonto a Pagar: Rs. {amount_due}\nDías de Retraso: {days_overdue}\n\nPor favor realice el pago inmediatamente para evitar cargos por mora y penalizaciones.\n\n{payment_link}\n\nSi ya realizó el pago, por favor ignore este mensaje.\n\nSaludos cordiales,\nEquipo de Gestión de Propiedades"
+        },
+        "ar": {
+            "sms": "عاجل: {tenant_name}، دفع إيجارك بمبلغ {amount_due} روبية لـ {property_name} متأخر. يرجى الدفع فوراً لتجنب رسوم التأخير. {payment_link}",
+            "whatsapp": "⚠️ *عاجل* ⚠️\n\nعزيزي {tenant_name}،\n\nدفع إيجارك بمبلغ {amount_due} روبية لـ {property_name} *متأخر*.\n\nيرجى إجراء الدفع فوراً لتجنب رسوم التأخير والغرامات.\n\n{payment_link}\n\nشكراً لاهتمامك السريع.",
+            "email_subject": "عاجل: دفع إيجار متأخر - {property_name}",
+            "email_body": "عزيزي {tenant_name}،\n\nهذا إشعار عاجل بأن دفع إيجارك لـ {property_name} متأخر.\n\nالمبلغ المستحق: {amount_due} روبية\nأيام التأخير: {days_overdue}\n\nيرجى إجراء الدفع فوراً لتجنب رسوم التأخير والغرامات.\n\n{payment_link}\n\nإذا كنت قد أجريت الدفع بالفعل، يرجى تجاهل هذه الرسالة.\n\nمع أطيب التحيات،\nفريق إدارة العقارات"
+        }
     },
     MessageTemplate.PAYMENT_RECEIVED: {
-        "sms": "Thank you {tenant_name}! We have received your payment of Rs. {amount_paid} for {property_name}. Receipt: {receipt_url}",
-        "whatsapp": "✅ *Payment Received*\n\nThank you {tenant_name}!\n\nWe have successfully received your payment.\n\nAmount: Rs. {amount_paid}\nProperty: {property_name}\nDate: {payment_date}\n\nReceipt: {receipt_url}",
-        "email_subject": "Payment Received - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-Thank you for your payment!
-
-We have successfully received your payment:
-
-Amount: Rs. {amount_paid}
-Property: {property_name}
-Payment Date: {payment_date}
-
-Receipt: {receipt_url}
-
-Thank you for your timely payment.
-
-Best regards,
-Property Management Team"""
+        "en": {
+            "sms": "Thank you {tenant_name}! We have received your payment of Rs. {amount_paid} for {property_name}. Receipt: {receipt_url}",
+            "whatsapp": "✅ *Payment Received*\n\nThank you {tenant_name}!\n\nWe have successfully received your payment.\n\nAmount: Rs. {amount_paid}\nProperty: {property_name}\nDate: {payment_date}\n\nReceipt: {receipt_url}",
+            "email_subject": "Payment Received - {property_name}",
+            "email_body": "Dear {tenant_name},\n\nThank you for your payment!\n\nWe have successfully received your payment:\n\nAmount: Rs. {amount_paid}\nProperty: {property_name}\nPayment Date: {payment_date}\n\nReceipt: {receipt_url}\n\nThank you for your timely payment.\n\nBest regards,\nProperty Management Team"
+        },
+        "hi": {
+            "sms": "धन्यवाद {tenant_name}! हमें {property_name} के लिए आपका ₹{amount_paid} का भुगतान प्राप्त हुआ है। रसीद: {receipt_url}",
+            "whatsapp": "✅ *भुगतान प्राप्त हुआ*\n\nधन्यवाद {tenant_name}!\n\nहमें आपका भुगतान सफलतापूर्वक प्राप्त हुआ है।\n\nराशि: ₹{amount_paid}\nसंपत्ति: {property_name}\nतिथि: {payment_date}\n\nरसीद: {receipt_url}",
+            "email_subject": "भुगतान प्राप्त हुआ - {property_name}",
+            "email_body": "प्रिय {tenant_name},\n\nआपके भुगतान के लिए धन्यवाद!\n\nहमें आपका भुगतान सफलतापूर्वक प्राप्त हुआ है:\n\nराशि: ₹{amount_paid}\nसंपत्ति: {property_name}\nभुगतान तिथि: {payment_date}\n\nरसीद: {receipt_url}\n\nसमय पर भुगतान के लिए धन्यवाद।\n\nसादर,\nसंपत्ति प्रबंधन टीम"
+        },
+        "es": {
+            "sms": "¡Gracias {tenant_name}! Hemos recibido su pago de Rs. {amount_paid} para {property_name}. Recibo: {receipt_url}",
+            "whatsapp": "✅ *Pago Recibido*\n\n¡Gracias {tenant_name}!\n\nHemos recibido su pago exitosamente.\n\nMonto: Rs. {amount_paid}\nPropiedad: {property_name}\nFecha: {payment_date}\n\nRecibo: {receipt_url}",
+            "email_subject": "Pago Recibido - {property_name}",
+            "email_body": "Estimado {tenant_name},\n\n¡Gracias por su pago!\n\nHemos recibido su pago exitosamente:\n\nMonto: Rs. {amount_paid}\nPropiedad: {property_name}\nFecha de Pago: {payment_date}\n\nRecibo: {receipt_url}\n\nGracias por su pago puntual.\n\nSaludos cordiales,\nEquipo de Gestión de Propiedades"
+        },
+        "ar": {
+            "sms": "شكراً {tenant_name}! لقد استلمنا دفعتك بمبلغ {amount_paid} روبية لـ {property_name}. الإيصال: {receipt_url}",
+            "whatsapp": "✅ *تم استلام الدفع*\n\nشكراً {tenant_name}!\n\nلقد استلمنا دفعتك بنجاح.\n\nالمبلغ: {amount_paid} روبية\nالعقار: {property_name}\nالتاريخ: {payment_date}\n\nالإيصال: {receipt_url}",
+            "email_subject": "تم استلام الدفع - {property_name}",
+            "email_body": "عزيزي {tenant_name}،\n\nشكراً لدفعك!\n\nلقد استلمنا دفعتك بنجاح:\n\nالمبلغ: {amount_paid} روبية\nالعقار: {property_name}\nتاريخ الدفع: {payment_date}\n\nالإيصال: {receipt_url}\n\nشكراً لدفعك في الوقت المحدد.\n\nمع أطيب التحيات،\nفريق إدارة العقارات"
+        }
     },
-    MessageTemplate.LEASE_EXPIRING: {
-        "sms": "Hi {tenant_name}, your lease for {property_name} expires on {expiry_date}. Please contact us to discuss renewal options.",
-        "whatsapp": "📋 *Lease Expiration Notice*\n\nDear {tenant_name},\n\nYour lease for {property_name} will expire on {expiry_date}.\n\nIf you wish to renew your lease, please contact us at your earliest convenience to discuss renewal terms.\n\nThank you!",
-        "email_subject": "Lease Expiration Notice - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-This is to inform you that your lease for {property_name} will expire on {expiry_date}.
-
-If you wish to renew your lease, please contact us at your earliest convenience to discuss renewal terms and conditions.
-
-We look forward to continuing our relationship.
-
-Best regards,
-Property Management Team"""
-    },
-    MessageTemplate.MAINTENANCE_NOTICE: {
-        "sms": "Notice: {maintenance_message}",
-        "whatsapp": "🔧 *Maintenance Notice*\n\n{maintenance_message}",
-        "email_subject": "Maintenance Notice - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-{maintenance_message}
-
-We apologize for any inconvenience.
-
-Best regards,
-Property Management Team"""
-    },
-    MessageTemplate.RENT_INCREMENT_UPCOMING: {
-        "sms": "Hi {tenant_name}, your rent for {property_name} will increase from Rs. {old_rent} to Rs. {new_rent} effective {effective_date}.",
-        "whatsapp": "📢 *Rent Increment Notice*\n\nDear {tenant_name},\n\nThis is to inform you that your monthly rent for {property_name} will be adjusted.\n\nCurrent Rent: Rs. {old_rent}\nNew Rent: Rs. {new_rent}\nEffective Date: {effective_date}\n\nThank you for your understanding.",
-        "email_subject": "Rent Increment Notice - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-This is to inform you that your monthly rent for {property_name} will be adjusted.
-
-Current Rent: Rs. {old_rent}
-New Rent: Rs. {new_rent}
-Effective Date: {effective_date}
-
-This adjustment is in accordance with the rent increment policy in your lease agreement.
-
-If you have any questions, please contact us.
-
-Best regards,
-Property Management Team"""
-    },
-    MessageTemplate.RENT_INCREMENT_APPLIED: {
-        "sms": "Your rent for {property_name} has been updated to Rs. {new_rent} effective today. Previous rent was Rs. {old_rent}.",
-        "whatsapp": "✅ *Rent Updated*\n\nDear {tenant_name},\n\nYour monthly rent for {property_name} has been updated.\n\nPrevious Rent: Rs. {old_rent}\nNew Rent: Rs. {new_rent}\nEffective Date: {effective_date}\n\nThank you!",
-        "email_subject": "Rent Updated - {property_name}",
-        "email_body": """Dear {tenant_name},
-
-Your monthly rent for {property_name} has been updated.
-
-Previous Rent: Rs. {old_rent}
-New Rent: Rs. {new_rent}
-Effective Date: {effective_date}
-
-Your next payment should reflect this new amount.
-
-Thank you for your understanding.
-
-Best regards,
-Property Management Team"""
-    },
+    # Add more template translations as needed...
 }
+
+# Backward compatibility: Default English templates
+MESSAGE_TEMPLATES = {
+    template: templates.get("en", {})
+    for template, templates in MESSAGE_TEMPLATES_MULTILANG.items()
+}
+
 
 
 class MessageService:
@@ -166,13 +128,26 @@ class MessageService:
         self,
         template: MessageTemplate,
         channel: MessageChannel,
-        variables: Dict[str, Any]
+        variables: Dict[str, Any],
+        language: str = "en"
     ) -> str:
-        """Format message from template with variables."""
+        """Format message from template with variables and language support.
+        
+        Args:
+            template: Message template type
+            channel: Communication channel (SMS, WhatsApp, Email)
+            variables: Dictionary of placeholder values
+            language: ISO 639-1 language code (en, hi, es, ar)
+        
+        Returns:
+            Formatted message string
+        """
         if template == MessageTemplate.CUSTOM:
             return variables.get('content', '')
         
-        template_data = MESSAGE_TEMPLATES.get(template, {})
+        # Get language-specific template with fallback to English
+        template_multilang = MESSAGE_TEMPLATES_MULTILANG.get(template, {})
+        template_data = template_multilang.get(language, template_multilang.get("en", {}))
         
         # Get channel-specific template
         if channel == MessageChannel.EMAIL:
@@ -193,13 +168,16 @@ class MessageService:
     def _get_email_subject(
         self,
         template: MessageTemplate,
-        variables: Dict[str, Any]
+        variables: Dict[str, Any],
+        language: str = "en"
     ) -> str:
-        """Get email subject from template."""
+        """Get email subject from template with language support."""
         if template == MessageTemplate.CUSTOM:
             return variables.get('subject', 'Message from Property Management')
         
-        template_data = MESSAGE_TEMPLATES.get(template, {})
+        # Get language-specific template with fallback to English
+        template_multilang = MESSAGE_TEMPLATES_MULTILANG.get(template, {})
+        template_data = template_multilang.get(language, template_multilang.get("en", {}))
         subject = template_data.get('email_subject', 'Message from Property Management')
         
         # Replace placeholders

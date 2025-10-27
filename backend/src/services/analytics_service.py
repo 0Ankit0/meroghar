@@ -15,6 +15,7 @@ from ..models.payment import Payment, PaymentStatus, PaymentType
 from ..models.bill import Bill, BillAllocation, BillStatus, BillType
 from ..models.tenant import Tenant, TenantStatus
 from ..models.property import Property
+from ..core.cache import cached, CACHE_TTL
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class AnalyticsService:
         """
         self.session = session
 
+    @cached(ttl=CACHE_TTL["medium"], key_prefix="analytics:rent_trends")
     async def get_rent_collection_trends(
         self,
         user_id: UUID,
@@ -105,6 +107,7 @@ class AnalyticsService:
             for row in rows
         ]
 
+    @cached(ttl=CACHE_TTL["medium"], key_prefix="analytics:payment_status")
     async def get_payment_status_overview(
         self,
         user_id: UUID,
@@ -190,6 +193,7 @@ class AnalyticsService:
             }
         }
 
+    @cached(ttl=CACHE_TTL["long"], key_prefix="analytics:expense_breakdown")
     async def get_expense_breakdown(
         self,
         user_id: UUID,
@@ -261,6 +265,7 @@ class AnalyticsService:
             for row in rows
         ]
 
+    @cached(ttl=CACHE_TTL["long"], key_prefix="analytics:revenue_vs_expenses")
     async def get_revenue_vs_expenses(
         self,
         user_id: UUID,
@@ -360,6 +365,7 @@ class AnalyticsService:
             }
         }
 
+    @cached(ttl=CACHE_TTL["long"], key_prefix="analytics:property_performance")
     async def get_property_performance(
         self,
         user_id: UUID,

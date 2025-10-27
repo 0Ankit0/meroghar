@@ -18,6 +18,7 @@ from ..schemas.payment import (
     PaymentResponse,
     TenantBalanceResponse,
 )
+from ..core.cache import invalidate_cache
 
 logger = logging.getLogger(__name__)
 
@@ -132,6 +133,9 @@ class PaymentService:
         self.session.add(payment)
         await self.session.commit()
         await self.session.refresh(payment)
+        
+        # Invalidate analytics caches
+        invalidate_cache("cache:analytics:*")
         
         logger.info(
             f"Payment recorded: payment_id={payment.id}, tenant_id={request.tenant_id}, "
