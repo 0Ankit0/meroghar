@@ -12,7 +12,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/scripts/init_db.sql:/docker-entrypoint-initdb.d/init.sql
+      # Note: Database schema initialized by Alembic migrations, not init script
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U meroghar"]
       interval: 10s
@@ -104,9 +104,28 @@ services:
     networks:
       - meroghar_network
 
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: meroghar_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@meroghar.com
+      PGADMIN_DEFAULT_PASSWORD: meroghar_admin_password
+      PGADMIN_CONFIG_SERVER_MODE: 'False'
+      PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    networks:
+      - meroghar_network
+    restart: unless-stopped
+
 volumes:
   postgres_data:
   redis_data:
+  pgadmin_data:
 
 networks:
   meroghar_network:

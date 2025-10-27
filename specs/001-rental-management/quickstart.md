@@ -99,12 +99,30 @@ CORS_ORIGINS=http://localhost:3000,http://localhost:8080
 
 ### 4. Start Infrastructure Services
 ```bash
-# Start PostgreSQL, Redis using Docker Compose
-docker-compose up -d postgres redis
+# Start PostgreSQL, Redis, and pgAdmin using Docker Compose
+docker-compose up -d postgres redis pgadmin
 
 # Verify services are running
 docker-compose ps
+
+# Access pgAdmin (optional - for database management)
+# URL: http://localhost:5050
+# Email: admin@meroghar.com
+# Password: meroghar_admin_password
 ```
+
+**pgAdmin Setup (Optional):**
+If you want to manage the database via web UI:
+1. Open http://localhost:5050
+2. Login with credentials above
+3. Click "Add New Server"
+4. General tab: Name = "MeroGhar Dev"
+5. Connection tab:
+   - Host: `postgres`
+   - Port: `5432`
+   - Username: `meroghar`
+   - Password: `meroghar_dev_password`
+6. Click "Save"
 
 ### 5. Run Database Migrations
 ```bash
@@ -431,8 +449,11 @@ uvicorn src.main:app --port 8001
 - **OpenAPI JSON**: http://localhost:8000/openapi.json
 
 ### Monitoring Tools
+- **pgAdmin**: http://localhost:5050 (Database management - included in Docker Compose)
+  - Email: admin@meroghar.com
+  - Password: meroghar_admin_password
 - **Flower (Celery)**: http://localhost:5555
-- **Database GUI**: Use TablePlus, DBeaver, or pgAdmin
+- **Database GUI Alternatives**: TablePlus, DBeaver
 
 ### Documentation
 - **Architecture**: `/docs/architecture/`
