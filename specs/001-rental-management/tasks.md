@@ -311,7 +311,7 @@ This is a Mobile + API project with:
 - [x] T171 [US8] Create message template picker in mobile/lib/widgets/message_template_picker.dart
 - [x] T172 [US8] Create message history screen in mobile/lib/screens/messages/message_history_screen.dart
 - [x] T173 [US8] Add delivery status tracking widget in mobile/lib/widgets/message_status_widget.dart
-- [ ] T174 [US8] Implement RLS policies for messages table in backend/alembic/versions/
+- [x] T174 [US8] Implement RLS policies for messages table in backend/alembic/versions/
 
 **Checkpoint**: At this point, bulk messaging functionality is operational
 
