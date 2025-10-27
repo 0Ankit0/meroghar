@@ -729,4 +729,127 @@ async def get_payment_status(
         )
 
 
+@router.post(
+    "/export",
+    summary="Export payment history",
+    description="Export payment history to Excel or PDF format (T205-T207)",
+)
+async def export_payment_history(
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+    tenant_id: Optional[UUID] = Query(None, description="Tenant ID (defaults to current user if tenant)"),
+    start_date: Optional[date] = Query(None, description="Start date for filtering"),
+    end_date: Optional[date] = Query(None, description="End date for filtering"),
+    format: str = Query("excel", description="Export format: 'excel' or 'pdf'"),
+) -> FileResponse:
+    """Export payment history for a tenant.
+    
+    Tenants can export their own history.
+    Owners/Intermediaries can export any tenant's history in their properties.
+    
+    Implements T205-T207 from tasks.md.
+    """
+    from ...services.export_service import ExportService
+    
+    try:
+        # Determine tenant_id
+        if current_user.role == UserRole.TENANT:
+            # Tenant can only export their own history
+            result = await session.execute(
+                select(Tenant).where(Tenant.user_id == current_user.id)
+            )
+            tenant = result.scalar_one_or_none()
+            if not tenant:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Tenant profile not found",
+                )
+            target_tenant_id = tenant.id
+        elif tenant_id:
+            # Owner/Intermediary accessing specific tenant
+            result = await session.execute(
+                select(Tenant)
+                .options(selectinload(Tenant.property))
+                .where(Tenant.id == tenant_id)
+            )
+            tenant = result.scalar_one_or_none()
+            if not tenant:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="Tenant not found",
+                )
+            
+            # Verify access
+            if current_user.role == UserRole.OWNER:
+                if tenant.property.owner_id != current_user.id:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Not authorized to export this tenant's history",
+                    )
+            elif current_user.role == UserRole.INTERMEDIARY:
+                if tenant.intermediary_id != current_user.id:
+                    raise HTTPException(
+                        status_code=status.HTTP_403_FORBIDDEN,
+                        detail="Not authorized to export this tenant's history",
+                    )
+            
+            target_tenant_id = tenant_id
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="tenant_id required for non-tenant users",
+            )
+        
+        # Validate format
+        if format not in ["excel", "pdf"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Format must be 'excel' or 'pdf'",
+            )
+        
+        # Generate export using synchronous session
+        # Note: In production, convert ExportService to async or use run_in_executor
+        export_service = ExportService(session.sync_session)
+        
+        if format == "excel":
+            buffer = export_service.export_payment_history_excel(
+                tenant_id=target_tenant_id,
+                start_date=start_date,
+                end_date=end_date,
+            )
+            media_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            filename = f"payment_history_{target_tenant_id}_{date.today().isoformat()}.xlsx"
+        else:  # pdf
+            buffer = export_service.export_payment_history_pdf(
+                tenant_id=target_tenant_id,
+                start_date=start_date,
+                end_date=end_date,
+            )
+            media_type = "application/pdf"
+            filename = f"payment_history_{target_tenant_id}_{date.today().isoformat()}.pdf"
+        
+        # Save to temp file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=f".{format}") as tmp:
+            tmp.write(buffer.read())
+            tmp_path = tmp.name
+        
+        logger.info(f"Payment history exported: tenant_id={target_tenant_id}, format={format}, user={current_user.id}")
+        
+        return FileResponse(
+            path=tmp_path,
+            media_type=media_type,
+            filename=filename,
+            headers={"Content-Disposition": f"attachment; filename={filename}"}
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error exporting payment history: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to export payment history: {str(e)}",
+        )
+
+
 __all__ = ["router"]
