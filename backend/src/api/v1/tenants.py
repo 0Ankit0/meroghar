@@ -479,3 +479,234 @@ async def get_tenant_balance(
             detail="Failed to calculate tenant balance",
         )
 
+
+@router.put(
+    "/{tenant_id}/rent-policy",
+    response_model=SuccessResponse[TenantResponse],
+    summary="Set rent increment policy",
+    description="Configure automatic rent increment policy for a tenant (T195)",
+)
+async def set_rent_policy(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(require_role(UserRole.OWNER))],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+    increment_type: str = Query(..., description="Type: 'percentage' or 'fixed'"),
+    increment_value: float = Query(..., description="Increment value (e.g., 5 for 5% or fixed amount)"),
+    interval_years: int = Query(..., description="Years between increments"),
+) -> SuccessResponse[TenantResponse]:
+    """Set or update rent increment policy for a tenant.
+    
+    Only property owners can set rent policies.
+    Implements T195 from tasks.md.
+    """
+    from ...services.rent_increment_service import RentIncrementService
+    
+    try:
+        # Get tenant with property relationship
+        result = await session.execute(
+            select(Tenant)
+            .options(selectinload(Tenant.property), selectinload(Tenant.user))
+            .where(Tenant.id == tenant_id)
+        )
+        tenant = result.scalar_one_or_none()
+        
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tenant not found",
+            )
+        
+        # Verify ownership
+        if tenant.property.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only property owner can set rent policy",
+            )
+        
+        # Validate increment type
+        if increment_type not in ["percentage", "fixed"]:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Increment type must be 'percentage' or 'fixed'",
+            )
+        
+        # Set policy using service
+        service = RentIncrementService(session)
+        tenant = service.set_rent_policy(
+            tenant=tenant,
+            increment_type=increment_type,
+            increment_value=increment_value,
+            interval_years=interval_years,
+        )
+        
+        await session.commit()
+        await session.refresh(tenant)
+        
+        logger.info(f"Rent policy set for tenant {tenant_id} by user {current_user.id}")
+        
+        return SuccessResponse(
+            success=True,
+            message="Rent increment policy set successfully",
+            data=TenantResponse.from_orm(tenant),
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error setting rent policy: {str(e)}")
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to set rent policy",
+        )
+
+
+@router.post(
+    "/{tenant_id}/rent-override",
+    response_model=SuccessResponse[TenantResponse],
+    summary="Manual rent override",
+    description="Manually override tenant rent amount (T196)",
+)
+async def manual_rent_override(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(require_role(UserRole.OWNER))],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+    new_rent: float = Query(..., description="New rent amount"),
+    reason: str = Query(..., description="Reason for override"),
+) -> SuccessResponse[TenantResponse]:
+    """Manually override tenant rent.
+    
+    Only property owners can override rent.
+    Implements T196 from tasks.md.
+    """
+    from decimal import Decimal
+    from ...services.rent_increment_service import RentIncrementService
+    
+    try:
+        # Get tenant
+        result = await session.execute(
+            select(Tenant)
+            .options(selectinload(Tenant.property), selectinload(Tenant.user))
+            .where(Tenant.id == tenant_id)
+        )
+        tenant = result.scalar_one_or_none()
+        
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tenant not found",
+            )
+        
+        # Verify ownership
+        if tenant.property.owner_id != current_user.id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Only property owner can override rent",
+            )
+        
+        # Validate new rent
+        if new_rent <= 0:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Rent must be positive",
+            )
+        
+        # Apply override
+        service = RentIncrementService(session)
+        tenant = service.apply_manual_override(
+            tenant=tenant,
+            new_rent=Decimal(str(new_rent)),
+            applied_by=current_user.id,
+            reason=reason,
+        )
+        
+        await session.commit()
+        await session.refresh(tenant)
+        
+        logger.info(f"Rent overridden for tenant {tenant_id} by user {current_user.id}")
+        
+        return SuccessResponse(
+            success=True,
+            message="Rent overridden successfully",
+            data=TenantResponse.from_orm(tenant),
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error overriding rent: {str(e)}")
+        await session.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to override rent",
+        )
+
+
+@router.get(
+    "/{tenant_id}/rent-history",
+    response_model=SuccessResponse[List[dict]],
+    summary="Get rent history",
+    description="Get historical rent changes for a tenant (T197)",
+)
+async def get_rent_history(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+) -> SuccessResponse[List[dict]]:
+    """Get rent change history for a tenant.
+    
+    Accessible by owner, intermediary, or the tenant themselves.
+    Implements T197 from tasks.md.
+    """
+    from ...services.rent_increment_service import RentIncrementService
+    
+    try:
+        # Get tenant
+        result = await session.execute(
+            select(Tenant)
+            .options(selectinload(Tenant.property))
+            .where(Tenant.id == tenant_id)
+        )
+        tenant = result.scalar_one_or_none()
+        
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tenant not found",
+            )
+        
+        # Check access
+        has_access = (
+            current_user.role == UserRole.OWNER and tenant.property.owner_id == current_user.id
+        ) or (
+            current_user.role == UserRole.INTERMEDIARY and tenant.intermediary_id == current_user.id
+        ) or (
+            current_user.role == UserRole.TENANT and tenant.user_id == current_user.id
+        )
+        
+        if not has_access:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not authorized to view rent history",
+            )
+        
+        # Get history
+        service = RentIncrementService(session)
+        history = service.get_rent_history(tenant)
+        
+        logger.info(f"Rent history retrieved for tenant {tenant_id} by user {current_user.id}")
+        
+        return SuccessResponse(
+            success=True,
+            message="Rent history retrieved successfully",
+            data=history,
+        )
+    
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error getting rent history: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve rent history",
+        )

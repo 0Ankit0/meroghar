@@ -38,8 +38,13 @@ celery_app.conf.update(
 celery_app.conf.beat_schedule = {
     # Daily rent increment check at midnight
     "check-rent-increments": {
-        "task": "src.tasks.rent_tasks.check_rent_increments",
+        "task": "tasks.check_and_apply_rent_increments",
         "schedule": crontab(hour=0, minute=0),  # Daily at midnight
+    },
+    # Send rent increment notifications 30 days before (daily check at 8 AM)
+    "send-rent-increment-notifications": {
+        "task": "tasks.send_rent_increment_notifications",
+        "schedule": crontab(hour=8, minute=0),  # Daily at 8 AM
     },
     # Document expiration check daily at 9 AM
     "check-document-expirations": {

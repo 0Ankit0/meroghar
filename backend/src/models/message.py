@@ -48,6 +48,8 @@ class MessageTemplate(str, enum.Enum):
     PAYMENT_RECEIVED = "payment_received"
     LEASE_EXPIRING = "lease_expiring"
     MAINTENANCE_NOTICE = "maintenance_notice"
+    RENT_INCREMENT_UPCOMING = "rent_increment_upcoming"
+    RENT_INCREMENT_APPLIED = "rent_increment_applied"
     CUSTOM = "custom"
 
 

@@ -20,7 +20,7 @@ from sqlalchemy import (
     String,
     UniqueConstraint,
 )
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSON, UUID
 from sqlalchemy.orm import relationship
 
 from ..core.database import Base
@@ -127,6 +127,19 @@ class Tenant(Base):
         Numeric(8, 4),
         nullable=True,
         comment="Per-unit electricity rate (for bill splitting)",
+    )
+    
+    # Rent Increment Policy (T191, T192)
+    rent_increment_policy = Column(
+        JSON,
+        nullable=True,
+        comment="Rent increment policy: {type: 'percentage'|'fixed', value: number, interval_years: number, next_increment_date: ISO date}",
+    )
+    rent_history = Column(
+        JSON,
+        nullable=True,
+        default=list,
+        comment="Historical rent changes: [{effective_date: ISO, amount: Decimal, reason: str, applied_by: UUID}]",
     )
 
     # Status

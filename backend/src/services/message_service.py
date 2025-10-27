@@ -109,6 +109,44 @@ We apologize for any inconvenience.
 Best regards,
 Property Management Team"""
     },
+    MessageTemplate.RENT_INCREMENT_UPCOMING: {
+        "sms": "Hi {tenant_name}, your rent for {property_name} will increase from Rs. {old_rent} to Rs. {new_rent} effective {effective_date}.",
+        "whatsapp": "📢 *Rent Increment Notice*\n\nDear {tenant_name},\n\nThis is to inform you that your monthly rent for {property_name} will be adjusted.\n\nCurrent Rent: Rs. {old_rent}\nNew Rent: Rs. {new_rent}\nEffective Date: {effective_date}\n\nThank you for your understanding.",
+        "email_subject": "Rent Increment Notice - {property_name}",
+        "email_body": """Dear {tenant_name},
+
+This is to inform you that your monthly rent for {property_name} will be adjusted.
+
+Current Rent: Rs. {old_rent}
+New Rent: Rs. {new_rent}
+Effective Date: {effective_date}
+
+This adjustment is in accordance with the rent increment policy in your lease agreement.
+
+If you have any questions, please contact us.
+
+Best regards,
+Property Management Team"""
+    },
+    MessageTemplate.RENT_INCREMENT_APPLIED: {
+        "sms": "Your rent for {property_name} has been updated to Rs. {new_rent} effective today. Previous rent was Rs. {old_rent}.",
+        "whatsapp": "✅ *Rent Updated*\n\nDear {tenant_name},\n\nYour monthly rent for {property_name} has been updated.\n\nPrevious Rent: Rs. {old_rent}\nNew Rent: Rs. {new_rent}\nEffective Date: {effective_date}\n\nThank you!",
+        "email_subject": "Rent Updated - {property_name}",
+        "email_body": """Dear {tenant_name},
+
+Your monthly rent for {property_name} has been updated.
+
+Previous Rent: Rs. {old_rent}
+New Rent: Rs. {new_rent}
+Effective Date: {effective_date}
+
+Your next payment should reflect this new amount.
+
+Thank you for your understanding.
+
+Best regards,
+Property Management Team"""
+    },
 }
 
 
@@ -362,3 +400,68 @@ class MessageService:
         }
         
         return variables
+
+    def send_rent_increment_notification(
+        self,
+        tenant_id: uuid.UUID,
+        old_rent: float,
+        new_rent: float,
+        effective_date: datetime,
+    ) -> Message:
+        """Send notification about applied rent increment.
+        
+        Implements T199 from tasks.md (part of notification system).
+        
+        Args:
+            tenant_id: Tenant UUID
+            old_rent: Previous rent amount
+            new_rent: New rent amount
+            effective_date: Date increment takes effect
+        """
+        # Create message with rent increment template
+        message = Message(
+            recipient_id=tenant_id,
+            template=MessageTemplate.RENT_INCREMENT_APPLIED,
+            channel=MessageChannel.SMS,  # Default to SMS
+            scheduled_at=datetime.utcnow(),
+            metadata={
+                'old_rent': old_rent,
+                'new_rent': new_rent,
+                'effective_date': effective_date.isoformat(),
+            }
+        )
+        
+        # Here you would typically queue this or send immediately
+        # For now, just create the message record
+        return message
+    
+    def send_upcoming_rent_increment_notification(
+        self,
+        tenant_id: uuid.UUID,
+        current_rent: float,
+        new_rent: float,
+        effective_date: datetime,
+    ) -> Message:
+        """Send notification about upcoming rent increment (30 days before).
+        
+        Implements T199 from tasks.md.
+        
+        Args:
+            tenant_id: Tenant UUID
+            current_rent: Current rent amount
+            new_rent: New rent amount after increment
+            effective_date: Date increment will take effect
+        """
+        message = Message(
+            recipient_id=tenant_id,
+            template=MessageTemplate.RENT_INCREMENT_UPCOMING,
+            channel=MessageChannel.SMS,
+            scheduled_at=datetime.utcnow(),
+            metadata={
+                'old_rent': current_rent,
+                'new_rent': new_rent,
+                'effective_date': effective_date.isoformat(),
+            }
+        )
+        
+        return message
