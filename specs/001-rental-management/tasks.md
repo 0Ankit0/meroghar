@@ -27,15 +27,15 @@ This is a Mobile + API project with:
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create backend directory structure: backend/src/{api,models,schemas,services,core,tasks}
-- [ ] T002 Create mobile directory structure: mobile/lib/{screens,widgets,services,models,providers,utils}
-- [ ] T003 Initialize Python project with FastAPI, SQLAlchemy, Alembic, PyJWT, bcrypt, Pydantic in backend/requirements.txt
-- [ ] T004 [P] Initialize Flutter project with dependencies: provider, sqflite, flutter_secure_storage, dio, fl_chart in mobile/pubspec.yaml
-- [ ] T005 [P] Configure Python linting (ruff) and formatting (black) in backend/pyproject.toml
-- [ ] T006 [P] Configure Dart linting and formatting in mobile/analysis_options.yaml
-- [ ] T007 Setup Docker Compose with PostgreSQL 14+ and Redis services in docker-compose.yml
-- [ ] T008 [P] Create .env.example for backend environment variables (DATABASE_URL, SECRET_KEY, JWT config)
-- [ ] T009 [P] Create mobile/lib/config/env.example.dart for Flutter environment configuration
+- [x] T001 Create backend directory structure: backend/src/{api,models,schemas,services,core,tasks}
+- [x] T002 Create mobile directory structure: mobile/lib/{screens,widgets,services,models,providers,utils}
+- [x] T003 Initialize Python project with FastAPI, SQLAlchemy, Alembic, PyJWT, bcrypt, Pydantic in backend/requirements.txt
+- [x] T004 [P] Initialize Flutter project with dependencies: provider, sqflite, flutter_secure_storage, dio, fl_chart in mobile/pubspec.yaml
+- [x] T005 [P] Configure Python linting (ruff) and formatting (black) in backend/pyproject.toml
+- [x] T006 [P] Configure Dart linting and formatting in mobile/analysis_options.yaml
+- [x] T007 Setup Docker Compose with PostgreSQL 14+ and Redis services in docker-compose.yml
+- [x] T008 [P] Create .env.example for backend environment variables (DATABASE_URL, SECRET_KEY, JWT config)
+- [x] T009 [P] Create mobile/lib/config/env.example.dart for Flutter environment configuration
 
 ---
 

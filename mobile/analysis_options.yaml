@@ -151,11 +151,11 @@ analyzer:
     - "**/*.g.dart"
     - "**/*.freezed.dart"
     - "**/generated/**"
-  
+
   strong-mode:
     implicit-casts: false
     implicit-dynamic: false
-  
+
   errors:
     missing_required_param: error
     missing_return: error
