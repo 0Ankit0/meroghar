@@ -359,3 +359,123 @@ async def list_tenants(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"An error occurred while listing tenants: {str(e)}",
         )
+
+
+@router.get(
+    "/{tenant_id}/balance",
+    response_model=SuccessResponse,
+    summary="Get tenant payment balance",
+    description="Calculate and retrieve tenant's payment balance including outstanding amounts.",
+)
+async def get_tenant_balance(
+    tenant_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+) -> SuccessResponse:
+    """Get tenant payment balance.
+    
+    Calculates total paid, total due, and outstanding balance for a tenant.
+    
+    Authorization:
+    - OWNER: Can view balance for any tenant
+    - INTERMEDIARY: Can view balance for tenants in managed properties
+    - TENANT: Can view only their own balance
+    
+    Args:
+        tenant_id: Tenant ID to get balance for
+        current_user: Authenticated user
+        session: Database session
+        
+    Returns:
+        Balance calculation details
+        
+    Raises:
+        403: If user doesn't have permission to view balance
+        404: If tenant not found
+        500: If database error occurs
+    """
+    try:
+        from ...schemas.payment import TenantBalanceResponse
+        from ...services.payment_service import PaymentService
+        
+        # Get tenant to verify existence and get property_id
+        result = await session.execute(
+            select(Tenant).where(Tenant.id == tenant_id)
+        )
+        tenant = result.scalar_one_or_none()
+        
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Tenant {tenant_id} not found",
+            )
+        
+        # Authorization check based on role
+        if current_user.role == UserRole.TENANT:
+            # Tenants can only view their own balance
+            if current_user.id != tenant_id:
+                logger.warning(
+                    f"Tenant {current_user.id} attempted to view balance "
+                    f"for tenant {tenant_id}"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can only view your own balance",
+                )
+        elif current_user.role == UserRole.INTERMEDIARY:
+            # Intermediaries can view balance for tenants in managed properties
+            result = await session.execute(
+                select(PropertyAssignment).where(
+                    and_(
+                        PropertyAssignment.property_id == tenant.property_id,
+                        PropertyAssignment.intermediary_id == current_user.id,
+                    )
+                )
+            )
+            assignment = result.scalar_one_or_none()
+            
+            if not assignment:
+                logger.warning(
+                    f"Intermediary {current_user.id} attempted to view balance "
+                    f"for tenant {tenant_id} in unassigned property {tenant.property_id}"
+                )
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not assigned to manage this tenant's property",
+                )
+        # OWNER can view any balance (no additional check needed)
+        
+        # Calculate balance using service
+        payment_service = PaymentService(session)
+        balance = await payment_service.calculate_balance(
+            tenant_id=tenant_id,
+            property_id=tenant.property_id,
+        )
+        
+        logger.info(
+            f"Balance retrieved for tenant {tenant_id} by user {current_user.id}: "
+            f"outstanding={balance.outstanding_balance}"
+        )
+        
+        return SuccessResponse(
+            success=True,
+            message="Balance calculated successfully",
+            data=balance,
+        )
+        
+    except HTTPException:
+        raise
+    except ValueError as e:
+        # Service validation errors
+        logger.error(f"Balance calculation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Error getting tenant balance: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to calculate tenant balance",
+        )
+
