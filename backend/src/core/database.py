@@ -77,6 +77,26 @@ def set_rls_context(session: Session, user_id: str) -> None:
         raise
 
 
+async def set_rls_context_async(session: AsyncSession, user_id: str) -> None:
+    """
+    Set Row-Level Security context variables for current async session.
+    This enables PostgreSQL RLS policies to filter data by user.
+
+    Args:
+        session: SQLAlchemy AsyncSession
+        user_id: User identifier to set in context
+    """
+    try:
+        from sqlalchemy import text
+        await session.execute(
+            text(f"SET LOCAL app.current_user_id = '{user_id}'")
+        )
+        logger.debug(f"RLS context set for user: {user_id}")
+    except Exception as e:
+        logger.error(f"Failed to set RLS context: {e}")
+        raise
+
+
 @event.listens_for(pool.Pool, "connect")
 def set_search_path(dbapi_connection: any, connection_record: any) -> None:
     """
@@ -170,6 +190,47 @@ async def get_async_db() -> AsyncGenerator[AsyncSession, None]:
             await session.close()
 
 
+async def get_async_db_with_rls(request: any = None) -> AsyncGenerator[AsyncSession, None]:
+    """
+    Async dependency function for FastAPI to inject async database sessions with RLS context.
+    This dependency automatically sets the PostgreSQL session variable for Row-Level Security
+    from the user_id stored in request.state by the rls_context_middleware.
+
+    Args:
+        request: FastAPI Request object (injected by dependency)
+
+    Yields:
+        SQLAlchemy AsyncSession with RLS context set
+
+    Example:
+        @app.get("/users")
+        async def get_users(
+            db: AsyncSession = Depends(get_async_db_with_rls),
+            request: Request = None
+        ):
+            # RLS is automatically applied
+            result = await db.execute(select(User))
+            return result.scalars().all()
+    """
+    async with AsyncSessionLocal() as session:
+        try:
+            # Set RLS context if user_id is available in request state
+            if request and hasattr(request, "state") and hasattr(request.state, "user_id"):
+                user_id = request.state.user_id
+                if user_id:
+                    await set_rls_context_async(session, user_id)
+                    logger.debug(f"Database session created with RLS context for user: {user_id}")
+            
+            yield session
+            await session.commit()
+        except Exception as e:
+            await session.rollback()
+            logger.error(f"Async database error in request: {e}")
+            raise
+        finally:
+            await session.close()
+
+
 def init_db() -> None:
     """
     Initialize database by creating all tables.
@@ -234,8 +295,10 @@ __all__ = [
     "Base",
     "get_db",
     "get_async_db",
+    "get_async_db_with_rls",
     "get_db_context",
     "set_rls_context",
+    "set_rls_context_async",
     "init_db",
     "close_db",
     "close_async_db",

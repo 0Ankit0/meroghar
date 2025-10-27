@@ -77,7 +77,9 @@ async def log_requests_middleware(request: Request, call_next: Callable) -> Any:
 async def rls_context_middleware(request: Request, call_next: Callable) -> Any:
     """
     Middleware to set Row-Level Security context from JWT token.
-    This enables database-level access control.
+    This enables database-level access control by extracting user_id from JWT
+    and storing it in request state. The actual PostgreSQL session variable
+    will be set by the get_async_db dependency when a database connection is needed.
 
     Args:
         request: Incoming request
@@ -97,6 +99,7 @@ async def rls_context_middleware(request: Request, call_next: Callable) -> Any:
             user_id = payload.get("sub")
 
             # Store user ID in request state for RLS context
+            # This will be used by get_async_db_with_rls dependency
             request.state.user_id = user_id
             logger.debug(f"RLS context: user_id={user_id}")
 
