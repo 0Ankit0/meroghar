@@ -450,16 +450,16 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 14
 
-- [ ] T235 [P] [US14] Create Notification model with title, body, type, read_status in backend/src/models/notification.py
-- [ ] T236 [US14] Create Alembic migration for Notification table in backend/alembic/versions/
-- [ ] T237 [P] [US14] Create notification request/response schemas in backend/src/schemas/notification.py
-- [ ] T238 [US14] Implement FCM push notification service in backend/src/services/notification_service.py
-- [ ] T239 [US14] Implement notification creation endpoint (POST /api/v1/notifications) in backend/src/api/v1/notifications.py
-- [ ] T240 [US14] Implement notification list endpoint (GET /api/v1/notifications) in backend/src/api/v1/notifications.py
-- [ ] T241 [US14] Implement notification mark-read endpoint (PATCH /api/v1/notifications/{id}/read) in backend/src/api/v1/notifications.py
-- [ ] T242 [US14] Add payment confirmation notification trigger in backend/src/services/payment_service.py
-- [ ] T243 [US14] Add bill allocation notification trigger in backend/src/services/bill_service.py
-- [ ] T244 [US14] Add document upload notification trigger in backend/src/services/document_service.py
+- [x] T235 [P] [US14] Create Notification model with title, body, type, read_status in backend/src/models/notification.py
+- [x] T236 [US14] Create Alembic migration for Notification table in backend/alembic/versions/
+- [x] T237 [P] [US14] Create notification request/response schemas in backend/src/schemas/notification.py
+- [x] T238 [US14] Implement FCM push notification service in backend/src/services/notification_service.py
+- [x] T239 [US14] Implement notification creation endpoint (POST /api/v1/notifications) in backend/src/api/v1/notifications.py
+- [x] T240 [US14] Implement notification list endpoint (GET /api/v1/notifications) in backend/src/api/v1/notifications.py
+- [x] T241 [US14] Implement notification mark-read endpoint (PATCH /api/v1/notifications/{id}/read) in backend/src/api/v1/notifications.py
+- [x] T242 [US14] Add payment confirmation notification trigger in backend/src/services/payment_service.py
+- [x] T243 [US14] Add bill allocation notification trigger in backend/src/services/bill_service.py
+- [x] T244 [US14] Add document upload notification trigger in backend/src/services/document_service.py
 - [ ] T245 [P] [US14] Setup Firebase Cloud Messaging in mobile in mobile/lib/services/fcm_service.dart
 - [ ] T246 [US14] Create notification provider in mobile/lib/providers/notification_provider.dart
 - [ ] T247 [US14] Create in-app notification center screen in mobile/lib/screens/notifications/notification_center_screen.dart
@@ -467,7 +467,7 @@ This is a Mobile + API project with:
 - [ ] T249 [US14] Create notification preferences screen with quiet hours in mobile/lib/screens/settings/notification_settings_screen.dart
 - [ ] T250 [US14] Implement notification badge count on app icon in mobile/lib/main.dart
 - [ ] T251 [US14] Implement notification grouping by type in mobile/lib/screens/notifications/notification_center_screen.dart
-- [ ] T252 [US14] Implement RLS policies for notifications table in backend/alembic/versions/
+- [x] T252 [US14] Implement RLS policies for notifications table in backend/alembic/versions/
 
 **Checkpoint**: At this point, real-time push notifications are fully functional
 
