@@ -46,6 +46,11 @@ celery_app.conf.beat_schedule = {
         "task": "src.tasks.document_tasks.check_document_expirations",
         "schedule": crontab(hour=9, minute=0),  # Daily at 9 AM
     },
+    # Send document expiration reminders daily at 9:30 AM
+    "send-document-expiration-reminders": {
+        "task": "tasks.send_document_expiration_reminders",
+        "schedule": crontab(hour=9, minute=30),  # Daily at 9:30 AM
+    },
     # Auto-generate recurring bills on 1st of each month
     "generate-recurring-bills": {
         "task": "src.tasks.bill_tasks.generate_recurring_bills",
@@ -60,6 +65,11 @@ celery_app.conf.beat_schedule = {
     "cleanup-old-sync-logs": {
         "task": "src.tasks.maintenance_tasks.cleanup_old_sync_logs",
         "schedule": crontab(day_of_week=0, hour=2, minute=0),  # Sunday at 2 AM
+    },
+    # Cleanup deleted documents weekly
+    "cleanup-deleted-documents": {
+        "task": "tasks.cleanup_deleted_documents",
+        "schedule": crontab(day_of_week=0, hour=2, minute=30),  # Sunday at 2:30 AM
     },
     # Send scheduled messages every minute
     "send-scheduled-messages": {
