@@ -50,12 +50,13 @@ class Document {
   final DateTime? updatedAt;
 
   // Computed properties
-  bool get canRenew => isExpired || (daysUntilExpiration != null && daysUntilExpiration! <= 30);
+  bool get canRenew =>
+      isExpired || (daysUntilExpiration != null && daysUntilExpiration! <= 30);
   bool get isActive => status == DocumentStatus.active;
   bool get isArchived => status == DocumentStatus.archived;
   bool get hasExpiration => expirationDate != null;
   bool get isLatestVersion => parentDocumentId == null;
-  
+
   /// Get human-readable file size
   String get fileSizeFormatted {
     if (fileSizeMb < 1) {
@@ -64,15 +65,15 @@ class Document {
       return '${fileSizeMb.toStringAsFixed(2)} MB';
     }
   }
-  
+
   /// Get document type label
   String get typeLabel {
-    return _documentTypeToLabel(documentType);
+    return documentTypeToLabel(documentType);
   }
-  
+
   /// Get status label
   String get statusLabel {
-    return _documentStatusToLabel(status);
+    return documentStatusToLabel(status);
   }
 
   Document({
@@ -107,8 +108,8 @@ class Document {
       id: json['id'] as int,
       title: json['title'] as String,
       description: json['description'] as String?,
-      documentType: _documentTypeFromString(json['document_type'] as String),
-      status: _documentStatusFromString(json['status'] as String),
+  documentType: documentTypeFromString(json['document_type'] as String),
+  status: documentStatusFromString(json['status'] as String),
       fileUrl: json['file_url'] as String,
       fileName: json['file_name'] as String,
       fileSize: json['file_size'] as int,
@@ -140,8 +141,8 @@ class Document {
       'id': id,
       'title': title,
       'description': description,
-      'document_type': _documentTypeToString(documentType),
-      'status': _documentStatusToString(status),
+  'document_type': documentTypeToString(documentType),
+  'status': documentStatusToString(status),
       'file_url': fileUrl,
       'file_name': fileName,
       'file_size': fileSize,
@@ -219,7 +220,7 @@ class Document {
   }
 
   // Helper methods for enum conversion
-  static DocumentType _documentTypeFromString(String value) {
+  static DocumentType documentTypeFromString(String value) {
     switch (value) {
       case 'lease_agreement':
         return DocumentType.leaseAgreement;
@@ -246,7 +247,7 @@ class Document {
     }
   }
 
-  static String _documentTypeToString(DocumentType type) {
+  static String documentTypeToString(DocumentType type) {
     switch (type) {
       case DocumentType.leaseAgreement:
         return 'lease_agreement';
@@ -271,7 +272,7 @@ class Document {
     }
   }
 
-  static String _documentTypeToLabel(DocumentType type) {
+  static String documentTypeToLabel(DocumentType type) {
     switch (type) {
       case DocumentType.leaseAgreement:
         return 'Lease Agreement';
@@ -296,7 +297,7 @@ class Document {
     }
   }
 
-  static DocumentStatus _documentStatusFromString(String value) {
+  static DocumentStatus documentStatusFromString(String value) {
     switch (value) {
       case 'active':
         return DocumentStatus.active;
@@ -311,7 +312,7 @@ class Document {
     }
   }
 
-  static String _documentStatusToString(DocumentStatus status) {
+  static String documentStatusToString(DocumentStatus status) {
     switch (status) {
       case DocumentStatus.active:
         return 'active';
@@ -324,7 +325,7 @@ class Document {
     }
   }
 
-  static String _documentStatusToLabel(DocumentStatus status) {
+  static String documentStatusToLabel(DocumentStatus status) {
     switch (status) {
       case DocumentStatus.active:
         return 'Active';
@@ -362,7 +363,7 @@ class DocumentUploadRequest {
     return {
       'title': title,
       'description': description,
-      'document_type': Document._documentTypeToString(documentType),
+      'document_type': Document.documentTypeToString(documentType),
       'expiration_date': expirationDate?.toIso8601String(),
       'reminder_days_before': reminderDaysBefore,
       'tenant_id': tenantId,
