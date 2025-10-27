@@ -5,7 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter_app_badger/flutter_app_badger.dart';
+import 'package:flutter_app_badge/flutter_app_badge.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
@@ -30,12 +30,8 @@ void main() async {
 /// Initialize notification badge support for the app.
 Future<void> _initializeBadgeSupport() async {
   try {
-    // Check if badges are supported on this device
-    final isSupported = await FlutterAppBadger.isAppBadgeSupported();
-    if (isSupported) {
-      // Clear any existing badge on app start
-      await FlutterAppBadger.removeBadge();
-    }
+    // Clear any existing badge on app start
+    await FlutterAppBadge.count(0);
   } catch (e) {
     print('Error initializing badge support: $e');
   }
@@ -46,14 +42,7 @@ Future<void> _initializeBadgeSupport() async {
 /// [count] - Number of unread notifications
 Future<void> updateNotificationBadge(int count) async {
   try {
-    final isSupported = await FlutterAppBadger.isAppBadgeSupported();
-    if (!isSupported) return;
-
-    if (count > 0) {
-      await FlutterAppBadger.updateBadgeCount(count);
-    } else {
-      await FlutterAppBadger.removeBadge();
-    }
+    await FlutterAppBadge.count(count);
   } catch (e) {
     print('Error updating notification badge: $e');
   }
@@ -62,7 +51,7 @@ Future<void> updateNotificationBadge(int count) async {
 /// Clear the app icon badge.
 Future<void> clearNotificationBadge() async {
   try {
-    await FlutterAppBadger.removeBadge();
+    await FlutterAppBadge.count(0);
   } catch (e) {
     print('Error clearing notification badge: $e');
   }

@@ -492,9 +492,8 @@ This document provides comprehensive end-to-end test results for all 14 user sto
 
 ### Non-Blocking Issues
 
-1. ⚠️ **flutter_app_badger** discontinued (still works)
-2. ⚠️ 114 minor backend linting issues (non-critical)
-3. ⚠️ Some package updates constrained by Flutter SDK
+1. ⚠️ 114 minor backend linting issues (non-critical)
+2. ⚠️ Some package updates constrained by Flutter SDK
 
 ### Future Improvements
 

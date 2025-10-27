@@ -2,6 +2,8 @@
 /// Implements T156 from tasks.md.
 library;
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 
 import '../../models/sync_operation.dart';
@@ -195,7 +197,7 @@ class _SyncLogScreenState extends State<SyncLogScreen>
       child: ListTile(
         leading: Icon(statusIcon, color: statusColor),
         title: Text(
-          '${operation.operation.toUpperCase()} ${operation.entityType}',
+          '${operation.operation.asString.toUpperCase()} ${operation.entityType}',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Column(
@@ -232,7 +234,7 @@ class _SyncLogScreenState extends State<SyncLogScreen>
       context: context,
       builder: (context) => AlertDialog(
         title: Text(
-            '${operation.operation.toUpperCase()} ${operation.entityType}'),
+            '${operation.operation.asString.toUpperCase()} ${operation.entityType}'),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -241,8 +243,8 @@ class _SyncLogScreenState extends State<SyncLogScreen>
               _buildDetailRow('ID', operation.id.toString()),
               _buildDetailRow('Entity Type', operation.entityType),
               _buildDetailRow('Entity ID', operation.entityId),
-              _buildDetailRow('Operation', operation.operation),
-              _buildDetailRow('Status', operation.status),
+              _buildDetailRow('Operation', operation.operation.asString),
+              _buildDetailRow('Status', operation.status.asString),
               _buildDetailRow('Retry Count', operation.retryCount.toString()),
               _buildDetailRow('Created', _formatDateTime(operation.createdAt)),
               if (operation.lastAttemptAt != null)
@@ -261,7 +263,7 @@ class _SyncLogScreenState extends State<SyncLogScreen>
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
-                  operation.data,
+                  const JsonEncoder.withIndent('  ').convert(operation.data),
                   style: const TextStyle(fontFamily: 'monospace', fontSize: 12),
                 ),
               ),
@@ -269,7 +271,7 @@ class _SyncLogScreenState extends State<SyncLogScreen>
           ),
         ),
         actions: [
-          if (operation.status == 'failed')
+          if (operation.status == SyncStatus.failed)
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
@@ -344,13 +346,12 @@ class _SyncLogScreenState extends State<SyncLogScreen>
     }
   }
 
-  String _formatDateTime(String dateTimeStr) {
+  String _formatDateTime(DateTime dt) {
     try {
-      final dt = DateTime.parse(dateTimeStr);
       return '${dt.year}-${dt.month.toString().padLeft(2, '0')}-${dt.day.toString().padLeft(2, '0')} '
           '${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
     } catch (e) {
-      return dateTimeStr;
+      return dt.toString();
     }
   }
 }

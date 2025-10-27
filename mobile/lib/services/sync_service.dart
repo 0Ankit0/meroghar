@@ -3,15 +3,13 @@
 library;
 
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:dio/dio.dart';
 
-import '../models/sync_log.dart';
+import '../models/sync_operation.dart';
 import '../services/api_service.dart';
 import '../services/database_service.dart';
 import '../services/offline_queue_service.dart';
-import '../config/env.example.dart';
 
 /// Sync status enum.
 enum SyncStatus {
@@ -67,7 +65,6 @@ class SyncService {
   static const int _baseRetryDelay = 5; // seconds
   static const int _maxRetryDelay = 300; // 5 minutes
   static const int _maxRetries = 10;
-  static const int _batchSize = 50; // Process 50 operations at a time
 
   // Stream controller for sync status updates
   final _statusController = StreamController<SyncStatus>.broadcast();
@@ -129,14 +126,14 @@ class SyncService {
             .map((op) => {
                   'client_id': op.id.toString(),
                   'model': op.entityType,
-                  'operation': op.operation,
-                  'data': jsonDecode(op.data),
+                  'operation': op.operation.asString,
+                  'data': op.data,
                 })
             .toList(),
       };
 
       // Send bulk sync request
-      final response = await _apiService.dio.post(
+      final apiResponse = await _apiService.post<Map<String, dynamic>>(
         '/v1/sync',
         data: syncRequest,
         options: Options(
@@ -147,8 +144,15 @@ class SyncService {
         ),
       );
 
+      if (!apiResponse.success || apiResponse.data == null) {
+        throw DioException(
+          requestOptions: RequestOptions(path: '/v1/sync'),
+          message: apiResponse.message ?? 'Sync failed',
+        );
+      }
+
       // Process response
-      final syncResponse = response.data as Map<String, dynamic>;
+      final syncResponse = apiResponse.data!;
       final results = syncResponse['results'] as List<dynamic>;
 
       // Update offline queue based on results
@@ -162,7 +166,8 @@ class SyncService {
           await _queueService.markOperationCompleted(op.id!);
 
           // Update local database with server ID if create operation
-          if (op.operation == 'create' && result['server_id'] != null) {
+          if (op.operation == OperationType.create &&
+              result['server_id'] != null) {
             await _updateLocalRecordId(
               op.entityType,
               op.entityId,
@@ -227,7 +232,7 @@ class SyncService {
     try {
       final deviceId = await _dbService.getDeviceId();
 
-      final response = await _apiService.dio.get(
+      final apiResponse = await _apiService.get<Map<String, dynamic>>(
         '/v1/sync/status',
         options: Options(
           headers: {
@@ -236,7 +241,7 @@ class SyncService {
         ),
       );
 
-      return response.data as Map<String, dynamic>;
+      return apiResponse.success ? apiResponse.data : null;
     } catch (e) {
       return null;
     }
@@ -247,7 +252,7 @@ class SyncService {
     try {
       final deviceId = await _dbService.getDeviceId();
 
-      final response = await _apiService.dio.get(
+      final apiResponse = await _apiService.get<List<dynamic>>(
         '/v1/sync/conflicts',
         options: Options(
           headers: {
@@ -256,7 +261,10 @@ class SyncService {
         ),
       );
 
-      return (response.data as List<dynamic>).cast<Map<String, dynamic>>();
+      if (apiResponse.success && apiResponse.data != null) {
+        return apiResponse.data!.cast<Map<String, dynamic>>();
+      }
+      return [];
     } catch (e) {
       return [];
     }
