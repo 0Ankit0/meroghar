@@ -167,6 +167,12 @@ class User(Base):
         back_populates="uploader",
         foreign_keys="Document.uploaded_by",
     )
+    notifications = relationship(
+        "Notification",
+        back_populates="user",
+        foreign_keys="Notification.user_id",
+        cascade="all, delete-orphan",
+    )
 
     # Indexes
     __table_args__ = (

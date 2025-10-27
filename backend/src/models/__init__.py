@@ -25,6 +25,7 @@ from .expense import Expense, ExpenseCategory, ExpenseStatus
 from .sync import SyncLog, SyncStatus, SyncOperation
 from .message import Message, MessageChannel, MessageStatus, MessageTemplate
 from .document import Document, DocumentType, DocumentStatus
+from .notification import Notification, NotificationType, NotificationPriority
 
 __all__ = [
     # User
@@ -66,5 +67,9 @@ __all__ = [
     "Document",
     "DocumentType",
     "DocumentStatus",
+    # Notification
+    "Notification",
+    "NotificationType",
+    "NotificationPriority",
 ]
 
