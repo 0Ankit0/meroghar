@@ -15,7 +15,7 @@
 - Q: Can intermediaries manage multiple properties or is each intermediary tied to a single property? → A: Intermediary can manage multiple properties assigned by owner (owner has full control over property assignments)
 - Q: Should properties support multiple currencies simultaneously or single currency per property? → A: Single currency per property (set at property creation), but dashboard and analytics charts allow viewing monetary data in different currency formats using real-time exchange rates for display purposes only
 
-## User Scenarios & Testing *(mandatory)*
+## User Scenarios & Testing _(mandatory)_
 
 ### User Story 1 - Owner Onboards Property and First Tenant (Priority: P1)
 
@@ -285,7 +285,7 @@ When a tenant completes online payment, the intermediary immediately receives pu
 - How does the system handle multiple properties for one owner? Owner can switch property context in UI to manage each property separately, and owner can assign multiple properties to trusted intermediaries for distributed management.
 - What happens when an intermediary is removed from a property? System revokes intermediary's access to that property's data while preserving access to other assigned properties; tenants remain active and historical data is preserved.
 
-## Requirements *(mandatory)*
+## Requirements _(mandatory)_
 
 ### Functional Requirements
 
@@ -499,7 +499,7 @@ When a tenant completes online payment, the intermediary immediately receives pu
 - **Report Template**: Represents saved report configuration with template name, report type, configuration parameters, and schedule
 - **Sync Log**: Represents data synchronization event with timestamp, user, sync status, records synced, and error details
 
-## Success Criteria *(mandatory)*
+## Success Criteria _(mandatory)_
 
 ### Measurable Outcomes
 
@@ -546,4 +546,3 @@ When a tenant completes online payment, the intermediary immediately receives pu
 - Notification delivery depends on device connectivity and notification permission settings
 - Tax calculation rules are configurable per region and may require periodic updates
 - Intermediaries have authority to manage tenants and collect payments on behalf of owners
-

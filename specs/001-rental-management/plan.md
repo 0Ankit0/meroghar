@@ -9,7 +9,8 @@
 
 Meroghar is a comprehensive house rental management system with 16 major feature areas including user management, tenant profiles, payment tracking, bill management, expense tracking, rent increments, data synchronization, exports, messaging, settings, document storage, payment gateways, analytics, push notifications, multi-language support, and tax reporting.
 
-**Technical Approach**: 
+**Technical Approach**:
+
 - Backend: Python FastAPI with PostgreSQL for multi-tenant data isolation using Row-Level Security
 - Frontend: Flutter cross-platform mobile app with offline-first architecture using local SQLite
 - Authentication: JWT tokens with bcrypt password hashing
@@ -20,25 +21,26 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 ## Technical Context
 
 **Language/Version**: Python 3.11+ (backend), Dart 3.0+ with Flutter 3.10+ (frontend)  
-**Primary Dependencies**: 
+**Primary Dependencies**:
+
 - Backend: FastAPI, SQLAlchemy 2.0+, Alembic, PyJWT, bcrypt, Pydantic, Celery, Redis
 - Frontend: Flutter Provider/Riverpod, sqflite, flutter_secure_storage, Dio, fl_chart
-**Storage**: PostgreSQL 14+ with Row-Level Security (server), SQLite (mobile local)  
-**Testing**: pytest with pytest-asyncio (backend), flutter_test with integration_test (frontend)  
-**Target Platform**: Linux/Docker server (backend), iOS 13+ and Android 8.0+ (mobile)  
-**Project Type**: Mobile + API (Flutter mobile app with FastAPI REST backend)  
-**Performance Goals**: 
+  **Storage**: PostgreSQL 14+ with Row-Level Security (server), SQLite (mobile local)  
+  **Testing**: pytest with pytest-asyncio (backend), flutter_test with integration_test (frontend)  
+  **Target Platform**: Linux/Docker server (backend), iOS 13+ and Android 8.0+ (mobile)  
+  **Project Type**: Mobile + API (Flutter mobile app with FastAPI REST backend)  
+  **Performance Goals**:
 - API response time: <500ms for auth, <1s for tenant list (100 tenants)
 - Mobile app startup: <3 seconds
 - Sync operation: <5s for typical dataset
 - Dashboard load: <3s for 12 months of data
-**Constraints**: 
+  **Constraints**:
 - Offline-first: Full mobile functionality without internet
 - Financial accuracy: DECIMAL types only (no FLOAT)
 - Security: PCI-DSS compliance for payments, AES-256 encryption at rest
 - Multi-tenancy: Row-Level Security enforcement
 - Test coverage: 80% backend, 70% frontend
-**Scale/Scope**: 
+  **Scale/Scope**:
 - Target: 1000 concurrent users
 - Property scale: Up to 50 tenants per property initially
 - Document storage: 1GB per property initially
@@ -46,9 +48,10 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+_GATE: Must pass before Phase 0 research. Re-check after Phase 1 design._
 
 ### I. Data Privacy & Security
+
 - ✅ Encryption at rest: PostgreSQL encryption + AES-256 for sensitive fields planned
 - ✅ Encryption in transit: HTTPS/TLS 1.3 specified
 - ✅ Password hashing: bcrypt with cost factor 12+ specified
@@ -57,6 +60,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ Audit logging: Required for financial data access
 
 ### II. Role-Based Access Control
+
 - ✅ Three roles: Owner, Intermediary, Tenant defined in spec
 - ✅ Server-side enforcement: JWT validation on all API requests planned
 - ✅ Least privilege: Role-specific API endpoints in design
@@ -64,6 +68,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ Immutable roles: Audit trail for role changes required
 
 ### III. Offline-First Architecture
+
 - ✅ Local SQLite storage: Specified in technical architecture
 - ✅ Sync strategy: Last-write-wins for non-financial, append-only for financial
 - ✅ Conflict resolution: Defined in FR-038, FR-041a with manual UI for financial conflicts
@@ -71,6 +76,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ Background sync: WorkManager (Android) / BackgroundFetch (iOS) specified
 
 ### IV. Mobile-Responsive Design
+
 - ✅ Responsive layouts: Flutter's responsive widgets to be used
 - ✅ Touch targets: 48x48dp minimum to be enforced
 - ✅ Performance targets: <3s startup, <300ms transitions, 60 FPS scrolling
@@ -78,6 +84,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ Error handling: User-friendly error messages required
 
 ### V. Financial Data Accuracy & Audit Trails
+
 - ✅ Decimal precision: DECIMAL type mandated (no FLOAT)
 - ✅ Immutable records: Soft deletes only for financial data
 - ✅ Audit trail: created_at, updated_at, created_by columns specified
@@ -86,6 +93,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ Receipt generation: Automatic receipt generation specified (FR-079)
 
 ### VI. Multi-Tenant Data Isolation
+
 - ✅ Scoped queries: Property/tenant scope filters required
 - ✅ Row-Level Security: PostgreSQL RLS enforced
 - ✅ API validation: Resource ownership checks on all endpoints
@@ -93,6 +101,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ Error messages: 404 for both not-found and unauthorized
 
 ### VII. Test-Driven Development
+
 - ✅ Test-first: TDD workflow mandated in constitution
 - ✅ Test coverage: 80% backend, 70% frontend specified
 - ✅ Test types: Unit, integration, contract, E2E tests required
@@ -100,6 +109,7 @@ Meroghar is a comprehensive house rental management system with 16 major feature
 - ✅ CI/CD: Tests run on every commit (GitHub Actions/GitLab CI)
 
 ### VIII. API-First Design
+
 - ✅ Contract-first: OpenAPI schemas before implementation
 - ✅ API versioning: /api/v1/ path prefix specified
 - ✅ RESTful design: REST principles to be followed
@@ -362,6 +372,7 @@ docs/
 **Output**: [research.md](./research.md)
 
 **Summary**:
+
 - Conflict resolution strategy: LWW for profiles, append-only for financial transactions
 - PostgreSQL RLS for multi-tenant isolation with session variables
 - Bill division using Python Decimal with deterministic remainder handling
@@ -382,13 +393,15 @@ All technology choices documented with rationale, alternatives considered, and i
 ## Phase 1: Design & Contracts ✅
 
 **Status**: COMPLETE  
-**Outputs**: 
+**Outputs**:
+
 - [data-model.md](./data-model.md) - Complete database schema with 15 entities
 - [contracts/](./contracts/) - 12 complete OpenAPI specifications for all API endpoints
 - [quickstart.md](./quickstart.md) - Developer setup guide
 - [.github/copilot-instructions.md](../../.github/copilot-instructions.md) - Updated agent context
 
 **Data Model Summary**:
+
 - **15 Core Entities**: User, Property, PropertyAssignment, Tenant, Payment, Transaction, Bill, BillAllocation, RecurringBill, Expense, Document, Message, Notification, ReportTemplate, SyncLog
 - **Row-Level Security**: Policies defined for all sensitive tables
 - **Performance Optimization**: Materialized views for tenant balances and property revenue
@@ -396,6 +409,7 @@ All technology choices documented with rationale, alternatives considered, and i
 - **Migration Strategy**: Alembic migrations with proper cascade rules
 
 **API Contracts Summary** (All 12 Contracts Complete):
+
 1. **auth.yaml**: 8 authentication endpoints (register, login, refresh, logout, change-password, forgot-password, reset-password, verify-token)
 2. **analytics.yaml**: 5 dashboard endpoints (dashboard, revenue-trends, expense-breakdown, occupancy-rates, payment-collection)
 3. **tenants.yaml**: 5 tenant management endpoints (list, create, get, update, balance calculation)
@@ -412,6 +426,7 @@ All technology choices documented with rationale, alternatives considered, and i
 **Standards**: RESTful design, JWT Bearer authentication, consistent error handling, OpenAPI 3.0.3 specification, /api/v1/ versioning
 
 **Agent Context Update**:
+
 - Updated `.github/copilot-instructions.md` with Python 3.11+, Flutter 3.10+, PostgreSQL 14+, SQLite
 - Project type: Mobile + API architecture
 - Technology stack documented for AI assistant awareness
@@ -421,6 +436,7 @@ All technology choices documented with rationale, alternatives considered, and i
 ## Post-Phase 1 Constitution Check ✅
 
 ### I. Data Privacy & Security
+
 - ✅ Database schema includes encryption-ready fields
 - ✅ RLS policies enforce data isolation at database level
 - ✅ API contracts require Bearer token authentication
@@ -428,23 +444,27 @@ All technology choices documented with rationale, alternatives considered, and i
 - ✅ Audit trail columns (created_by, created_at) in all financial tables
 
 ### II. Role-Based Access Control
+
 - ✅ RLS policies implemented for all entities (users, tenants, payments, bills, etc.)
 - ✅ API authentication via JWT with role in payload
 - ✅ Property-scoped queries enforced by RLS
 - ✅ Three roles explicitly modeled: owner, intermediary, tenant
 
 ### III. Offline-First Architecture
+
 - ✅ SyncLog table tracks synchronization events
 - ✅ device_id field in Payment table for conflict detection
 - ✅ Conflict resolution strategy documented (LWW vs append-only)
 - ✅ SQLite for mobile local storage specified
 
 ### IV. Mobile-Responsive Design
+
 - ✅ Flutter chosen for cross-platform mobile development
 - ✅ Performance targets specified in Technical Context
 - ✅ Responsive design principles in quickstart guide
 
 ### V. Financial Data Accuracy & Audit Trails
+
 - ✅ DECIMAL(12,2) type for all monetary values (payments, bills, expenses)
 - ✅ Immutable payments (is_voided flag, no hard deletes)
 - ✅ Audit columns: created_at, updated_at, created_by in all tables
@@ -452,18 +472,21 @@ All technology choices documented with rationale, alternatives considered, and i
 - ✅ Balance calculations derived from transaction history (materialized view)
 
 ### VI. Multi-Tenant Data Isolation
+
 - ✅ RLS policies scope all queries by property/user
 - ✅ PropertyAssignment junction table enforces intermediary access
 - ✅ No global queries possible (RLS enforcement)
 - ✅ Cross-tenant leakage prevention via database constraints
 
 ### VII. Test-Driven Development
+
 - ✅ pytest + testcontainers specified for backend
 - ✅ flutter_test + integration_test for mobile
 - ✅ Test coverage targets: 80% backend, 70% frontend
 - ✅ Contract tests for API endpoints in plan
 
 ### VIII. API-First Design
+
 - ✅ OpenAPI 3.0 contracts created before implementation
 - ✅ API versioning: /api/v1/ prefix
 - ✅ RESTful design with standard HTTP verbs
@@ -480,6 +503,7 @@ All technology choices documented with rationale, alternatives considered, and i
 **Next Step**: Run `/speckit.tasks` command to generate executable task list from this plan.
 
 **Expected Outputs**:
+
 - `tasks.md` with ordered task list
 - Task dependencies and parallelization markers
 - Acceptance criteria per task
@@ -490,6 +514,7 @@ All technology choices documented with rationale, alternatives considered, and i
 ## Summary & Next Actions
 
 ### Completed Artifacts
+
 1. ✅ `plan.md` - This file (technical implementation plan)
 2. ✅ `research.md` - Technology research and decisions (6,000+ words)
 3. ✅ `data-model.md` - Complete database schema with 15 entities (4,500+ words)
@@ -509,6 +534,7 @@ All technology choices documented with rationale, alternatives considered, and i
 17. ✅ `.github/copilot-instructions.md` - Updated agent context
 
 ### Design Decisions Summary
+
 - **Architecture**: Mobile + API (Flutter + FastAPI)
 - **Database**: PostgreSQL 14+ with RLS for server, SQLite for mobile offline
 - **Authentication**: JWT dual-token (access + refresh)
@@ -521,6 +547,7 @@ All technology choices documented with rationale, alternatives considered, and i
 - **Testing**: pytest (backend 80%), flutter_test (frontend 70%)
 
 ### Readiness Assessment
+
 - **Technical unknowns**: RESOLVED (all in research.md)
 - **Database design**: COMPLETE (15 entities, relationships, RLS)
 - **API contracts**: COMPLETE (12 OpenAPI 3.0.3 specifications covering all endpoints)
@@ -528,6 +555,7 @@ All technology choices documented with rationale, alternatives considered, and i
 - **Constitution compliance**: VERIFIED (all gates passed)
 
 ### Recommended Next Steps
+
 1. **Run `/speckit.tasks`** to generate executable task list
 2. **Review tasks with team** for effort estimation and assignment
 3. **Set up CI/CD pipelines** (GitHub Actions workflows)
@@ -543,6 +571,7 @@ All technology choices documented with rationale, alternatives considered, and i
 **Git Status**: Feature branch active, ready for implementation
 
 **Deployment Strategy** (from research.md):
+
 - Docker containers for backend services
 - PostgreSQL with automated daily backups
 - Redis for caching and message queuing

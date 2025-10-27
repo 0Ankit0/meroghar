@@ -149,26 +149,26 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 3
 
-- [ ] T075 [P] [US3] Create Bill model with total_amount, bill_type, period in backend/src/models/bill.py
-- [ ] T076 [P] [US3] Create BillAllocation model with tenant_id, percentage, amount in backend/src/models/bill.py
-- [ ] T077 [P] [US3] Create RecurringBill model with schedule and template in backend/src/models/bill.py
-- [ ] T078 [US3] Create Alembic migration for Bill, BillAllocation, RecurringBill tables in backend/alembic/versions/
-- [ ] T079 [P] [US3] Create bill request/response schemas in backend/src/schemas/bill.py
-- [ ] T080 [US3] Implement BillService with division algorithm (DECIMAL, deterministic rounding) in backend/src/services/bill_service.py
-- [ ] T081 [US3] Implement bill creation endpoint (POST /api/v1/bills) in backend/src/api/v1/bills.py
-- [ ] T082 [US3] Implement bill allocation endpoint (POST /api/v1/bills/{id}/allocate) in backend/src/api/v1/bills.py
-- [ ] T083 [US3] Implement bill list endpoint (GET /api/v1/bills) with filters in backend/src/api/v1/bills.py
-- [ ] T084 [US3] Implement bill payment marking endpoint (PATCH /api/v1/bills/{bill_id}/allocations/{id}/pay) in backend/src/api/v1/bills.py
-- [ ] T085 [US3] Implement recurring bill setup endpoint (POST /api/v1/bills/recurring) in backend/src/api/v1/bills.py
-- [ ] T086 [US3] Create Celery task for automatic monthly bill generation in backend/src/tasks/bill_tasks.py
-- [ ] T087 [P] [US3] Create Bill and BillAllocation models for mobile in mobile/lib/models/bill.dart
-- [ ] T088 [US3] Create bill provider with bill state in mobile/lib/providers/bill_provider.dart
-- [ ] T089 [US3] Create bill creation screen with division rules UI in mobile/lib/screens/bills/bill_form_screen.dart
-- [ ] T090 [US3] Create bill allocation screen showing tenant shares in mobile/lib/screens/bills/bill_allocation_screen.dart
-- [ ] T091 [US3] Create bill list screen with payment status in mobile/lib/screens/bills/bill_list_screen.dart
-- [ ] T092 [US3] Add bill share display to tenant dashboard in mobile/lib/screens/tenants/tenant_dashboard_screen.dart
-- [ ] T093 [US3] Implement RLS policies for bills and allocations tables in backend/alembic/versions/
-- [ ] T094 [US3] Add validation and error handling to all US3 endpoints in backend/src/api/v1/
+- [x] T075 [P] [US3] Create Bill model with total_amount, bill_type, period in backend/src/models/bill.py
+- [x] T076 [P] [US3] Create BillAllocation model with tenant_id, percentage, amount in backend/src/models/bill.py
+- [x] T077 [P] [US3] Create RecurringBill model with schedule and template in backend/src/models/bill.py
+- [x] T078 [US3] Create Alembic migration for Bill, BillAllocation, RecurringBill tables in backend/alembic/versions/
+- [x] T079 [P] [US3] Create bill request/response schemas in backend/src/schemas/bill.py
+- [x] T080 [US3] Implement BillService with division algorithm (DECIMAL, deterministic rounding) in backend/src/services/bill_service.py
+- [x] T081 [US3] Implement bill creation endpoint (POST /api/v1/bills) in backend/src/api/v1/bills.py
+- [x] T082 [US3] Implement bill allocation endpoint (POST /api/v1/bills/{id}/allocate) in backend/src/api/v1/bills.py
+- [x] T083 [US3] Implement bill list endpoint (GET /api/v1/bills) with filters in backend/src/api/v1/bills.py
+- [x] T084 [US3] Implement bill payment marking endpoint (PATCH /api/v1/bills/{bill_id}/allocations/{id}/pay) in backend/src/api/v1/bills.py
+- [x] T085 [US3] Implement recurring bill setup endpoint (POST /api/v1/bills/recurring) in backend/src/api/v1/bills.py
+- [x] T086 [US3] Create Celery task for automatic monthly bill generation in backend/src/tasks/bill_tasks.py
+- [x] T087 [P] [US3] Create Bill and BillAllocation models for mobile in mobile/lib/models/bill.dart
+- [x] T088 [US3] Create bill provider with bill state in mobile/lib/providers/bill_provider.dart
+- [x] T089 [US3] Create bill creation screen with division rules UI in mobile/lib/screens/bills/bill_form_screen.dart
+- [x] T090 [US3] Create bill allocation screen showing tenant shares in mobile/lib/screens/bills/bill_allocation_screen.dart
+- [x] T091 [US3] Create bill list screen with payment status in mobile/lib/screens/bills/bill_list_screen.dart
+- [x] T092 [US3] Add bill share display to tenant dashboard in mobile/lib/screens/tenants/tenant_dashboard_screen.dart
+- [x] T093 [US3] Implement RLS policies for bills and allocations tables in backend/alembic/versions/
+- [x] T094 [US3] Add validation and error handling to all US3 endpoints in backend/src/api/v1/
 
 **Checkpoint**: At this point, User Stories 1, 2, AND 3 should all work independently - bill management is fully functional
 
@@ -182,21 +182,21 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 4
 
-- [ ] T095 [US4] Create AnalyticsService with data aggregation methods in backend/src/services/analytics_service.py
-- [ ] T096 [US4] Implement rent collection trends endpoint (GET /api/v1/analytics/rent-trends) in backend/src/api/v1/analytics.py
-- [ ] T097 [US4] Implement payment status overview endpoint (GET /api/v1/analytics/payment-status) in backend/src/api/v1/analytics.py
-- [ ] T098 [US4] Implement expense breakdown endpoint (GET /api/v1/analytics/expense-breakdown) in backend/src/api/v1/analytics.py
-- [ ] T099 [US4] Implement revenue vs expenses endpoint (GET /api/v1/analytics/revenue-expenses) in backend/src/api/v1/analytics.py
-- [ ] T100 [US4] Implement property-wise performance endpoint (GET /api/v1/analytics/property-performance) in backend/src/api/v1/analytics.py
-- [ ] T101 [US4] Add date range filtering to all analytics endpoints in backend/src/api/v1/analytics.py
-- [ ] T102 [US4] Create analytics provider with chart data state in mobile/lib/providers/analytics_provider.dart
-- [ ] T103 [US4] Create analytics dashboard screen with multiple chart widgets in mobile/lib/screens/analytics/analytics_dashboard_screen.dart
-- [ ] T104 [P] [US4] Create line chart widget for rent trends using fl_chart in mobile/lib/widgets/charts/line_chart_widget.dart
-- [ ] T105 [P] [US4] Create pie chart widget for expense breakdown using fl_chart in mobile/lib/widgets/charts/pie_chart_widget.dart
-- [ ] T106 [P] [US4] Create bar chart widget for revenue vs expenses using fl_chart in mobile/lib/widgets/charts/bar_chart_widget.dart
-- [ ] T107 [US4] Add date range picker to analytics dashboard in mobile/lib/widgets/date_range_picker.dart
-- [ ] T108 [US4] Implement drill-down detail view for chart elements in mobile/lib/screens/analytics/analytics_detail_screen.dart
-- [ ] T109 [US4] Add analytics data export endpoint (POST /api/v1/analytics/export) with PDF/Excel in backend/src/api/v1/analytics.py
+- [x] T095 [US4] Create AnalyticsService with data aggregation methods in backend/src/services/analytics_service.py
+- [x] T096 [US4] Implement rent collection trends endpoint (GET /api/v1/analytics/rent-trends) in backend/src/api/v1/analytics.py
+- [x] T097 [US4] Implement payment status overview endpoint (GET /api/v1/analytics/payment-status) in backend/src/api/v1/analytics.py
+- [x] T098 [US4] Implement expense breakdown endpoint (GET /api/v1/analytics/expense-breakdown) in backend/src/api/v1/analytics.py
+- [x] T099 [US4] Implement revenue vs expenses endpoint (GET /api/v1/analytics/revenue-expenses) in backend/src/api/v1/analytics.py
+- [x] T100 [US4] Implement property-wise performance endpoint (GET /api/v1/analytics/property-performance) in backend/src/api/v1/analytics.py
+- [x] T101 [US4] Add date range filtering to all analytics endpoints in backend/src/api/v1/analytics.py
+- [x] T102 [US4] Create analytics provider with chart data state in mobile/lib/providers/analytics_provider.dart
+- [x] T103 [US4] Create analytics dashboard screen with multiple chart widgets in mobile/lib/screens/analytics/analytics_dashboard_screen.dart
+- [x] T104 [P] [US4] Create line chart widget for rent trends using fl_chart in mobile/lib/widgets/charts/line_chart_widget.dart
+- [x] T105 [P] [US4] Create pie chart widget for expense breakdown using fl_chart in mobile/lib/widgets/charts/pie_chart_widget.dart
+- [x] T106 [P] [US4] Create bar chart widget for revenue vs expenses using fl_chart in mobile/lib/widgets/charts/bar_chart_widget.dart
+- [x] T107 [US4] Add date range picker to analytics dashboard in mobile/lib/widgets/date_range_picker.dart
+- [x] T108 [US4] Implement drill-down detail view for chart elements in mobile/lib/screens/analytics/analytics_detail_screen.dart
+- [x] T109 [US4] Add analytics data export endpoint (POST /api/v1/analytics/export) with PDF/Excel in backend/src/api/v1/analytics.py
 
 ## **Checkpoint**: At this point, owners can view comprehensive financial analytics and insights
 
@@ -208,21 +208,21 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 5
 
-- [ ] T110 [US5] Implement Khalti payment gateway integration in backend/src/services/payment_gateway/khalti_service.py
+- [x] T110 [US5] Implement Khalti payment gateway integration in backend/src/services/payment_gateway/khalti_service.py
 - [ ] T111 [P] [US5] Implement eSewa payment gateway integration (backup) in backend/src/services/payment_gateway/esewa_service.py
 - [ ] T112 [P] [US5] Implement IME Pay payment gateway integration (backup) in backend/src/services/payment_gateway/imepay_service.py
-- [ ] T113 [US5] Create payment gateway factory in backend/src/services/payment_gateway/__init__.py
-- [ ] T114 [US5] Implement payment initiation endpoint (POST /api/v1/payments/initiate) in backend/src/api/v1/payments.py
-- [ ] T115 [P] [US5] Implement payment webhook handler for Khalti (POST /api/v1/webhooks/khalti) in backend/src/api/v1/webhooks.py
-- [ ] T116 [P] [US5] Implement payment webhook handler for eSewa (POST /api/v1/webhooks/esewa) in backend/src/api/v1/webhooks.py
-- [ ] T117 [P] [US5] Implement payment webhook handler for IME Pay (POST /api/v1/webhooks/imepay) in backend/src/api/v1/webhooks.py
-- [ ] T118 [US5] Implement payment status polling endpoint (GET /api/v1/payments/{id}/status) in backend/src/api/v1/payments.py
-- [ ] T119 [US5] Create payment gateway integration in mobile using webview in mobile/lib/screens/payments/payment_gateway_screen.dart
-- [ ] T120 [US5] Create payment method selection screen in mobile/lib/screens/payments/payment_method_screen.dart
-- [ ] T121 [US5] Implement auto-receipt generation after successful gateway payment in backend/src/services/payment_service.py
-- [ ] T122 [US5] Add payment confirmation notification in backend/src/tasks/notification_tasks.py
-- [ ] T123 [US5] Implement failed payment retry mechanism in mobile/lib/providers/payment_provider.dart
-- [ ] T124 [US5] Add payment gateway fee tracking in Transaction model in backend/src/models/payment.py
+- [x] T113 [US5] Create payment gateway factory in backend/src/services/payment_gateway/**init**.py
+- [x] T114 [US5] Implement payment initiation endpoint (POST /api/v1/payments/initiate) in backend/src/api/v1/payments.py
+- [x] T115 [P] [US5] Implement payment webhook handler for Khalti (POST /api/v1/webhooks/khalti) in backend/src/api/v1/webhooks.py
+- [x] T116 [P] [US5] Implement payment webhook handler for eSewa (POST /api/v1/webhooks/esewa) in backend/src/api/v1/webhooks.py
+- [x] T117 [P] [US5] Implement payment webhook handler for IME Pay (POST /api/v1/webhooks/imepay) in backend/src/api/v1/webhooks.py
+- [x] T118 [US5] Implement payment status polling endpoint (GET /api/v1/payments/{id}/status) in backend/src/api/v1/payments.py
+- [x] T119 [US5] Create payment gateway integration in mobile using webview in mobile/lib/screens/payments/payment_gateway_screen.dart
+- [x] T120 [US5] Create payment method selection screen in mobile/lib/screens/payments/payment_method_screen.dart
+- [x] T121 [US5] Implement auto-receipt generation after successful gateway payment in backend/src/services/payment_service.py
+- [x] T122 [US5] Add payment confirmation notification in backend/src/tasks/notification_tasks.py
+- [x] T123 [US5] Implement failed payment retry mechanism in mobile/lib/providers/payment_provider.dart
+- [x] T124 [US5] Add payment gateway fee tracking in Transaction model in backend/src/models/payment.py
 
 **Checkpoint**: At this point, tenants can pay rent online through Khalti and other Nepal-based payment gateways
 
@@ -236,22 +236,22 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 6
 
-- [ ] T125 [P] [US6] Create Expense model with amount, category, description, paid_by in backend/src/models/expense.py
-- [ ] T126 [US6] Create Alembic migration for Expense table in backend/alembic/versions/
-- [ ] T127 [P] [US6] Create expense request/response schemas in backend/src/schemas/expense.py
-- [ ] T128 [US6] Implement S3 document upload service in backend/src/services/document_service.py
-- [ ] T129 [US6] Implement expense recording endpoint (POST /api/v1/expenses) in backend/src/api/v1/expenses.py
-- [ ] T130 [US6] Implement receipt upload endpoint (POST /api/v1/expenses/{id}/receipt) in backend/src/api/v1/expenses.py
-- [ ] T131 [US6] Implement expense list endpoint (GET /api/v1/expenses) with filters in backend/src/api/v1/expenses.py
-- [ ] T132 [US6] Implement expense approval endpoint (PATCH /api/v1/expenses/{id}/approve) in backend/src/api/v1/expenses.py
-- [ ] T133 [US6] Implement expense report generation endpoint (GET /api/v1/reports/expenses) in backend/src/api/v1/reports.py
-- [ ] T134 [P] [US6] Create Expense model for mobile in mobile/lib/models/expense.dart
-- [ ] T135 [US6] Create expense provider in mobile/lib/providers/expense_provider.dart
-- [ ] T136 [US6] Create expense recording screen with image picker in mobile/lib/screens/expenses/expense_form_screen.dart
-- [ ] T137 [US6] Create expense list screen with category filters in mobile/lib/screens/expenses/expense_list_screen.dart
-- [ ] T138 [US6] Create expense approval screen for owners in mobile/lib/screens/expenses/expense_approval_screen.dart
-- [ ] T139 [US6] Add expense category breakdown to analytics dashboard in mobile/lib/screens/analytics/analytics_dashboard_screen.dart
-- [ ] T140 [US6] Implement RLS policies for expenses table in backend/alembic/versions/
+- [x] T125 [P] [US6] Create Expense model with amount, category, description, paid_by in backend/src/models/expense.py
+- [x] T126 [US6] Create Alembic migration for Expense table in backend/alembic/versions/
+- [x] T127 [P] [US6] Create expense request/response schemas in backend/src/schemas/expense.py
+- [x] T128 [US6] Implement S3 document upload service in backend/src/services/document_service.py
+- [x] T129 [US6] Implement expense recording endpoint (POST /api/v1/expenses) in backend/src/api/v1/expenses.py
+- [x] T130 [US6] Implement receipt upload endpoint (POST /api/v1/expenses/{id}/receipt) in backend/src/api/v1/expenses.py
+- [x] T131 [US6] Implement expense list endpoint (GET /api/v1/expenses) with filters in backend/src/api/v1/expenses.py
+- [x] T132 [US6] Implement expense approval endpoint (PATCH /api/v1/expenses/{id}/approve) in backend/src/api/v1/expenses.py
+- [x] T133 [US6] Implement expense report generation endpoint (GET /api/v1/reports/expenses) in backend/src/api/v1/reports.py
+- [x] T134 [P] [US6] Create Expense model for mobile in mobile/lib/models/expense.dart
+- [x] T135 [US6] Create expense provider in mobile/lib/providers/expense_provider.dart
+- [x] T136 [US6] Create expense recording screen with image picker in mobile/lib/screens/expenses/expense_form_screen.dart
+- [x] T137 [US6] Create expense list screen with category filters in mobile/lib/screens/expenses/expense_list_screen.dart
+- [x] T138 [US6] Create expense approval screen for owners in mobile/lib/screens/expenses/expense_approval_screen.dart
+- [x] T139 [US6] Add expense category breakdown to analytics dashboard in mobile/lib/screens/analytics/analytics_dashboard_screen.dart
+- [x] T140 [US6] Implement RLS policies for expenses table in backend/alembic/versions/
 
 **Checkpoint**: At this point, all maintenance expenses can be tracked with receipts and approvals
 
@@ -265,22 +265,22 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 7
 
-- [ ] T141 [P] [US7] Create SyncLog model with timestamp, status, records_synced in backend/src/models/sync.py
-- [ ] T142 [US7] Create Alembic migration for SyncLog table in backend/alembic/versions/
-- [ ] T143 [US7] Implement SyncService with conflict resolution logic in backend/src/services/sync_service.py
-- [ ] T144 [US7] Implement bulk sync endpoint (POST /api/v1/sync) accepting multiple operations in backend/src/api/v1/sync.py
-- [ ] T145 [US7] Implement sync status endpoint (GET /api/v1/sync/status) in backend/src/api/v1/sync.py
-- [ ] T146 [US7] Implement conflict resolution UI endpoint (GET /api/v1/sync/conflicts) in backend/src/api/v1/sync.py
-- [ ] T147 [US7] Add updated_at timestamp to all models for LWW comparison in backend/src/models/
-- [ ] T148 [US7] Add device_id tracking to mobile local database in mobile/lib/services/database_service.dart
-- [ ] T149 [US7] Create sync service with queue and retry logic in mobile/lib/services/sync_service.dart
-- [ ] T150 [US7] Implement offline operation queueing in mobile/lib/services/offline_queue_service.dart
-- [ ] T151 [US7] Create sync status indicator widget in mobile/lib/widgets/sync_status_indicator.dart
-- [ ] T152 [US7] Implement automatic sync on connection restore in mobile/lib/services/connectivity_service.dart
-- [ ] T153 [US7] Create conflict resolution UI screen in mobile/lib/screens/sync/conflict_resolution_screen.dart
-- [ ] T154 [US7] Implement exponential backoff retry mechanism in mobile/lib/services/sync_service.dart
-- [ ] T155 [US7] Add sync preferences to settings screen in mobile/lib/screens/settings/sync_settings_screen.dart
-- [ ] T156 [US7] Create sync log viewer screen in mobile/lib/screens/sync/sync_log_screen.dart
+- [x] T141 [P] [US7] Create SyncLog model with timestamp, status, records_synced in backend/src/models/sync.py
+- [x] T142 [US7] Create Alembic migration for SyncLog table in backend/alembic/versions/
+- [x] T143 [US7] Implement SyncService with conflict resolution logic in backend/src/services/sync_service.py
+- [x] T144 [US7] Implement bulk sync endpoint (POST /api/v1/sync) accepting multiple operations in backend/src/api/v1/sync.py
+- [x] T145 [US7] Implement sync status endpoint (GET /api/v1/sync/status) in backend/src/api/v1/sync.py
+- [x] T146 [US7] Implement conflict resolution UI endpoint (GET /api/v1/sync/conflicts) in backend/src/api/v1/sync.py
+- [x] T147 [US7] Add updated_at timestamp to all models for LWW comparison in backend/src/models/
+- [x] T148 [US7] Add device_id tracking to mobile local database in mobile/lib/services/database_service.dart
+- [x] T149 [US7] Create sync service with queue and retry logic in mobile/lib/services/sync_service.dart
+- [x] T150 [US7] Implement offline operation queueing in mobile/lib/services/offline_queue_service.dart
+- [x] T151 [US7] Create sync status indicator widget in mobile/lib/widgets/sync_status_indicator.dart
+- [x] T152 [US7] Implement automatic sync on connection restore in mobile/lib/services/connectivity_service.dart
+- [x] T153 [US7] Create conflict resolution UI screen in mobile/lib/screens/sync/conflict_resolution_screen.dart
+- [x] T154 [US7] Implement exponential backoff retry mechanism in mobile/lib/services/sync_service.dart
+- [x] T155 [US7] Add sync preferences to settings screen in mobile/lib/screens/settings/sync_settings_screen.dart
+- [x] T156 [US7] Create sync log viewer screen in mobile/lib/screens/sync/sync_log_screen.dart
 
 **Checkpoint**: At this point, offline functionality is fully operational with conflict resolution
 
