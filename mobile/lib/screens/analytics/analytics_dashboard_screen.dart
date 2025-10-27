@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/analytics_provider.dart';
+import '../../providers/expense_provider.dart';
 import '../../widgets/date_range_picker.dart';
 import '../../widgets/charts/line_chart_widget.dart';
 import '../../widgets/charts/pie_chart_widget.dart';
@@ -36,11 +37,20 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
   Future<void> _loadAnalytics() async {
     final analyticsProvider = context.read<AnalyticsProvider>();
-    await analyticsProvider.fetchAllAnalytics(
-      propertyId: _selectedPropertyId,
-      startDate: _startDate,
-      endDate: _endDate,
-    );
+    final expenseProvider = context.read<ExpenseProvider>();
+
+    await Future.wait([
+      analyticsProvider.fetchAllAnalytics(
+        propertyId: _selectedPropertyId,
+        startDate: _startDate,
+        endDate: _endDate,
+      ),
+      expenseProvider.fetchExpenseReport(
+        propertyId: _selectedPropertyId,
+        startDate: _startDate,
+        endDate: _endDate,
+      ),
+    ]);
   }
 
   @override
@@ -144,6 +154,12 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                       ),
                       RevenueExpensesBarChart(
                           comparison: provider.revenueExpenses),
+                      const SizedBox(height: 32),
+                      _buildSectionHeader(
+                        'Expense Category Breakdown',
+                        () => _navigateToDetail('expense-categories'),
+                      ),
+                      _buildExpenseCategoryBreakdown(),
                       const SizedBox(height: 32),
                       if (_selectedPropertyId == null) ...[
                         _buildSectionHeader(
@@ -375,6 +391,154 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           endDate: _endDate,
         ),
       ),
+    );
+  }
+
+  Widget _buildExpenseCategoryBreakdown() {
+    return Consumer<ExpenseProvider>(
+      builder: (context, expenseProvider, child) {
+        final summary = expenseProvider.expenseSummary;
+
+        if (summary == null || summary.byCategory.isEmpty) {
+          return Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  const Icon(Icons.receipt_long, size: 48, color: Colors.grey),
+                  const SizedBox(height: 8),
+                  const Text('No expense data available'),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Load Expenses'),
+                    onPressed: () {
+                      expenseProvider.fetchExpenseReport(
+                        propertyId: _selectedPropertyId,
+                        startDate: _startDate,
+                        endDate: _endDate,
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        // Calculate total for percentages
+        final total = summary.totalAmount;
+
+        // Sort categories by amount (descending)
+        final sortedCategories = summary.byCategory.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Summary totals
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _buildSummaryChip(
+                      'Total',
+                      summary.totalAmount,
+                      Colors.blue,
+                    ),
+                    _buildSummaryChip(
+                      'Pending',
+                      summary.pendingAmount,
+                      Colors.orange,
+                    ),
+                    _buildSummaryChip(
+                      'Outstanding',
+                      summary.outstandingAmount,
+                      Colors.red,
+                    ),
+                  ],
+                ),
+                const Divider(height: 24),
+                // Category breakdown
+                ...sortedCategories.map((entry) {
+                  final percentage =
+                      total > 0 ? (entry.value / total * 100) : 0.0;
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              entry.key,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Text(
+                              '\$${entry.value.toStringAsFixed(2)}',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: LinearProgressIndicator(
+                                value: percentage / 100,
+                                backgroundColor: Colors.grey[200],
+                                minHeight: 8,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${percentage.toStringAsFixed(1)}%',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSummaryChip(String label, double amount, Color color) {
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[600],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '\$${amount.toStringAsFixed(0)}',
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: color,
+            fontSize: 16,
+          ),
+        ),
+      ],
     );
   }
 
