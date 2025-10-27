@@ -23,6 +23,7 @@ from .bill import (
 )
 from .expense import Expense, ExpenseCategory, ExpenseStatus
 from .sync import SyncLog, SyncStatus, SyncOperation
+from .message import Message, MessageChannel, MessageStatus, MessageTemplate
 
 __all__ = [
     # User
@@ -55,5 +56,10 @@ __all__ = [
     "SyncLog",
     "SyncStatus",
     "SyncOperation",
+    # Message
+    "Message",
+    "MessageChannel",
+    "MessageStatus",
+    "MessageTemplate",
 ]
 

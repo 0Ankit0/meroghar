@@ -158,6 +158,11 @@ class Property(Base):
         back_populates="property",
         cascade="all, delete-orphan",
     )
+    messages = relationship(
+        "Message",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (

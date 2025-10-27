@@ -183,6 +183,11 @@ class Tenant(Base):
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
+    messages = relationship(
+        "Message",
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (

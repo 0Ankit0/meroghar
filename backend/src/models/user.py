@@ -157,6 +157,11 @@ class User(Base):
         back_populates="user",
         cascade="all, delete-orphan",
     )
+    sent_messages = relationship(
+        "Message",
+        back_populates="sender",
+        foreign_keys="Message.sent_by",
+    )
 
     # Indexes
     __table_args__ = (

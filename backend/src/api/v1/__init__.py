@@ -13,6 +13,7 @@ from .webhooks import router as webhooks_router
 from .expenses import router as expenses_router
 from .reports import router as reports_router
 from .sync import router as sync_router
+from .messages import router as messages_router
 
 # Create API v1 router
 api_router = APIRouter(prefix="/v1")
@@ -29,5 +30,6 @@ api_router.include_router(webhooks_router, prefix="/webhooks", tags=["Webhooks"]
 api_router.include_router(expenses_router, prefix="/expenses", tags=["Expenses"])
 api_router.include_router(reports_router, prefix="/reports", tags=["Reports"])
 api_router.include_router(sync_router, prefix="/sync", tags=["Sync"])
+api_router.include_router(messages_router, prefix="/messages", tags=["Messages"])
 
 __all__ = ["api_router"]

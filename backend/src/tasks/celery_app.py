@@ -61,6 +61,21 @@ celery_app.conf.beat_schedule = {
         "task": "src.tasks.maintenance_tasks.cleanup_old_sync_logs",
         "schedule": crontab(day_of_week=0, hour=2, minute=0),  # Sunday at 2 AM
     },
+    # Send scheduled messages every minute
+    "send-scheduled-messages": {
+        "task": "tasks.send_scheduled_messages",
+        "schedule": 60.0,  # Every 60 seconds
+    },
+    # Send automatic payment reminders daily at 9 AM
+    "auto-payment-reminders": {
+        "task": "tasks.send_payment_reminders",
+        "schedule": crontab(hour=9, minute=0),  # Daily at 9 AM
+    },
+    # Send lease expiry reminders daily at 10 AM
+    "lease-expiry-reminders": {
+        "task": "tasks.send_lease_expiry_reminders",
+        "schedule": crontab(hour=10, minute=0),  # Daily at 10 AM
+    },
 }
 
 logger.info(

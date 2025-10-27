@@ -214,6 +214,26 @@ class Settings(BaseSettings):
     def is_development(self) -> bool:
         """Check if running in development environment."""
         return self.environment.lower() == "development"
+    
+    @property
+    def TWILIO_ACCOUNT_SID(self) -> Optional[str]:
+        """Get Twilio Account SID."""
+        return self.twilio_account_sid
+    
+    @property
+    def TWILIO_AUTH_TOKEN(self) -> Optional[str]:
+        """Get Twilio Auth Token."""
+        return self.twilio_auth_token
+    
+    @property
+    def TWILIO_PHONE_NUMBER(self) -> Optional[str]:
+        """Get Twilio Phone Number."""
+        return self.twilio_phone_number
+    
+    @property
+    def TWILIO_WHATSAPP_NUMBER(self) -> Optional[str]:
+        """Get Twilio WhatsApp Number."""
+        return self.twilio_whatsapp_number
 
 
 @lru_cache()
