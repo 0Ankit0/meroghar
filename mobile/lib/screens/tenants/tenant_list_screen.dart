@@ -5,8 +5,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 import '../../models/tenant.dart';
+import '../../models/payment.dart';
+import '../../providers/payment_provider.dart';
 import '../../services/api_service.dart';
 
 class TenantListScreen extends StatefulWidget {
@@ -253,10 +256,43 @@ class _TenantListScreenState extends State<TenantListScreen> {
   }
 }
 
-class _TenantCard extends StatelessWidget {
+class _TenantCard extends StatefulWidget {
   final Tenant tenant;
 
   const _TenantCard({required this.tenant});
+
+  @override
+  State<_TenantCard> createState() => _TenantCardState();
+}
+
+class _TenantCardState extends State<_TenantCard> {
+  TenantBalance? _balance;
+  bool _isLoadingBalance = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadBalance();
+  }
+
+  Future<void> _loadBalance() async {
+    try {
+      final paymentProvider = context.read<PaymentProvider>();
+      await paymentProvider.fetchTenantBalance(tenantId: widget.tenant.id);
+      if (mounted) {
+        setState(() {
+          _balance = paymentProvider.currentBalance;
+          _isLoadingBalance = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoadingBalance = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -280,12 +316,12 @@ class _TenantCard extends StatelessWidget {
               Row(
                 children: [
                   CircleAvatar(
-                    backgroundColor: tenant.status == TenantStatus.active
+                    backgroundColor: widget.tenant.status == TenantStatus.active
                         ? Colors.green.shade100
                         : Colors.grey.shade200,
                     child: Icon(
                       Icons.person,
-                      color: tenant.status == TenantStatus.active
+                      color: widget.tenant.status == TenantStatus.active
                           ? Colors.green.shade700
                           : Colors.grey.shade600,
                     ),
@@ -296,7 +332,7 @@ class _TenantCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Tenant ${tenant.id.substring(0, 8)}...',
+                          'Tenant ${widget.tenant.id.substring(0, 8)}...',
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -311,17 +347,17 @@ class _TenantCard extends StatelessWidget {
                                 vertical: 2,
                               ),
                               decoration: BoxDecoration(
-                                color: tenant.status == TenantStatus.active
+                                color: widget.tenant.status == TenantStatus.active
                                     ? Colors.green.shade100
                                     : Colors.grey.shade200,
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                tenant.status.value.toUpperCase(),
+                                widget.tenant.status.value.toUpperCase(),
                                 style: TextStyle(
                                   fontSize: 11,
                                   fontWeight: FontWeight.bold,
-                                  color: tenant.status == TenantStatus.active
+                                  color: widget.tenant.status == TenantStatus.active
                                       ? Colors.green.shade700
                                       : Colors.grey.shade700,
                                 ),
@@ -329,7 +365,7 @@ class _TenantCard extends StatelessWidget {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              '${tenant.monthsStayed} months',
+                              '${widget.tenant.monthsStayed} months',
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey.shade600,
@@ -344,7 +380,7 @@ class _TenantCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
                       Text(
-                        currencyFormat.format(tenant.monthlyRent),
+                        currencyFormat.format(widget.tenant.monthlyRent),
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 18,
@@ -362,6 +398,11 @@ class _TenantCard extends StatelessWidget {
                   ),
                 ],
               ),
+              // Payment Status Badge Section
+              if (!_isLoadingBalance && _balance != null) ...[
+                const SizedBox(height: 12),
+                _buildPaymentStatusBadge(currencyFormat),
+              ],
               const Divider(height: 24),
               Row(
                 children: [
@@ -369,14 +410,14 @@ class _TenantCard extends StatelessWidget {
                     child: _InfoItem(
                       icon: Icons.calendar_today,
                       label: 'Move In',
-                      value: dateFormat.format(tenant.moveInDate),
+                      value: dateFormat.format(widget.tenant.moveInDate),
                     ),
                   ),
                   Expanded(
                     child: _InfoItem(
                       icon: Icons.account_balance_wallet,
                       label: 'Deposit',
-                      value: currencyFormat.format(tenant.securityDeposit),
+                      value: currencyFormat.format(widget.tenant.securityDeposit),
                     ),
                   ),
                 ],
@@ -388,15 +429,15 @@ class _TenantCard extends StatelessWidget {
                     child: _InfoItem(
                       icon: Icons.electric_bolt,
                       label: 'Electricity',
-                      value: '${tenant.electricityRate}/unit',
+                      value: '${widget.tenant.electricityRate}/unit',
                     ),
                   ),
-                  if (tenant.moveOutDate != null)
+                  if (widget.tenant.moveOutDate != null)
                     Expanded(
                       child: _InfoItem(
                         icon: Icons.exit_to_app,
                         label: 'Move Out',
-                        value: dateFormat.format(tenant.moveOutDate!),
+                        value: dateFormat.format(widget.tenant.moveOutDate!),
                       ),
                     ),
                 ],
@@ -404,6 +445,80 @@ class _TenantCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildPaymentStatusBadge(NumberFormat currencyFormat) {
+    final balance = _balance!;
+    final hasOutstanding = balance.outstandingBalance > 0;
+    final monthsBehind = balance.monthsBehind;
+
+    // Determine status color
+    Color backgroundColor;
+    Color textColor;
+    IconData icon;
+    String statusText;
+
+    if (!hasOutstanding) {
+      // All paid up
+      backgroundColor = Colors.green.shade50;
+      textColor = Colors.green.shade700;
+      icon = Icons.check_circle;
+      statusText = 'Paid Up';
+    } else if (monthsBehind > 0) {
+      // Overdue
+      backgroundColor = Colors.red.shade50;
+      textColor = Colors.red.shade700;
+      icon = Icons.error;
+      statusText = '$monthsBehind ${monthsBehind == 1 ? 'Month' : 'Months'} Behind';
+    } else {
+      // Outstanding but not yet overdue
+      backgroundColor = Colors.orange.shade50;
+      textColor = Colors.orange.shade700;
+      icon = Icons.warning;
+      statusText = 'Outstanding';
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: textColor.withOpacity(0.3)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 20, color: textColor),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  statusText,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                    color: textColor,
+                  ),
+                ),
+                if (hasOutstanding) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    'Outstanding: ${currencyFormat.format(balance.outstandingBalance)}',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: textColor,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          if (hasOutstanding)
+            Icon(Icons.arrow_forward_ios, size: 16, color: textColor),
+        ],
       ),
     );
   }

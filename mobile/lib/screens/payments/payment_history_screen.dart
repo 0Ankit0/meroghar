@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/payment.dart';
 import '../../providers/payment_provider.dart';
+import 'receipt_view_screen.dart';
 
 class PaymentHistoryScreen extends StatefulWidget {
   final String? tenantId;
@@ -501,14 +502,17 @@ class _PaymentCard extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      icon: const Icon(Icons.download),
-                      label: const Text('Download Receipt'),
+                      icon: const Icon(Icons.receipt),
+                      label: const Text('View Receipt'),
                       onPressed: () {
-                        final paymentProvider = context.read<PaymentProvider>();
-                        paymentProvider.downloadReceipt(payment.id);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Receipt download started...'),
+                        Navigator.pop(context); // Close the bottom sheet
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ReceiptViewScreen(
+                              paymentId: payment.id,
+                              tenantName: payment.tenantId,
+                            ),
                           ),
                         );
                       },
