@@ -72,17 +72,17 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 1
 
-- [ ] T024 [P] [US1] Create User model with role enum in backend/src/models/user.py
-- [ ] T025 [P] [US1] Create Property model with owner_id FK in backend/src/models/property.py
-- [ ] T026 [P] [US1] Create PropertyAssignment junction model in backend/src/models/property.py
-- [ ] T027 [P] [US1] Create Tenant model with property and user FKs in backend/src/models/tenant.py
-- [ ] T028 [US1] Create Alembic migration for User, Property, PropertyAssignment, Tenant tables in backend/alembic/versions/
-- [ ] T029 [P] [US1] Create auth request/response schemas in backend/src/schemas/auth.py
-- [ ] T030 [P] [US1] Create user request/response schemas in backend/src/schemas/user.py
-- [ ] T031 [P] [US1] Create property request/response schemas in backend/src/schemas/property.py
-- [ ] T032 [P] [US1] Create tenant request/response schemas in backend/src/schemas/tenant.py
-- [ ] T033 [US1] Implement AuthService with register, login, token refresh in backend/src/services/auth_service.py
-- [ ] T034 [US1] Implement authentication endpoints (register, login, refresh) in backend/src/api/v1/auth.py
+- [x] T024 [P] [US1] Create User model with role enum in backend/src/models/user.py
+- [x] T025 [P] [US1] Create Property model with owner_id FK in backend/src/models/property.py
+- [x] T026 [P] [US1] Create PropertyAssignment junction model in backend/src/models/property.py
+- [x] T027 [P] [US1] Create Tenant model with property and user FKs in backend/src/models/tenant.py
+- [x] T028 [US1] Create Alembic migration for User, Property, PropertyAssignment, Tenant tables in backend/alembic/versions/
+- [x] T029 [P] [US1] Create auth request/response schemas in backend/src/schemas/auth.py
+- [x] T030 [P] [US1] Create user request/response schemas in backend/src/schemas/user.py
+- [x] T031 [P] [US1] Create property request/response schemas in backend/src/schemas/property.py
+- [x] T032 [P] [US1] Create tenant request/response schemas in backend/src/schemas/tenant.py
+- [x] T033 [US1] Implement AuthService with register, login, token refresh in backend/src/services/auth_service.py
+- [x] T034 [US1] Implement authentication endpoints (register, login, refresh) in backend/src/api/v1/auth.py
 - [ ] T035 [US1] Implement user creation endpoint (POST /api/v1/users) in backend/src/api/v1/users.py
 - [ ] T036 [US1] Implement property creation endpoint (POST /api/v1/properties) in backend/src/api/v1/properties.py
 - [ ] T037 [US1] Implement intermediary assignment endpoint (POST /api/v1/properties/{id}/assign) in backend/src/api/v1/properties.py
