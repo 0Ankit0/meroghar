@@ -121,10 +121,10 @@ This is a Mobile + API project with:
 - [x] T057 [P] [US2] Create Transaction model for payment gateway records in backend/src/models/payment.py
 - [x] T058 [US2] Create Alembic migration for Payment and Transaction tables in backend/alembic/versions/
 - [x] T059 [P] [US2] Create payment request/response schemas in backend/src/schemas/payment.py
-- [ ] T060 [US2] Implement PaymentService with record_payment, calculate_balance methods in backend/src/services/payment_service.py
-- [ ] T061 [US2] Implement payment recording endpoint (POST /api/v1/payments) in backend/src/api/v1/payments.py
-- [ ] T062 [US2] Implement payment history endpoint (GET /api/v1/payments?tenant_id=) in backend/src/api/v1/payments.py
-- [ ] T063 [US2] Implement tenant balance endpoint (GET /api/v1/tenants/{id}/balance) in backend/src/api/v1/tenants.py
+- [x] T060 [US2] Implement PaymentService with record_payment, calculate_balance methods in backend/src/services/payment_service.py
+- [x] T061 [US2] Implement payment recording endpoint (POST /api/v1/payments) in backend/src/api/v1/payments.py
+- [x] T062 [US2] Implement payment history endpoint (GET /api/v1/payments?tenant_id=) in backend/src/api/v1/payments.py
+- [x] T063 [US2] Implement tenant balance endpoint (GET /api/v1/tenants/{id}/balance) in backend/src/api/v1/tenants.py
 - [ ] T064 [US2] Implement receipt generation endpoint (GET /api/v1/payments/{id}/receipt) with PDF in backend/src/api/v1/payments.py
 - [ ] T065 [P] [US2] Create Payment model for mobile local storage in mobile/lib/models/payment.dart
 - [ ] T066 [US2] Create payment provider with payment state in mobile/lib/providers/payment_provider.dart
