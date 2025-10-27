@@ -325,16 +325,16 @@ This is a Mobile + API project with:
 
 ### Implementation for User Story 9
 
-- [ ] T175 [P] [US9] Create Document model with file_url, type, expiration_date in backend/src/models/document.py
-- [ ] T176 [US9] Create Alembic migration for Document table in backend/alembic/versions/
-- [ ] T177 [P] [US9] Create document request/response schemas in backend/src/schemas/document.py
-- [ ] T178 [US9] Implement document upload endpoint (POST /api/v1/documents) with S3 in backend/src/api/v1/documents.py
-- [ ] T179 [US9] Implement document download endpoint (GET /api/v1/documents/{id}/download) in backend/src/api/v1/documents.py
-- [ ] T180 [US9] Implement document list endpoint (GET /api/v1/documents) with filters in backend/src/api/v1/documents.py
-- [ ] T181 [US9] Implement document expiration check task in backend/src/tasks/document_tasks.py
-- [ ] T182 [US9] Add document expiration reminder notifications in backend/src/tasks/notification_tasks.py
-- [ ] T183 [US9] Implement document version history tracking in backend/src/services/document_service.py
-- [ ] T184 [US9] Implement document access revocation on tenant deactivation in backend/src/services/document_service.py
+- [x] T175 [P] [US9] Create Document model with file_url, type, expiration_date in backend/src/models/document.py
+- [x] T176 [US9] Create Alembic migration for Document table in backend/alembic/versions/
+- [x] T177 [P] [US9] Create document request/response schemas in backend/src/schemas/document.py
+- [x] T178 [US9] Implement document upload endpoint (POST /api/v1/documents) with S3 in backend/src/api/v1/documents.py
+- [x] T179 [US9] Implement document download endpoint (GET /api/v1/documents/{id}/download) in backend/src/api/v1/documents.py
+- [x] T180 [US9] Implement document list endpoint (GET /api/v1/documents) with filters in backend/src/api/v1/documents.py
+- [x] T181 [US9] Implement document expiration check task in backend/src/tasks/document_tasks.py
+- [x] T182 [US9] Add document expiration reminder notifications in backend/src/tasks/notification_tasks.py
+- [x] T183 [US9] Implement document version history tracking in backend/src/services/document_service.py
+- [x] T184 [US9] Implement document access revocation on tenant deactivation in backend/src/services/document_service.py
 - [ ] T185 [P] [US9] Create Document model for mobile in mobile/lib/models/document.dart
 - [ ] T186 [US9] Create document provider in mobile/lib/providers/document_provider.dart
 - [ ] T187 [US9] Create document upload screen with file picker in mobile/lib/screens/documents/document_upload_screen.dart
