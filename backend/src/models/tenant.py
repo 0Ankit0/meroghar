@@ -188,6 +188,11 @@ class Tenant(Base):
         back_populates="tenant",
         cascade="all, delete-orphan",
     )
+    documents = relationship(
+        "Document",
+        back_populates="tenant",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (

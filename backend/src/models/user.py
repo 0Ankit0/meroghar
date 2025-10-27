@@ -162,6 +162,11 @@ class User(Base):
         back_populates="sender",
         foreign_keys="Message.sent_by",
     )
+    uploaded_documents = relationship(
+        "Document",
+        back_populates="uploader",
+        foreign_keys="Document.uploaded_by",
+    )
 
     # Indexes
     __table_args__ = (

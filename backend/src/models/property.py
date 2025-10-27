@@ -163,6 +163,11 @@ class Property(Base):
         back_populates="property",
         cascade="all, delete-orphan",
     )
+    documents = relationship(
+        "Document",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (
