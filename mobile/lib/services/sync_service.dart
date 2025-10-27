@@ -67,6 +67,7 @@ class SyncService {
   static const int _baseRetryDelay = 5; // seconds
   static const int _maxRetryDelay = 300; // 5 minutes
   static const int _maxRetries = 10;
+  static const int _batchSize = 50; // Process 50 operations at a time
 
   // Stream controller for sync status updates
   final _statusController = StreamController<SyncStatus>.broadcast();
