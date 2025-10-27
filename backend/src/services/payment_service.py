@@ -520,6 +520,87 @@ class PaymentService:
         
         return output_path
 
+    async def auto_generate_receipt(
+        self,
+        payment_id: UUID,
+    ) -> Optional[str]:
+        """Automatically generate receipt after successful gateway payment.
+        
+        Implements T121 from tasks.md.
+        
+        This method is called automatically when a payment gateway callback
+        confirms payment completion. It generates a PDF receipt and stores
+        the path in payment metadata.
+        
+        Args:
+            payment_id: Payment ID to generate receipt for
+            
+        Returns:
+            Path to generated PDF file, or None if generation failed
+        """
+        import os
+        import tempfile
+        from datetime import datetime
+        
+        logger.info(f"Auto-generating receipt for payment {payment_id}")
+        
+        try:
+            # Get payment record
+            result = await self.session.execute(
+                select(Payment).where(Payment.id == payment_id)
+            )
+            payment = result.scalar_one_or_none()
+            
+            if not payment:
+                logger.error(f"Payment {payment_id} not found for receipt generation")
+                return None
+            
+            # Only generate receipts for completed payments
+            if payment.status != PaymentStatus.COMPLETED:
+                logger.warning(
+                    f"Skipping receipt generation for payment {payment_id} "
+                    f"with status {payment.status.value}"
+                )
+                return None
+            
+            # Create temp directory for receipts if it doesn't exist
+            receipts_dir = os.path.join(tempfile.gettempdir(), "meroghar_receipts")
+            os.makedirs(receipts_dir, exist_ok=True)
+            
+            # Generate unique filename: receipt_{payment_id}_{timestamp}.pdf
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            filename = f"receipt_{str(payment_id)[:8]}_{timestamp}.pdf"
+            output_path = os.path.join(receipts_dir, filename)
+            
+            # Generate receipt PDF
+            await self.generate_receipt(payment_id, output_path)
+            
+            # Update payment metadata with receipt path
+            if not payment.metadata:
+                payment.metadata = {}
+            
+            payment.metadata['receipt_generated'] = True
+            payment.metadata['receipt_path'] = output_path
+            payment.metadata['receipt_generated_at'] = timestamp
+            payment.metadata['receipt_filename'] = filename
+            
+            # Commit metadata update
+            await self.session.commit()
+            await self.session.refresh(payment)
+            
+            logger.info(
+                f"Receipt auto-generated for payment {payment_id}: {output_path}"
+            )
+            
+            return output_path
+            
+        except Exception as e:
+            logger.exception(
+                f"Failed to auto-generate receipt for payment {payment_id}: {e}"
+            )
+            # Don't fail the payment if receipt generation fails
+            return None
+
     def _calculate_months_between(self, start_date: date, end_date: date) -> int:
         """Calculate number of months between two dates.
         

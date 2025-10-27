@@ -298,6 +298,76 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
+  /// Retry failed payment through gateway.
+  ///
+  /// Implements T123 from tasks.md.
+  ///
+  /// This method handles retry logic for failed payments:
+  /// 1. Checks if payment can be retried (failed status only)
+  /// 2. Initiates new payment with same details
+  /// 3. Returns payment URL for webview
+  Future<Map<String, dynamic>?> retryFailedPayment({
+    required String paymentId,
+    String? gateway,
+  }) async {
+    _setLoading(true);
+    _clearError();
+
+    try {
+      // Get existing payment
+      final payment = getPaymentById(paymentId);
+
+      if (payment == null) {
+        throw Exception('Payment not found');
+      }
+
+      // Check if payment can be retried (only failed payments)
+      if (payment.status != PaymentStatus.failed) {
+        throw Exception('Can only retry failed payments. '
+            'Current status: ${payment.status.toString()}');
+      }
+
+      debugPrint('Retrying failed payment $paymentId');
+
+      // Initiate new payment with same details
+      final response = await _apiService.post(
+        '/payments/initiate',
+        data: {
+          'tenant_id': payment.tenantId,
+          'amount': payment.amount * 100, // Convert to paisa
+          'payment_type': payment.paymentType.toJson(),
+          'gateway': gateway ?? 'KHALTI',
+        },
+      );
+
+      final result = response.data as Map<String, dynamic>;
+
+      _setLoading(false);
+
+      return {
+        'payment_url': result['payment_url'],
+        'pidx': result['pidx'],
+        'expires_at': result['expires_at'],
+        'expires_in': result['expires_in'],
+      };
+    } catch (e) {
+      _setError(e.toString());
+      _setLoading(false);
+      debugPrint('Error retrying payment: $e');
+      return null;
+    }
+  }
+
+  /// Check if payment can be retried
+  bool canRetryPayment(String paymentId) {
+    final payment = getPaymentById(paymentId);
+
+    if (payment == null) return false;
+
+    // Can only retry failed payments
+    return payment.status == PaymentStatus.failed;
+  }
+
   // Private helper methods
   void _setLoading(bool value) {
     _isLoading = value;

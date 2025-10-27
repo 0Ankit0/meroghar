@@ -108,6 +108,22 @@ class Settings(BaseSettings):
         default=None, alias="PAYPAL_CLIENT_SECRET"
     )
     paypal_mode: str = Field(default="sandbox", alias="PAYPAL_MODE")
+    
+    # Khalti Payment Gateway (Nepal)
+    khalti_secret_key: Optional[str] = Field(default=None, alias="KHALTI_SECRET_KEY")
+    khalti_use_sandbox: bool = Field(default=True, alias="KHALTI_USE_SANDBOX")
+    khalti_return_url: Optional[str] = Field(default=None, alias="KHALTI_RETURN_URL")
+    khalti_website_url: Optional[str] = Field(default=None, alias="KHALTI_WEBSITE_URL")
+
+    # eSewa Payment Gateway (Nepal)
+    esewa_merchant_id: Optional[str] = Field(default=None, alias="ESEWA_MERCHANT_ID")
+    esewa_secret_key: Optional[str] = Field(default=None, alias="ESEWA_SECRET_KEY")
+    esewa_use_sandbox: bool = Field(default=True, alias="ESEWA_USE_SANDBOX")
+
+    # IME Pay Payment Gateway (Nepal)
+    imepay_merchant_code: Optional[str] = Field(default=None, alias="IMEPAY_MERCHANT_CODE")
+    imepay_secret_key: Optional[str] = Field(default=None, alias="IMEPAY_SECRET_KEY")
+    imepay_use_sandbox: bool = Field(default=True, alias="IMEPAY_USE_SANDBOX")
 
     # Cloud Storage (AWS S3)
     aws_access_key_id: Optional[str] = Field(default=None, alias="AWS_ACCESS_KEY_ID")

@@ -16,8 +16,9 @@ from sqlalchemy import (
     String,
     Text,
     Date,
+    JSON,
 )
-from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.dialects.postgresql import UUID as PGUUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
@@ -106,6 +107,19 @@ class Payment(Base):
     transaction_reference: Mapped[str | None] = mapped_column(
         String(255), nullable=True, index=True
     )
+    
+    # Gateway transaction ID (from payment gateway)
+    gateway_transaction_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
+    )
+    
+    # T124: Gateway fee tracking for online payments
+    gateway_fee: Mapped[Decimal | None] = mapped_column(
+        Numeric(precision=10, scale=2), nullable=True, default=Decimal("0.00")
+    )
+    
+    # Metadata for storing gateway-specific information (pidx, verification status, etc.)
+    metadata: Mapped[dict | None] = mapped_column(JSONB, nullable=True)
     
     # Notes
     notes: Mapped[str | None] = mapped_column(Text, nullable=True)

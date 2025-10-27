@@ -1,6 +1,6 @@
 """Payment management endpoints.
 
-Implements T061-T064 from tasks.md.
+Implements T061-T064, T114, T118 from tasks.md.
 """
 import logging
 import os
@@ -28,6 +28,7 @@ from ...schemas.payment import (
     PaymentResponse,
 )
 from ...services.payment_service import PaymentService
+from ...services.payment_gateway import PaymentGateway, PaymentGatewayFactory
 
 # Configure logger for payment endpoints
 logger = logging.getLogger(__name__)
@@ -478,6 +479,253 @@ async def calculate_prorated_rent(
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to calculate pro-rated rent",
+        )
+
+
+# ==================== Online Payment Gateway Endpoints (T114, T118) ====================
+
+
+@router.post(
+    "/initiate",
+    response_model=Dict[str, any],
+    status_code=status.HTTP_200_OK,
+    summary="Initiate online payment through gateway",
+    description="Initiate payment through Khalti, eSewa, or IME Pay. Returns payment URL for user redirection.",
+)
+async def initiate_online_payment(
+    tenant_id: UUID,
+    amount: Decimal,
+    payment_type: PaymentType,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+    gateway: PaymentGateway = PaymentGateway.KHALTI,
+) -> Dict[str, any]:
+    """Initiate online payment through payment gateway (T114).
+    
+    This creates a payment intent and returns a payment URL where the user
+    should be redirected to complete the payment.
+    
+    Args:
+        tenant_id: Tenant making the payment
+        amount: Payment amount in rupees
+        payment_type: Type of payment (rent, bill_share, etc.)
+        gateway: Payment gateway to use (khalti, esewa, imepay)
+        current_user: Authenticated user
+        session: Database session
+        
+    Returns:
+        Dict containing:
+            - payment_url: URL to redirect user for payment
+            - transaction_id: Payment tracking ID
+            - expires_at: Payment link expiration time
+            - expires_in: Expiration time in seconds
+            
+    Raises:
+        403: If user doesn't have permission
+        404: If tenant not found
+        400: If validation fails
+        500: If gateway error occurs
+    """
+    try:
+        # Get tenant details
+        result = await session.execute(
+            select(Tenant).where(Tenant.id == tenant_id).options(selectinload(Tenant.property))
+        )
+        tenant = result.scalar_one_or_none()
+        
+        if not tenant:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Tenant {tenant_id} not found",
+            )
+        
+        # Verify permission (tenant can pay for themselves, intermediary/owner can initiate for tenants)
+        if current_user.role == UserRole.TENANT:
+            # Tenant can only pay for themselves
+            if tenant.user_id != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can only initiate payment for yourself",
+                )
+        elif current_user.role == UserRole.INTERMEDIARY:
+            # Intermediary must be assigned to the property
+            result = await session.execute(
+                select(PropertyAssignment).where(
+                    and_(
+                        PropertyAssignment.property_id == tenant.property_id,
+                        PropertyAssignment.intermediary_id == current_user.id,
+                    )
+                )
+            )
+            if not result.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not assigned to manage this property",
+                )
+        
+        # Create payment gateway instance
+        gateway_service = PaymentGatewayFactory.create_gateway(gateway)
+        
+        # Generate unique purchase order ID
+        from datetime import datetime
+        purchase_order_id = f"PAY-{tenant_id}-{int(datetime.utcnow().timestamp())}"
+        
+        # Initiate payment with gateway
+        result = await gateway_service.initiate_payment(
+            amount=amount,
+            purchase_order_id=purchase_order_id,
+            purchase_order_name=f"{payment_type.value.replace('_', ' ').title()} - Tenant {tenant_id}",
+            return_url=f"{session.bind.url}/api/v1/webhooks/{gateway.value}",  # Webhook URL
+            website_url="https://meroghar.com",  # TODO: Get from config
+            customer_name=tenant.user.full_name if hasattr(tenant, 'user') else None,
+            customer_email=tenant.user.email if hasattr(tenant, 'user') else None,
+            customer_phone=tenant.user.phone if hasattr(tenant, 'user') else None,
+            merchant_tenant_id=str(tenant_id),
+            merchant_payment_type=payment_type.value,
+            merchant_user_id=str(current_user.id),
+        )
+        
+        # Store payment intent in database (for tracking)
+        payment_service = PaymentService(session)
+        # TODO: Create pending payment record
+        
+        logger.info(
+            f"Online payment initiated: tenant_id={tenant_id}, amount={amount}, "
+            f"gateway={gateway}, order_id={purchase_order_id}"
+        )
+        
+        return {
+            "payment_url": result.get("payment_url"),
+            "transaction_id": result.get("pidx") or result.get("transaction_id"),
+            "expires_at": result.get("expires_at"),
+            "expires_in": result.get("expires_in"),
+            "gateway": gateway.value,
+            "amount": float(amount),
+            "purchase_order_id": purchase_order_id,
+        }
+        
+    except HTTPException:
+        raise
+    except ValueError as e:
+        logger.error(f"Payment initiation validation error: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e),
+        )
+    except Exception as e:
+        logger.error(f"Error initiating online payment: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to initiate online payment",
+        )
+
+
+@router.get(
+    "/{payment_id}/status",
+    response_model=Dict[str, any],
+    summary="Get payment status",
+    description="Poll payment status for real-time updates. Used by mobile app to check payment completion.",
+)
+async def get_payment_status(
+    payment_id: UUID,
+    current_user: Annotated[User, Depends(get_current_user)],
+    session: Annotated[AsyncSession, Depends(get_async_db)],
+) -> Dict[str, any]:
+    """Get current payment status (T118).
+    
+    Used by mobile apps to poll payment status while user completes payment.
+    
+    Args:
+        payment_id: Payment ID to check
+        current_user: Authenticated user
+        session: Database session
+        
+    Returns:
+        Dict containing:
+            - status: Payment status
+            - amount: Payment amount
+            - payment_date: Date payment was completed (if completed)
+            - transaction_id: Gateway transaction ID (if completed)
+            
+    Raises:
+        404: If payment not found
+        403: If user doesn't have permission to view payment
+    """
+    try:
+        # Get payment details
+        result = await session.execute(
+            select(Payment)
+            .where(Payment.id == payment_id)
+            .options(
+                selectinload(Payment.tenant),
+                selectinload(Payment.property),
+            )
+        )
+        payment = result.scalar_one_or_none()
+        
+        if not payment:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Payment {payment_id} not found",
+            )
+        
+        # Verify permission
+        if current_user.role == UserRole.TENANT:
+            if payment.tenant.user_id != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You can only view your own payments",
+                )
+        elif current_user.role == UserRole.INTERMEDIARY:
+            # Check property assignment
+            result = await session.execute(
+                select(PropertyAssignment).where(
+                    and_(
+                        PropertyAssignment.property_id == payment.property_id,
+                        PropertyAssignment.intermediary_id == current_user.id,
+                    )
+                )
+            )
+            if not result.scalar_one_or_none():
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You don't have permission to view this payment",
+                )
+        
+        # Return payment status
+        response = {
+            "id": str(payment.id),
+            "status": payment.status.value if payment.status else "pending",
+            "amount": float(payment.amount),
+            "currency": payment.currency,
+            "payment_type": payment.payment_type.value,
+            "payment_method": payment.payment_method.value,
+            "payment_date": payment.payment_date.isoformat() if payment.payment_date else None,
+            "reference_number": payment.reference_number,
+            "is_voided": payment.is_voided,
+        }
+        
+        # Add transaction details if available
+        if hasattr(payment, 'transaction') and payment.transaction:
+            response["transaction"] = {
+                "id": str(payment.transaction.id),
+                "gateway": payment.transaction.gateway.value,
+                "gateway_transaction_id": payment.transaction.gateway_transaction_id,
+                "status": payment.transaction.status.value,
+                "gateway_fee": float(payment.transaction.gateway_fee) if payment.transaction.gateway_fee else None,
+            }
+        
+        logger.info(f"Payment status retrieved: payment_id={payment_id}, status={payment.status}")
+        
+        return response
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error retrieving payment status: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to retrieve payment status",
         )
 
 
