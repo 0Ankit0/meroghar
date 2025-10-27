@@ -88,12 +88,12 @@ This is a Mobile + API project with:
 - [x] T037 [US1] Implement intermediary assignment endpoint (POST /api/v1/properties/{id}/assign) in backend/src/api/v1/properties.py
 - [x] T038 [US1] Implement tenant creation endpoint (POST /api/v1/tenants) in backend/src/api/v1/tenants.py
 - [x] T039 [US1] Implement tenant list endpoint (GET /api/v1/tenants) with RLS in backend/src/api/v1/tenants.py
-- [ ] T040 [P] [US1] Create User model for mobile local storage in mobile/lib/models/user.dart
-- [ ] T041 [P] [US1] Create Property model for mobile local storage in mobile/lib/models/property.dart
-- [ ] T042 [P] [US1] Create Tenant model for mobile local storage in mobile/lib/models/tenant.dart
-- [ ] T043 [US1] Create auth provider with login/register state in mobile/lib/providers/auth_provider.dart
-- [ ] T044 [US1] Create registration screen for owners in mobile/lib/screens/auth/register_screen.dart
-- [ ] T045 [US1] Create login screen for all users in mobile/lib/screens/auth/login_screen.dart
+- [x] T040 [P] [US1] Create User model for mobile local storage in mobile/lib/models/user.dart
+- [x] T041 [P] [US1] Create Property model for mobile local storage in mobile/lib/models/property.dart
+- [x] T042 [P] [US1] Create Tenant model for mobile local storage in mobile/lib/models/tenant.dart
+- [x] T043 [US1] Create auth provider with login/register state in mobile/lib/providers/auth_provider.dart
+- [x] T044 [US1] Create registration screen for owners in mobile/lib/screens/auth/register_screen.dart
+- [x] T045 [US1] Create login screen for all users in mobile/lib/screens/auth/login_screen.dart
 - [ ] T046 [US1] Create property setup screen in mobile/lib/screens/properties/property_form_screen.dart
 - [ ] T047 [US1] Create intermediary creation form in mobile/lib/screens/users/intermediary_form_screen.dart
 - [ ] T048 [US1] Create tenant creation form in mobile/lib/screens/tenants/tenant_form_screen.dart
