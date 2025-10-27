@@ -212,6 +212,18 @@ __all__ = [
     "PaymentResponse",
     "PaymentListResponse",
     "TransactionResponse",
+    # Bill schemas (T079)
+    "BillCreateRequest",
+    "BillUpdateRequest",
+    "BillAllocationCreateRequest",
+    "BillAllocationUpdateRequest",
+    "RecurringBillCreateRequest",
+    "RecurringBillUpdateRequest",
+    "BillResponse",
+    "BillAllocationResponse",
+    "BillListResponse",
+    "RecurringBillResponse",
+    "RecurringBillListResponse",
 ]
 
 # Import schemas for convenient access
@@ -222,6 +234,19 @@ from .auth import (
     RefreshTokenRequest,
     RegisterRequest,
     TokenPair,
+)
+from .bill import (
+    BillAllocationCreateRequest,
+    BillAllocationResponse,
+    BillAllocationUpdateRequest,
+    BillCreateRequest,
+    BillListResponse,
+    BillResponse,
+    BillUpdateRequest,
+    RecurringBillCreateRequest,
+    RecurringBillListResponse,
+    RecurringBillResponse,
+    RecurringBillUpdateRequest,
 )
 from .payment import (
     PaymentCreateRequest,
