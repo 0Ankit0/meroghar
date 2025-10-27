@@ -125,7 +125,7 @@ This is a Mobile + API project with:
 - [x] T061 [US2] Implement payment recording endpoint (POST /api/v1/payments) in backend/src/api/v1/payments.py
 - [x] T062 [US2] Implement payment history endpoint (GET /api/v1/payments?tenant_id=) in backend/src/api/v1/payments.py
 - [x] T063 [US2] Implement tenant balance endpoint (GET /api/v1/tenants/{id}/balance) in backend/src/api/v1/tenants.py
-- [ ] T064 [US2] Implement receipt generation endpoint (GET /api/v1/payments/{id}/receipt) with PDF in backend/src/api/v1/payments.py
+- [x] T064 [US2] Implement receipt generation endpoint (GET /api/v1/payments/{id}/receipt) with PDF in backend/src/api/v1/payments.py
 - [ ] T065 [P] [US2] Create Payment model for mobile local storage in mobile/lib/models/payment.dart
 - [ ] T066 [US2] Create payment provider with payment state in mobile/lib/providers/payment_provider.dart
 - [ ] T067 [US2] Create payment recording screen in mobile/lib/screens/payments/payment_form_screen.dart
