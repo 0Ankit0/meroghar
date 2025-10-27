@@ -98,12 +98,12 @@ This is a Mobile + API project with:
 - [x] T047 [US1] Create intermediary creation form in mobile/lib/screens/users/intermediary_form_screen.dart
 - [x] T048 [US1] Create tenant creation form in mobile/lib/screens/tenants/tenant_form_screen.dart
 - [x] T049 [US1] Create tenant list screen with card view in mobile/lib/screens/tenants/tenant_list_screen.dart
-- [ ] T050 [US1] Implement RLS policies for users table in backend/alembic/versions/
-- [ ] T051 [US1] Implement RLS policies for properties table in backend/alembic/versions/
-- [ ] T052 [US1] Implement RLS policies for tenants table in backend/alembic/versions/
-- [ ] T053 [US1] Add RLS session variable middleware in backend/src/core/middleware.py
-- [ ] T054 [US1] Add validation and error handling to all US1 endpoints in backend/src/api/v1/
-- [ ] T055 [US1] Add logging for user registration and tenant creation in backend/src/services/
+- [x] T050 [US1] Implement RLS policies for users table in backend/alembic/versions/
+- [x] T051 [US1] Implement RLS policies for properties table in backend/alembic/versions/
+- [x] T052 [US1] Implement RLS policies for tenants table in backend/alembic/versions/
+- [x] T053 [US1] Add RLS session variable middleware in backend/src/core/middleware.py
+- [x] T054 [US1] Add validation and error handling to all US1 endpoints in backend/src/api/v1/
+- [x] T055 [US1] Add logging for user registration and tenant creation in backend/src/services/
 
 **Checkpoint**: At this point, User Story 1 should be fully functional - users can register, create properties, assign intermediaries, and create tenants
 
