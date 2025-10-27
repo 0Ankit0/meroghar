@@ -2,6 +2,7 @@
 
 Implements T038-T039 from tasks.md.
 """
+import logging
 from datetime import datetime
 from typing import Annotated, List, Optional
 from uuid import UUID
@@ -24,6 +25,9 @@ from ...schemas import (
     TenantResponse,
 )
 from ...api.dependencies import CommonQueryParams, get_current_user, require_role
+
+# Configure logger for tenant endpoints
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -195,6 +199,13 @@ async def create_tenant(
         session.add(new_tenant)
         await session.commit()
         await session.refresh(new_tenant)
+        
+        # Log successful tenant creation (T055)
+        logger.info(
+            f"Tenant created: tenant_id={new_tenant.id}, user_id={request.user_id}, "
+            f"property_id={request.property_id}, intermediary_id={current_user.id}, "
+            f"monthly_rent={request.monthly_rent}, status=ACTIVE"
+        )
         
         return SuccessResponse(
             success=True,

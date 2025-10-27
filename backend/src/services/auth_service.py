@@ -2,6 +2,7 @@
 
 Implements T033 from tasks.md.
 """
+import logging
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
 from uuid import UUID
@@ -26,6 +27,9 @@ from ..schemas.auth import (
     RegisterRequest,
     TokenPair,
 )
+
+# Configure logger for auth service
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
@@ -54,9 +58,12 @@ class AuthService:
             ValueError: If email already exists or validation fails
             IntegrityError: If database constraint violated
         """
+        logger.info(f"Registration attempt for email: {request.email}, role: {request.role.value}")
+        
         # Check if email already exists
         existing_user = await self._get_user_by_email(request.email)
         if existing_user:
+            logger.warning(f"Registration failed: Email {request.email} already exists")
             raise ValueError(f"Email {request.email} is already registered")
 
         # Hash password
@@ -76,8 +83,10 @@ class AuthService:
             self.session.add(user)
             await self.session.commit()
             await self.session.refresh(user)
+            logger.info(f"User registered successfully: {user.id} ({user.email}, role: {user.role.value})")
         except IntegrityError as e:
             await self.session.rollback()
+            logger.error(f"Registration failed for {request.email}: {str(e)}")
             raise ValueError(f"Failed to create user: {str(e)}")
 
         # Generate tokens

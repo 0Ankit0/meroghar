@@ -2,6 +2,7 @@
 
 Implements T036-T037 from tasks.md.
 """
+import logging
 from datetime import datetime
 from typing import Annotated
 from uuid import UUID
@@ -22,6 +23,9 @@ from ...schemas import (
     SuccessResponse,
 )
 from ...api.dependencies import get_current_user, require_role
+
+# Configure logger for property endpoints
+logger = logging.getLogger(__name__)
 
 router = APIRouter()
 
@@ -241,6 +245,13 @@ async def assign_intermediary(
         session.add(assignment)
         await session.commit()
         await session.refresh(assignment)
+        
+        # Log successful intermediary assignment (T055)
+        logger.info(
+            f"Intermediary assigned: assignment_id={assignment.id}, property_id={property_id}, "
+            f"intermediary_id={request.intermediary_id}, assigned_by={current_user.id}, "
+            f"intermediary_email={intermediary.email}"
+        )
         
         return SuccessResponse(
             success=True,
