@@ -1,196 +1,222 @@
-"""Payment model (stub for Phase 3, full implementation in Phase 4).
+"""Payment models for rent and other payment tracking.
 
-Minimal implementation to support User Story 1 relationships.
-Full implementation in T056-T057.
+Implements T056-T057 from tasks.md.
 """
 from datetime import date, datetime
-from enum import Enum as PyEnum
-from uuid import uuid4
+from decimal import Decimal
+from enum import Enum
+from uuid import UUID, uuid4
 
 from sqlalchemy import (
     Boolean,
-    CheckConstraint,
-    Column,
-    Date,
     DateTime,
-    Enum,
+    Enum as SQLEnum,
     ForeignKey,
-    Index,
     Numeric,
     String,
     Text,
+    Date,
 )
-from sqlalchemy.dialects.postgresql import UUID
-from sqlalchemy.orm import relationship
+from sqlalchemy.dialects.postgresql import UUID as PGUUID
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from ..core.database import Base
 
 
-class PaymentMethod(str, PyEnum):
-    """Payment method enumeration."""
+class PaymentMethod(str, Enum):
+    """Payment method options."""
 
     CASH = "cash"
     BANK_TRANSFER = "bank_transfer"
-    ONLINE = "online"
     UPI = "upi"
+    CHEQUE = "cheque"
     CARD = "card"
-    OTHER = "other"
+    ONLINE = "online"
 
 
-class PaymentType(str, PyEnum):
-    """Payment type enumeration."""
+class PaymentStatus(str, Enum):
+    """Payment status options."""
+
+    PENDING = "pending"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    REFUNDED = "refunded"
+
+
+class PaymentType(str, Enum):
+    """Payment type options."""
 
     RENT = "rent"
     SECURITY_DEPOSIT = "security_deposit"
-    BILL_SHARE = "bill_share"
-    PENALTY = "penalty"
+    UTILITY = "utility"
+    MAINTENANCE = "maintenance"
     OTHER = "other"
 
 
 class Payment(Base):
-    """Payment model representing financial transactions."""
+    """Payment records for rent and other charges.
+    
+    Tracks all payments made by tenants including rent, deposits, and utilities.
+    """
 
     __tablename__ = "payments"
 
-    # Primary Key
-    id = Column(
-        UUID(as_uuid=True),
-        primary_key=True,
-        default=uuid4,
-        index=True,
-        comment="Payment identifier",
+    # Primary key
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), primary_key=True, default=uuid4
     )
 
-    # Foreign Keys
-    tenant_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("tenants.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="Paying tenant",
+    # Foreign keys
+    tenant_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("tenants.id", ondelete="CASCADE"), nullable=False
     )
-    property_id = Column(
-        UUID(as_uuid=True),
-        ForeignKey("properties.id", ondelete="CASCADE"),
-        nullable=False,
-        index=True,
-        comment="Related property",
+    property_id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("properties.id", ondelete="CASCADE"), nullable=False
     )
-    created_by = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="SET NULL"),
-        nullable=False,
-        comment="User who recorded payment",
+    recorded_by: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
 
-    # Payment Details
-    amount = Column(
-        Numeric(12, 2),
-        nullable=False,
-        comment="Payment amount",
+    # Payment details
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2), nullable=False
     )
-    currency = Column(
-        String(3),
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, default="INR")
+    payment_method: Mapped[PaymentMethod] = mapped_column(
+        SQLEnum(PaymentMethod, name="payment_method", create_type=False),
         nullable=False,
-        comment="ISO 4217 currency code",
+        default=PaymentMethod.CASH,
     )
-    payment_method = Column(
-        Enum(PaymentMethod, name="payment_method"),
+    payment_type: Mapped[PaymentType] = mapped_column(
+        SQLEnum(PaymentType, name="payment_type", create_type=False),
         nullable=False,
-        comment="Payment method",
+        default=PaymentType.RENT,
     )
-    payment_type = Column(
-        Enum(PaymentType, name="payment_type"),
+    status: Mapped[PaymentStatus] = mapped_column(
+        SQLEnum(PaymentStatus, name="payment_status", create_type=False),
         nullable=False,
-        comment="Type of payment",
-    )
-    payment_date = Column(
-        Date,
-        nullable=False,
-        index=True,
-        comment="Date payment received",
+        default=PaymentStatus.COMPLETED,
     )
 
-    # Additional Info
-    reference_number = Column(
-        String(100),
-        nullable=True,
-        comment="Transaction reference",
-    )
-    notes = Column(
-        Text,
-        nullable=True,
-        comment="Additional notes",
-    )
-    receipt_url = Column(
-        String(500),
-        nullable=True,
-        comment="S3 URL to receipt PDF",
-    )
-    device_id = Column(
-        String(100),
-        nullable=True,
-        comment="Device that created record (for sync)",
-    )
+    # Payment period (for rent payments)
+    payment_period_start: Mapped[date | None] = mapped_column(Date, nullable=True)
+    payment_period_end: Mapped[date | None] = mapped_column(Date, nullable=True)
 
-    # Void Support
-    is_voided = Column(
-        Boolean,
-        default=False,
-        nullable=False,
-        comment="Payment voided flag",
+    # Transaction reference
+    transaction_reference: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
     )
-    voided_at = Column(
-        DateTime,
-        nullable=True,
-        comment="Void timestamp",
-    )
-    voided_by = Column(
-        UUID(as_uuid=True),
-        ForeignKey("users.id", ondelete="SET NULL"),
-        nullable=True,
-        comment="User who voided payment",
-    )
-    void_reason = Column(
-        Text,
-        nullable=True,
-        comment="Reason for voiding",
-    )
+    
+    # Notes
+    notes: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Receipt
+    receipt_url: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
     # Timestamps
-    created_at = Column(
-        DateTime,
-        default=datetime.utcnow,
+    payment_date: Mapped[date] = mapped_column(Date, nullable=False, default=date.today)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
         nullable=False,
-        comment="Record creation timestamp",
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
     )
 
     # Relationships
-    tenant = relationship(
-        "Tenant",
-        back_populates="payments",
-        foreign_keys=[tenant_id],
-    )
-    property = relationship(
-        "Property",
-        back_populates="payments",
-        foreign_keys=[property_id],
-    )
-    creator = relationship(
-        "User",
-        back_populates="created_payments",
-        foreign_keys=[created_by],
-    )
-    voider = relationship(
-        "User",
-        foreign_keys=[voided_by],
-    )
-
-    # Constraints
-    __table_args__ = (
-        CheckConstraint("amount > 0", name="check_amount_positive"),
-        Index("idx_payments_date", "payment_date", postgresql_ops={"payment_date": "DESC"}),
+    tenant: Mapped["Tenant"] = relationship("Tenant", back_populates="payments")
+    property: Mapped["Property"] = relationship("Property", back_populates="payments")
+    recorder: Mapped["User"] = relationship("User", foreign_keys=[recorded_by], back_populates="created_payments")
+    transaction: Mapped["Transaction"] = relationship(
+        "Transaction", back_populates="payment", uselist=False
     )
 
     def __repr__(self) -> str:
-        return f"<Payment(id={self.id}, tenant_id={self.tenant_id}, amount={self.amount})>"
+        return (
+            f"<Payment(id={self.id}, tenant_id={self.tenant_id}, "
+            f"amount={self.amount}, method={self.payment_method.value}, "
+            f"type={self.payment_type.value}, status={self.status.value})>"
+        )
+
+
+class TransactionStatus(str, Enum):
+    """Transaction status for payment gateway records."""
+
+    INITIATED = "initiated"
+    PROCESSING = "processing"
+    SUCCESS = "success"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+class Transaction(Base):
+    """Transaction records for payment gateway integration.
+    
+    Stores raw transaction data from payment gateways (Razorpay, Stripe, etc.)
+    for audit trail and reconciliation.
+    """
+
+    __tablename__ = "transactions"
+
+    # Primary key
+    id: Mapped[UUID] = mapped_column(
+        PGUUID(as_uuid=True), primary_key=True, default=uuid4
+    )
+
+    # Foreign key to payment
+    payment_id: Mapped[UUID | None] = mapped_column(
+        PGUUID(as_uuid=True), ForeignKey("payments.id", ondelete="SET NULL"), nullable=True
+    )
+
+    # Gateway details
+    gateway_name: Mapped[str] = mapped_column(String(50), nullable=False)
+    gateway_transaction_id: Mapped[str] = mapped_column(
+        String(255), nullable=False, unique=True, index=True
+    )
+    gateway_order_id: Mapped[str | None] = mapped_column(
+        String(255), nullable=True, index=True
+    )
+
+    # Transaction details
+    amount: Mapped[Decimal] = mapped_column(
+        Numeric(precision=10, scale=2), nullable=False
+    )
+    currency: Mapped[str] = mapped_column(String(3), nullable=False, default="INR")
+    status: Mapped[TransactionStatus] = mapped_column(
+        SQLEnum(TransactionStatus, name="transaction_status", create_type=False),
+        nullable=False,
+        default=TransactionStatus.INITIATED,
+    )
+
+    # Gateway response (JSON)
+    gateway_response: Mapped[str | None] = mapped_column(Text, nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+    # Timestamps
+    initiated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
+    completed_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), nullable=False, default=datetime.utcnow
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        default=datetime.utcnow,
+        onupdate=datetime.utcnow,
+    )
+
+    # Relationship
+    payment: Mapped["Payment"] = relationship("Payment", back_populates="transaction")
+
+    def __repr__(self) -> str:
+        return (
+            f"<Transaction(id={self.id}, gateway={self.gateway_name}, "
+            f"transaction_id={self.gateway_transaction_id}, "
+            f"amount={self.amount}, status={self.status.value})>"
+        )
