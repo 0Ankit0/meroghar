@@ -21,11 +21,13 @@ This document details all validation rules and error handling implemented for th
 **Field Validators:**
 
 1. **`total_amount` (Decimal)**
+
    - Must be greater than 0
    - Validator: `@field_validator('total_amount')`
    - Error: `"Amount must be greater than 0"`
 
 2. **`period_end` (date)**
+
    - Must be after `period_start`
    - Validator: `@field_validator('period_end')`
    - Error: `"Period end must be after period start"`
@@ -36,6 +38,7 @@ This document details all validation rules and error handling implemented for th
    - Error: `"Due date cannot be before period start"`
 
 **Example Error Response:**
+
 ```json
 {
   "success": false,
@@ -56,6 +59,7 @@ This document details all validation rules and error handling implemented for th
 **Field Validators:**
 
 1. **`allocated_amount` (Decimal)**
+
    - Must be greater than 0
    - Error: `"Allocated amount must be greater than 0"`
 
@@ -69,6 +73,7 @@ This document details all validation rules and error handling implemented for th
 **Field Validators:**
 
 1. **`estimated_amount` (Decimal)**
+
    - Must be greater than 0
    - Error: `"Estimated amount must be greater than 0"`
 
@@ -86,6 +91,7 @@ This document details all validation rules and error handling implemented for th
 #### create_bill() Validations
 
 1. **Property Existence Check**
+
    ```python
    result = await self.session.execute(
        select(Property).where(Property.id == request.property_id)
@@ -96,15 +102,17 @@ This document details all validation rules and error handling implemented for th
    ```
 
 2. **Date Consistency Check**
+
    ```python
    if request.period_end <= request.period_start:
        raise ValueError("Period end must be after period start")
-   
+
    if request.due_date < request.period_start:
        raise ValueError("Due date cannot be before period start")
    ```
 
 3. **Active Tenants Check**
+
    ```python
    result = await self.session.execute(
        select(Tenant).where(
@@ -113,12 +121,13 @@ This document details all validation rules and error handling implemented for th
        )
    )
    active_tenants = result.scalars().all()
-   
+
    if not active_tenants:
        raise ValueError(f"No active tenants found for property {request.property_id}")
    ```
 
 4. **Custom Allocation Validation**
+
    - Required for CUSTOM allocation method
    - Sum of allocations must equal total amount (±0.01 tolerance)
    - All tenants must be active for the property
@@ -132,7 +141,7 @@ This document details all validation rules and error handling implemented for th
        raise ValueError(
            f"Sum of allocations ({total_allocated}) does not equal total amount ({total_amount})"
        )
-   
+
    # Check percentages sum to 100
    if any(alloc.percentage is not None for alloc in allocations):
        total_percentage = sum(percentages_provided)
@@ -146,20 +155,24 @@ This document details all validation rules and error handling implemented for th
 #### Division Algorithm Validations
 
 **EQUAL Method:**
+
 - Divides total amount equally among tenants
 - Uses `ROUND_HALF_UP` for consistent rounding
 - Adjusts last tenant's allocation for remainder to ensure exact total
 
 **PERCENTAGE Method:**
+
 - Validates all tenants have percentage assigned
 - Validates percentages sum to 100% (±0.01 tolerance)
 - Adjusts last allocation for rounding errors
 
 **FIXED_AMOUNT Method:**
+
 - Similar to EQUAL but explicitly labeled as fixed
 - Ensures total allocations equal bill total
 
 **Custom Validations:**
+
 ```python
 async def _validate_custom_allocations(
     self,
@@ -168,7 +181,7 @@ async def _validate_custom_allocations(
     total_amount: Decimal,
 ) -> None:
     tenant_ids = {tenant.id for tenant in active_tenants}
-    
+
     # Check all tenants are active
     for alloc in allocations:
         if alloc.tenant_id not in tenant_ids:
@@ -180,6 +193,7 @@ async def _validate_custom_allocations(
 #### create_recurring_bill() Validations
 
 1. **Property Existence Check**
+
    - Same as bill creation
 
 2. **Next Generation Date Calculation**
@@ -198,6 +212,7 @@ All endpoints include comprehensive error handling:
 #### Access Control (403 Forbidden)
 
 **Intermediary Property Assignment Check:**
+
 ```python
 result = await session.execute(
     select(PropertyAssignment).where(
@@ -217,6 +232,7 @@ if not assignment:
 ```
 
 **Tenant Bill Access Check:**
+
 ```python
 # Check if bill is allocated to this tenant
 if not any(alloc.tenant_id == current_user.tenant_id for alloc in bill.allocations):
@@ -286,6 +302,7 @@ logger.info(
 ### Bills Table (`backend/alembic/versions/004_add_bills_tables.py`)
 
 **Columns:**
+
 - `id` UUID PRIMARY KEY - Ensures uniqueness
 - `property_id` UUID NOT NULL - Foreign key constraint to properties table
 - `total_amount` NUMERIC(12, 2) NOT NULL - Precise decimal for money
@@ -297,6 +314,7 @@ logger.info(
 - `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 
 **Indexes:**
+
 ```sql
 CREATE INDEX idx_bills_property_id ON bills(property_id)
 CREATE INDEX idx_bills_status ON bills(status)
@@ -307,6 +325,7 @@ CREATE INDEX idx_bills_due_date ON bills(due_date)
 ### Bill Allocations Table
 
 **Columns:**
+
 - `id` UUID PRIMARY KEY
 - `bill_id` UUID NOT NULL - Foreign key to bills table with CASCADE DELETE
 - `tenant_id` UUID NOT NULL - Foreign key to tenants table with CASCADE DELETE
@@ -317,23 +336,27 @@ CREATE INDEX idx_bills_due_date ON bills(due_date)
 - `payment_id` UUID - Foreign key to payments table
 
 **Indexes:**
+
 ```sql
 CREATE INDEX idx_bill_allocations_bill_id ON bill_allocations(bill_id)
 CREATE INDEX idx_bill_allocations_tenant_id ON bill_allocations(tenant_id)
 ```
 
 **Cascade Behavior:**
+
 - Deleting a bill deletes all its allocations
 - Deleting a tenant deletes all their allocations
 
 ### Recurring Bills Table
 
 **Columns:**
+
 - `day_of_month` INTEGER NOT NULL - Must be 1-31
 - `is_active` BOOLEAN NOT NULL DEFAULT TRUE
 - `next_generation` DATE - Calculated date for next bill creation
 
 **Indexes:**
+
 ```sql
 CREATE INDEX idx_recurring_bills_property_id ON recurring_bills(property_id)
 CREATE INDEX idx_recurring_bills_next_generation ON recurring_bills(next_generation)
@@ -356,7 +379,7 @@ Pydantic automatically handles validation:
       "loc": ["body", "total_amount"],
       "msg": "ensure this value is greater than 0",
       "type": "value_error.number.not_gt",
-      "ctx": {"limit_value": 0}
+      "ctx": { "limit_value": 0 }
     }
   ]
 }
@@ -409,28 +432,33 @@ Unexpected errors:
 ### Total Validation Points: 30+
 
 **Schema Level (Pydantic):**
+
 - 10 field validators across 3 request schemas
 - Automatic type checking and JSON validation
 - OpenAPI documentation generation
 
 **Service Level (Business Logic):**
+
 - 8 explicit validation checks in BillService
 - 3 division algorithm validations
 - Decimal precision with ROUND_HALF_UP
 - Tolerance-based comparisons (±0.01)
 
 **API Level (Authorization):**
+
 - 6 role-based access control checks
 - Property assignment verification
 - Tenant allocation access verification
 
 **Database Level:**
+
 - 4 NOT NULL constraints per table
 - 3 FOREIGN KEY constraints with CASCADE
 - 8 performance indexes
 - 4 PostgreSQL ENUM types
 
 **Error Handling:**
+
 - 4 HTTP status codes (400, 403, 404, 500)
 - Structured error logging with context
 - Consistent error message format
@@ -487,6 +515,7 @@ The bill division management feature includes comprehensive validation at multip
 - **Database Layer:** Constraints, foreign keys, indexes
 
 All validations provide clear error messages and are logged for debugging. The system ensures:
+
 - Data integrity with precise decimal calculations
 - Security with role-based access control
 - Reliability with comprehensive error handling
