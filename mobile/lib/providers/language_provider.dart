@@ -126,16 +126,15 @@ class LanguageProvider with ChangeNotifier {
   }
 
   /// Get list of all supported languages with their display names
-  List<LanguageOption> getSupportedLanguages() =>
-      supportedLocales.map((locale) {
-        return LanguageOption(
-          code: locale.languageCode,
-          name: languageNames[locale.languageCode] ?? locale.languageCode,
-          nativeName:
-              nativeLanguageNames[locale.languageCode] ?? locale.languageCode,
-          isRTL: locale.languageCode == 'ar',
-        );
-      }).toList();
+  List<LanguageOption> getSupportedLanguages() => supportedLocales
+      .map((locale) => LanguageOption(
+            code: locale.languageCode,
+            name: languageNames[locale.languageCode] ?? locale.languageCode,
+            nativeName:
+                nativeLanguageNames[locale.languageCode] ?? locale.languageCode,
+            isRTL: locale.languageCode == 'ar',
+          ))
+      .toList();
 
   /// Check if a language is currently selected
   bool isLanguageSelected(String languageCode) =>

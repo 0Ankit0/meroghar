@@ -186,25 +186,23 @@ class BillAllocation {
     required this.updatedAt,
   });
 
-  factory BillAllocation.fromJson(Map<String, dynamic> json) {
-    return BillAllocation(
-      id: json['id'] as String,
-      billId: json['bill_id'] as String,
-      tenantId: json['tenant_id'] as String,
-      allocatedAmount: (json['allocated_amount'] as num).toDouble(),
-      percentage: json['percentage'] != null
-          ? (json['percentage'] as num).toDouble()
-          : null,
-      isPaid: json['is_paid'] as bool,
-      paidDate: json['paid_date'] != null
-          ? DateTime.parse(json['paid_date'] as String)
-          : null,
-      paymentId: json['payment_id'] as String?,
-      notes: json['notes'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
+  factory BillAllocation.fromJson(Map<String, dynamic> json) => BillAllocation(
+        id: json['id'] as String,
+        billId: json['bill_id'] as String,
+        tenantId: json['tenant_id'] as String,
+        allocatedAmount: (json['allocated_amount'] as num).toDouble(),
+        percentage: json['percentage'] != null
+            ? (json['percentage'] as num).toDouble()
+            : null,
+        isPaid: json['is_paid'] as bool,
+        paidDate: json['paid_date'] != null
+            ? DateTime.parse(json['paid_date'] as String)
+            : null,
+        paymentId: json['payment_id'] as String?,
+        notes: json['notes'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
   final String id;
   final String billId;
   final String tenantId;
@@ -298,34 +296,32 @@ class Bill {
     this.allocations = const [],
   });
 
-  factory Bill.fromJson(Map<String, dynamic> json) {
-    return Bill(
-      id: json['id'] as String,
-      propertyId: json['property_id'] as String,
-      billType: BillType.fromJson(json['bill_type'] as String),
-      totalAmount: (json['total_amount'] as num).toDouble(),
-      currency: json['currency'] as String,
-      periodStart: DateTime.parse(json['period_start'] as String),
-      periodEnd: DateTime.parse(json['period_end'] as String),
-      dueDate: DateTime.parse(json['due_date'] as String),
-      status: BillStatus.fromJson(json['status'] as String),
-      allocationMethod:
-          AllocationMethod.fromJson(json['allocation_method'] as String),
-      description: json['description'] as String?,
-      billNumber: json['bill_number'] as String?,
-      paidDate: json['paid_date'] != null
-          ? DateTime.parse(json['paid_date'] as String)
-          : null,
-      createdBy: json['created_by'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      allocations: json['allocations'] != null
-          ? (json['allocations'] as List)
-              .map((e) => BillAllocation.fromJson(e as Map<String, dynamic>))
-              .toList()
-          : const [],
-    );
-  }
+  factory Bill.fromJson(Map<String, dynamic> json) => Bill(
+        id: json['id'] as String,
+        propertyId: json['property_id'] as String,
+        billType: BillType.fromJson(json['bill_type'] as String),
+        totalAmount: (json['total_amount'] as num).toDouble(),
+        currency: json['currency'] as String,
+        periodStart: DateTime.parse(json['period_start'] as String),
+        periodEnd: DateTime.parse(json['period_end'] as String),
+        dueDate: DateTime.parse(json['due_date'] as String),
+        status: BillStatus.fromJson(json['status'] as String),
+        allocationMethod:
+            AllocationMethod.fromJson(json['allocation_method'] as String),
+        description: json['description'] as String?,
+        billNumber: json['bill_number'] as String?,
+        paidDate: json['paid_date'] != null
+            ? DateTime.parse(json['paid_date'] as String)
+            : null,
+        createdBy: json['created_by'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+        allocations: json['allocations'] != null
+            ? (json['allocations'] as List)
+                .map((e) => BillAllocation.fromJson(e as Map<String, dynamic>))
+                .toList()
+            : const [],
+      );
   final String id;
   final String propertyId;
   final BillType billType;
@@ -406,7 +402,7 @@ class Bill {
   /// Get total paid amount from allocations
   double get totalPaid => allocations
       .where((alloc) => alloc.isPaid)
-      .fold(0.0, (sum, alloc) => sum + alloc.allocatedAmount);
+      .fold(0, (sum, alloc) => sum + alloc.allocatedAmount);
 
   /// Get number of paid allocations
   int get paidCount => allocations.where((alloc) => alloc.isPaid).length;
@@ -452,30 +448,28 @@ class RecurringBill {
     required this.updatedAt,
   });
 
-  factory RecurringBill.fromJson(Map<String, dynamic> json) {
-    return RecurringBill(
-      id: json['id'] as String,
-      propertyId: json['property_id'] as String,
-      billType: BillType.fromJson(json['bill_type'] as String),
-      frequency: RecurringFrequency.fromJson(json['frequency'] as String),
-      allocationMethod:
-          AllocationMethod.fromJson(json['allocation_method'] as String),
-      estimatedAmount: (json['estimated_amount'] as num).toDouble(),
-      currency: json['currency'] as String,
-      dayOfMonth: json['day_of_month'] as int,
-      description: json['description'] as String?,
-      isActive: json['is_active'] as bool,
-      lastGenerated: json['last_generated'] != null
-          ? DateTime.parse(json['last_generated'] as String)
-          : null,
-      nextGeneration: json['next_generation'] != null
-          ? DateTime.parse(json['next_generation'] as String)
-          : null,
-      createdBy: json['created_by'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
+  factory RecurringBill.fromJson(Map<String, dynamic> json) => RecurringBill(
+        id: json['id'] as String,
+        propertyId: json['property_id'] as String,
+        billType: BillType.fromJson(json['bill_type'] as String),
+        frequency: RecurringFrequency.fromJson(json['frequency'] as String),
+        allocationMethod:
+            AllocationMethod.fromJson(json['allocation_method'] as String),
+        estimatedAmount: (json['estimated_amount'] as num).toDouble(),
+        currency: json['currency'] as String,
+        dayOfMonth: json['day_of_month'] as int,
+        description: json['description'] as String?,
+        isActive: json['is_active'] as bool,
+        lastGenerated: json['last_generated'] != null
+            ? DateTime.parse(json['last_generated'] as String)
+            : null,
+        nextGeneration: json['next_generation'] != null
+            ? DateTime.parse(json['next_generation'] as String)
+            : null,
+        createdBy: json['created_by'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
   final String id;
   final String propertyId;
   final BillType billType;

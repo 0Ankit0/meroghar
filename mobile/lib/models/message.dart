@@ -54,40 +54,38 @@ class Message {
     this.updatedAt,
   });
 
-  factory Message.fromJson(Map<String, dynamic> json) {
-    return Message(
-      id: json['id'] as int,
-      tenantId: json['tenant_id'] as int,
-      sentBy: json['sent_by'] as int?,
-      propertyId: json['property_id'] as int?,
-      template: _templateFromString(json['template'] as String),
-      subject: json['subject'] as String?,
-      content: json['content'] as String,
-      channel: _channelFromString(json['channel'] as String),
-      recipientPhone: json['recipient_phone'] as String?,
-      recipientEmail: json['recipient_email'] as String?,
-      status: _statusFromString(json['status'] as String),
-      scheduledAt: json['scheduled_at'] != null
-          ? DateTime.parse(json['scheduled_at'] as String)
-          : null,
-      sentAt: json['sent_at'] != null
-          ? DateTime.parse(json['sent_at'] as String)
-          : null,
-      deliveredAt: json['delivered_at'] != null
-          ? DateTime.parse(json['delivered_at'] as String)
-          : null,
-      errorMessage: json['error_message'] as String?,
-      retryCount: json['retry_count'] as int? ?? 0,
-      providerMessageId: json['provider_message_id'] as String?,
-      providerResponse: json['provider_response'] as Map<String, dynamic>?,
-      bulkMessageId: json['bulk_message_id'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : null,
-    );
-  }
+  factory Message.fromJson(Map<String, dynamic> json) => Message(
+        id: json['id'] as int,
+        tenantId: json['tenant_id'] as int,
+        sentBy: json['sent_by'] as int?,
+        propertyId: json['property_id'] as int?,
+        template: _templateFromString(json['template'] as String),
+        subject: json['subject'] as String?,
+        content: json['content'] as String,
+        channel: _channelFromString(json['channel'] as String),
+        recipientPhone: json['recipient_phone'] as String?,
+        recipientEmail: json['recipient_email'] as String?,
+        status: _statusFromString(json['status'] as String),
+        scheduledAt: json['scheduled_at'] != null
+            ? DateTime.parse(json['scheduled_at'] as String)
+            : null,
+        sentAt: json['sent_at'] != null
+            ? DateTime.parse(json['sent_at'] as String)
+            : null,
+        deliveredAt: json['delivered_at'] != null
+            ? DateTime.parse(json['delivered_at'] as String)
+            : null,
+        errorMessage: json['error_message'] as String?,
+        retryCount: json['retry_count'] as int? ?? 0,
+        providerMessageId: json['provider_message_id'] as String?,
+        providerResponse: json['provider_response'] as Map<String, dynamic>?,
+        bulkMessageId: json['bulk_message_id'] as String?,
+        metadata: json['metadata'] as Map<String, dynamic>?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: json['updated_at'] != null
+            ? DateTime.parse(json['updated_at'] as String)
+            : null,
+      );
   final int id;
   final int tenantId;
   final int? sentBy;
@@ -306,16 +304,15 @@ class MessageStatistics {
     required this.deliveryRate,
   });
 
-  factory MessageStatistics.fromJson(Map<String, dynamic> json) {
-    return MessageStatistics(
-      totalMessages: json['total_messages'] as int,
-      sent: json['sent'] as int,
-      delivered: json['delivered'] as int,
-      failed: json['failed'] as int,
-      pending: json['pending'] as int,
-      deliveryRate: (json['delivery_rate'] as num).toDouble(),
-    );
-  }
+  factory MessageStatistics.fromJson(Map<String, dynamic> json) =>
+      MessageStatistics(
+        totalMessages: json['total_messages'] as int,
+        sent: json['sent'] as int,
+        delivered: json['delivered'] as int,
+        failed: json['failed'] as int,
+        pending: json['pending'] as int,
+        deliveryRate: (json['delivery_rate'] as num).toDouble(),
+      );
   final int totalMessages;
   final int sent;
   final int delivered;

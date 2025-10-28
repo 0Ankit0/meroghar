@@ -562,7 +562,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
       case ReportPeriod.year:
         // Current year
         return (
-          start: DateTime(now.year, 1),
+          start: DateTime(now.year),
           end: DateTime(now.year, 12, 31),
         );
 

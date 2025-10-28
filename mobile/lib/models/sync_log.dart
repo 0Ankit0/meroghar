@@ -23,26 +23,24 @@ class SyncLog {
   });
 
   /// Create from JSON.
-  factory SyncLog.fromJson(Map<String, dynamic> json) {
-    return SyncLog(
-      id: json['id'] as int,
-      userId: json['user_id'] as int,
-      deviceId: json['device_id'] as String,
-      deviceName: json['device_name'] as String?,
-      operation: json['operation'] as String,
-      status: json['status'] as String,
-      recordsSynced: json['records_synced'] as int,
-      recordsFailed: json['records_failed'] as int,
-      recordsConflict: json['records_conflict'] as int,
-      startedAt: json['started_at'] as String,
-      completedAt: json['completed_at'] as String?,
-      errorMessage: json['error_message'] as String?,
-      conflictDetails: json['conflict_details'] as Map<String, dynamic>?,
-      syncMetadata: json['sync_metadata'] as Map<String, dynamic>?,
-      retryCount: json['retry_count'] as int,
-      nextRetryAt: json['next_retry_at'] as String?,
-    );
-  }
+  factory SyncLog.fromJson(Map<String, dynamic> json) => SyncLog(
+        id: json['id'] as int,
+        userId: json['user_id'] as int,
+        deviceId: json['device_id'] as String,
+        deviceName: json['device_name'] as String?,
+        operation: json['operation'] as String,
+        status: json['status'] as String,
+        recordsSynced: json['records_synced'] as int,
+        recordsFailed: json['records_failed'] as int,
+        recordsConflict: json['records_conflict'] as int,
+        startedAt: json['started_at'] as String,
+        completedAt: json['completed_at'] as String?,
+        errorMessage: json['error_message'] as String?,
+        conflictDetails: json['conflict_details'] as Map<String, dynamic>?,
+        syncMetadata: json['sync_metadata'] as Map<String, dynamic>?,
+        retryCount: json['retry_count'] as int,
+        nextRetryAt: json['next_retry_at'] as String?,
+      );
   final int id;
   final int userId;
   final String deviceId;

@@ -124,7 +124,7 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -194,7 +194,7 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
                       Card(
                         color: Colors.blue.shade50,
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [

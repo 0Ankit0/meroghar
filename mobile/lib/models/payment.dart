@@ -162,58 +162,54 @@ class Payment {
   });
 
   /// Create Payment from JSON (API response)
-  factory Payment.fromJson(Map<String, dynamic> json) {
-    return Payment(
-      id: json['id'] as String,
-      tenantId: json['tenant_id'] as String,
-      propertyId: json['property_id'] as String,
-      recordedBy: json['recorded_by'] as String?,
-      amount: (json['amount'] as num).toDouble(),
-      currency: json['currency'] as String? ?? 'INR',
-      paymentMethod: PaymentMethod.fromJson(json['payment_method'] as String),
-      paymentType: PaymentType.fromJson(json['payment_type'] as String),
-      status: PaymentStatus.fromJson(json['status'] as String),
-      paymentDate: DateTime.parse(json['payment_date'] as String),
-      paymentPeriodStart: json['payment_period_start'] != null
-          ? DateTime.parse(json['payment_period_start'] as String)
-          : null,
-      paymentPeriodEnd: json['payment_period_end'] != null
-          ? DateTime.parse(json['payment_period_end'] as String)
-          : null,
-      transactionReference: json['transaction_reference'] as String?,
-      notes: json['notes'] as String?,
-      receiptUrl: json['receipt_url'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
+  factory Payment.fromJson(Map<String, dynamic> json) => Payment(
+        id: json['id'] as String,
+        tenantId: json['tenant_id'] as String,
+        propertyId: json['property_id'] as String,
+        recordedBy: json['recorded_by'] as String?,
+        amount: (json['amount'] as num).toDouble(),
+        currency: json['currency'] as String? ?? 'INR',
+        paymentMethod: PaymentMethod.fromJson(json['payment_method'] as String),
+        paymentType: PaymentType.fromJson(json['payment_type'] as String),
+        status: PaymentStatus.fromJson(json['status'] as String),
+        paymentDate: DateTime.parse(json['payment_date'] as String),
+        paymentPeriodStart: json['payment_period_start'] != null
+            ? DateTime.parse(json['payment_period_start'] as String)
+            : null,
+        paymentPeriodEnd: json['payment_period_end'] != null
+            ? DateTime.parse(json['payment_period_end'] as String)
+            : null,
+        transactionReference: json['transaction_reference'] as String?,
+        notes: json['notes'] as String?,
+        receiptUrl: json['receipt_url'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
 
   /// Create Payment from SQLite database row
-  factory Payment.fromDatabase(Map<String, dynamic> map) {
-    return Payment(
-      id: map['id'] as String,
-      tenantId: map['tenant_id'] as String,
-      propertyId: map['property_id'] as String,
-      recordedBy: map['recorded_by'] as String?,
-      amount: map['amount'] as double,
-      currency: map['currency'] as String? ?? 'INR',
-      paymentMethod: PaymentMethod.fromJson(map['payment_method'] as String),
-      paymentType: PaymentType.fromJson(map['payment_type'] as String),
-      status: PaymentStatus.fromJson(map['status'] as String),
-      paymentDate: DateTime.parse(map['payment_date'] as String),
-      paymentPeriodStart: map['payment_period_start'] != null
-          ? DateTime.parse(map['payment_period_start'] as String)
-          : null,
-      paymentPeriodEnd: map['payment_period_end'] != null
-          ? DateTime.parse(map['payment_period_end'] as String)
-          : null,
-      transactionReference: map['transaction_reference'] as String?,
-      notes: map['notes'] as String?,
-      receiptUrl: map['receipt_url'] as String?,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
-  }
+  factory Payment.fromDatabase(Map<String, dynamic> map) => Payment(
+        id: map['id'] as String,
+        tenantId: map['tenant_id'] as String,
+        propertyId: map['property_id'] as String,
+        recordedBy: map['recorded_by'] as String?,
+        amount: map['amount'] as double,
+        currency: map['currency'] as String? ?? 'INR',
+        paymentMethod: PaymentMethod.fromJson(map['payment_method'] as String),
+        paymentType: PaymentType.fromJson(map['payment_type'] as String),
+        status: PaymentStatus.fromJson(map['status'] as String),
+        paymentDate: DateTime.parse(map['payment_date'] as String),
+        paymentPeriodStart: map['payment_period_start'] != null
+            ? DateTime.parse(map['payment_period_start'] as String)
+            : null,
+        paymentPeriodEnd: map['payment_period_end'] != null
+            ? DateTime.parse(map['payment_period_end'] as String)
+            : null,
+        transactionReference: map['transaction_reference'] as String?,
+        notes: map['notes'] as String?,
+        receiptUrl: map['receipt_url'] as String?,
+        createdAt: DateTime.parse(map['created_at'] as String),
+        updatedAt: DateTime.parse(map['updated_at'] as String),
+      );
   final String id;
   final String tenantId;
   final String propertyId;
@@ -399,22 +395,20 @@ class TenantBalance {
     required this.monthsBehind,
   });
 
-  factory TenantBalance.fromJson(Map<String, dynamic> json) {
-    return TenantBalance(
-      tenantId: json['tenant_id'] as String,
-      propertyId: json['property_id'] as String,
-      totalPaid: (json['total_paid'] as num).toDouble(),
-      totalDue: (json['total_due'] as num).toDouble(),
-      outstandingBalance: (json['outstanding_balance'] as num).toDouble(),
-      lastPaymentDate: json['last_payment_date'] != null
-          ? DateTime.parse(json['last_payment_date'] as String)
-          : null,
-      lastPaymentAmount: json['last_payment_amount'] != null
-          ? (json['last_payment_amount'] as num).toDouble()
-          : null,
-      monthsBehind: json['months_behind'] as int,
-    );
-  }
+  factory TenantBalance.fromJson(Map<String, dynamic> json) => TenantBalance(
+        tenantId: json['tenant_id'] as String,
+        propertyId: json['property_id'] as String,
+        totalPaid: (json['total_paid'] as num).toDouble(),
+        totalDue: (json['total_due'] as num).toDouble(),
+        outstandingBalance: (json['outstanding_balance'] as num).toDouble(),
+        lastPaymentDate: json['last_payment_date'] != null
+            ? DateTime.parse(json['last_payment_date'] as String)
+            : null,
+        lastPaymentAmount: json['last_payment_amount'] != null
+            ? (json['last_payment_amount'] as num).toDouble()
+            : null,
+        monthsBehind: json['months_behind'] as int,
+      );
   final String tenantId;
   final String propertyId;
   final double totalPaid;

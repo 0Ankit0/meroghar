@@ -63,7 +63,7 @@ class OfflineQueueService {
       orderBy: 'created_at ASC',
     );
 
-    return results.map((row) => SyncOperation.fromMap(row)).toList();
+    return results.map(SyncOperation.fromMap).toList();
   }
 
   /// Get operation by ID.
@@ -138,7 +138,7 @@ class OfflineQueueService {
       orderBy: 'created_at ASC',
     );
 
-    return results.map((row) => SyncOperation.fromMap(row)).toList();
+    return results.map(SyncOperation.fromMap).toList();
   }
 
   /// Get completed operations.
@@ -153,7 +153,7 @@ class OfflineQueueService {
       limit: 100,
     );
 
-    return results.map((row) => SyncOperation.fromMap(row)).toList();
+    return results.map(SyncOperation.fromMap).toList();
   }
 
   /// Clear completed operations older than specified days.
@@ -164,7 +164,7 @@ class OfflineQueueService {
         .subtract(Duration(days: olderThanDays))
         .toIso8601String();
 
-    return await db.delete(
+    return db.delete(
       'sync_queue',
       where: 'status = ? AND created_at < ?',
       whereArgs: ['completed', cutoffDate],

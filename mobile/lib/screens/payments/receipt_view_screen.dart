@@ -239,11 +239,8 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
             _pdfData!,
             sourceName: 'receipt_${widget.paymentId}.pdf',
             params: const PdfViewerParams(
-              margin: 8,
               minScale: 0.5,
-              maxScale: 4.0,
-              panEnabled: true,
-              scaleEnabled: true,
+              maxScale: 4,
             ),
           ),
         ),

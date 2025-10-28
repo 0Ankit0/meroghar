@@ -22,42 +22,38 @@ class Property {
   });
 
   /// Create Property from JSON (API response).
-  factory Property.fromJson(Map<String, dynamic> json) {
-    return Property(
-      id: json['id'] as String,
-      ownerId: json['owner_id'] as String,
-      name: json['name'] as String,
-      addressLine1: json['address_line1'] as String,
-      addressLine2: json['address_line2'] as String?,
-      city: json['city'] as String,
-      state: json['state'] as String,
-      postalCode: json['postal_code'] as String,
-      country: json['country'] as String,
-      totalUnits: json['total_units'] as int,
-      baseCurrency: json['base_currency'] as String,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
+  factory Property.fromJson(Map<String, dynamic> json) => Property(
+        id: json['id'] as String,
+        ownerId: json['owner_id'] as String,
+        name: json['name'] as String,
+        addressLine1: json['address_line1'] as String,
+        addressLine2: json['address_line2'] as String?,
+        city: json['city'] as String,
+        state: json['state'] as String,
+        postalCode: json['postal_code'] as String,
+        country: json['country'] as String,
+        totalUnits: json['total_units'] as int,
+        baseCurrency: json['base_currency'] as String,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
 
   /// Create Property from SQLite database row.
-  factory Property.fromMap(Map<String, dynamic> map) {
-    return Property(
-      id: map['id'] as String,
-      ownerId: map['owner_id'] as String,
-      name: map['name'] as String,
-      addressLine1: map['address_line1'] as String,
-      addressLine2: map['address_line2'] as String?,
-      city: map['city'] as String,
-      state: map['state'] as String,
-      postalCode: map['postal_code'] as String,
-      country: map['country'] as String,
-      totalUnits: map['total_units'] as int,
-      baseCurrency: map['base_currency'] as String,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
-  }
+  factory Property.fromMap(Map<String, dynamic> map) => Property(
+        id: map['id'] as String,
+        ownerId: map['owner_id'] as String,
+        name: map['name'] as String,
+        addressLine1: map['address_line1'] as String,
+        addressLine2: map['address_line2'] as String?,
+        city: map['city'] as String,
+        state: map['state'] as String,
+        postalCode: map['postal_code'] as String,
+        country: map['country'] as String,
+        totalUnits: map['total_units'] as int,
+        baseCurrency: map['base_currency'] as String,
+        createdAt: DateTime.parse(map['created_at'] as String),
+        updatedAt: DateTime.parse(map['updated_at'] as String),
+      );
   final String id;
   final String ownerId;
   final String name;

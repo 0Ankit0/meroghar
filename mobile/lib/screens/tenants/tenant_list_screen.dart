@@ -170,7 +170,7 @@ class _TenantListScreenState extends State<TenantListScreen> {
         body: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: TextField(
                 controller: _searchController,
                 decoration: InputDecoration(
@@ -332,7 +332,7 @@ class _TenantCardState extends State<_TenantCard> {
                     color: Colors.red.shade700,
                     borderRadius: BorderRadius.circular(4),
                   ),
-                  child: Row(
+                  child: const Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
@@ -340,7 +340,7 @@ class _TenantCardState extends State<_TenantCard> {
                         size: 14,
                         color: Colors.white,
                       ),
-                      const SizedBox(width: 4),
+                      SizedBox(width: 4),
                       Text(
                         'OVERDUE',
                         style: TextStyle(

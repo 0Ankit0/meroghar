@@ -106,13 +106,7 @@ class FCMService {
   /// Request notification permissions
   Future<NotificationSettings> _requestPermissions() async {
     final settings = await _messaging.requestPermission(
-      alert: true,
       announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
     );
 
     debugPrint(
@@ -125,9 +119,7 @@ class FCMService {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
     const iosSettings = DarwinInitializationSettings(
-      requestAlertPermission: true,
       requestBadgePermission: true,
-      requestSoundPermission: true,
     );
 
     const initSettings = InitializationSettings(
@@ -154,15 +146,12 @@ class FCMService {
         'Urgent Notifications',
         description: 'High priority urgent notifications',
         importance: Importance.max,
-        playSound: true,
-        enableVibration: true,
       ),
       AndroidNotificationChannel(
         'payment_received',
         'Payment Notifications',
         description: 'Payment received notifications',
         importance: Importance.high,
-        playSound: true,
       ),
       AndroidNotificationChannel(
         'bill_created',
@@ -174,13 +163,11 @@ class FCMService {
         'document_expiring',
         'Document Notifications',
         description: 'Document expiration notifications',
-        importance: Importance.defaultImportance,
       ),
       AndroidNotificationChannel(
         'default',
         'General Notifications',
         description: 'General notifications',
-        importance: Importance.defaultImportance,
       ),
     ];
 
@@ -233,8 +220,6 @@ class FCMService {
               ? Priority.high
               : Priority.defaultPriority,
       icon: android?.smallIcon ?? '@mipmap/ic_launcher',
-      playSound: true,
-      enableVibration: true,
     );
 
     const iosDetails = DarwinNotificationDetails(

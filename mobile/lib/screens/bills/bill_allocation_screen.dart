@@ -66,13 +66,11 @@ class _BillAllocationScreenState extends State<BillAllocationScreen> {
                     style: Theme.of(context).textTheme.titleLarge,
                   ),
                   const SizedBox(height: 8),
-                  ...bill.allocations.map((allocation) {
-                    return _AllocationCard(
-                      billId: widget.billId,
-                      allocation: allocation,
-                      currencyFormat: _currencyFormat,
-                    );
-                  }),
+                  ...bill.allocations.map((allocation) => _AllocationCard(
+                        billId: widget.billId,
+                        allocation: allocation,
+                        currencyFormat: _currencyFormat,
+                      )),
                 ],
               ),
             );

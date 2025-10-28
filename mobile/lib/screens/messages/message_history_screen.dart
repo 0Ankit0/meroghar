@@ -11,7 +11,7 @@ import '../../providers/message_provider.dart';
 import '../../widgets/message_status_widget.dart';
 
 class MessageHistoryScreen extends StatefulWidget {
-  const MessageHistoryScreen({Key? key}) : super(key: key);
+  const MessageHistoryScreen({super.key});
 
   @override
   State<MessageHistoryScreen> createState() => _MessageHistoryScreenState();
@@ -65,7 +65,6 @@ class _MessageHistoryScreenState extends State<MessageHistoryScreen> {
                 ),
                 items: [
                   const DropdownMenuItem(
-                    value: null,
                     child: Text('All Channels'),
                   ),
                   ...MessageChannel.values.map(
@@ -97,7 +96,6 @@ class _MessageHistoryScreenState extends State<MessageHistoryScreen> {
                 ),
                 items: [
                   const DropdownMenuItem(
-                    value: null,
                     child: Text('All Statuses'),
                   ),
                   ...MessageStatus.values.map(
@@ -211,22 +209,22 @@ class _MessageHistoryScreenState extends State<MessageHistoryScreen> {
             }
 
             if (messageProvider.messages.isEmpty) {
-              return Center(
+              return const Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.message_outlined,
                       size: 64,
                       color: Colors.grey,
                     ),
-                    const SizedBox(height: 16),
-                    const Text(
+                    SizedBox(height: 16),
+                    Text(
                       'No messages found',
                       style: TextStyle(fontSize: 16, color: Colors.grey),
                     ),
-                    const SizedBox(height: 8),
-                    const Text(
+                    SizedBox(height: 8),
+                    Text(
                       'Send your first bulk message',
                       style: TextStyle(fontSize: 14, color: Colors.grey),
                     ),

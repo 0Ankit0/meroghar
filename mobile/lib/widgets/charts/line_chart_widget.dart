@@ -7,10 +7,10 @@ import '../../models/analytics.dart';
 /// Implements T104 from tasks.md
 class RentTrendsLineChart extends StatelessWidget {
   const RentTrendsLineChart({
-    Key? key,
+    super.key,
     required this.trends,
     this.height = 300,
-  }) : super(key: key);
+  });
   final List<RentCollectionTrend> trends;
   final double height;
 
@@ -28,11 +28,10 @@ class RentTrendsLineChart extends StatelessWidget {
     return SizedBox(
       height: height,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: LineChart(
           LineChartData(
             gridData: FlGridData(
-              show: true,
               drawVerticalLine: true,
               horizontalInterval: _calculateInterval(trends),
               getDrawingHorizontalLine: (value) => FlLine(
@@ -41,13 +40,8 @@ class RentTrendsLineChart extends StatelessWidget {
               ),
             ),
             titlesData: FlTitlesData(
-              show: true,
-              rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
-              topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false),
-              ),
+              rightTitles: const AxisTitles(),
+              topTitles: const AxisTitles(),
               bottomTitles: AxisTitles(
                 sideTitles: SideTitles(
                   showTitles: true,
@@ -60,7 +54,7 @@ class RentTrendsLineChart extends StatelessWidget {
                     }
                     final month = trends[index].month;
                     return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
+                      padding: const EdgeInsets.only(top: 8),
                       child: Text(
                         DateFormat('MMM').format(month),
                         style: const TextStyle(
@@ -110,7 +104,6 @@ class RentTrendsLineChart extends StatelessWidget {
                 color: Colors.blue,
                 barWidth: 3,
                 isStrokeCapRound: true,
-                dotData: const FlDotData(show: true),
                 belowBarData: BarAreaData(
                   show: true,
                   color: Colors.blue.withOpacity(0.1),
@@ -128,7 +121,6 @@ class RentTrendsLineChart extends StatelessWidget {
                     .toList(),
                 isCurved: true,
                 color: Colors.green,
-                barWidth: 2,
                 isStrokeCapRound: true,
                 dotData: const FlDotData(show: false),
               ),
@@ -144,13 +136,11 @@ class RentTrendsLineChart extends StatelessWidget {
                     .toList(),
                 isCurved: true,
                 color: Colors.orange,
-                barWidth: 2,
                 isStrokeCapRound: true,
                 dotData: const FlDotData(show: false),
               ),
             ],
             lineTouchData: LineTouchData(
-              enabled: true,
               touchTooltipData: LineTouchTooltipData(
                 getTooltipItems: (touchedSpots) =>
                     touchedSpots.map((LineBarSpot touchedSpot) {

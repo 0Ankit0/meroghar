@@ -33,38 +33,34 @@ class User {
   });
 
   /// Create User from JSON (API response).
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'] as String,
-      email: json['email'] as String,
-      fullName: json['full_name'] as String,
-      phone: json['phone'] as String?,
-      role: UserRole.fromString(json['role'] as String),
-      isActive: json['is_active'] as bool,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-      lastLoginAt: json['last_login_at'] != null
-          ? DateTime.parse(json['last_login_at'] as String)
-          : null,
-    );
-  }
+  factory User.fromJson(Map<String, dynamic> json) => User(
+        id: json['id'] as String,
+        email: json['email'] as String,
+        fullName: json['full_name'] as String,
+        phone: json['phone'] as String?,
+        role: UserRole.fromString(json['role'] as String),
+        isActive: json['is_active'] as bool,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+        lastLoginAt: json['last_login_at'] != null
+            ? DateTime.parse(json['last_login_at'] as String)
+            : null,
+      );
 
   /// Create User from SQLite database row.
-  factory User.fromMap(Map<String, dynamic> map) {
-    return User(
-      id: map['id'] as String,
-      email: map['email'] as String,
-      fullName: map['full_name'] as String,
-      phone: map['phone'] as String?,
-      role: UserRole.fromString(map['role'] as String),
-      isActive: (map['is_active'] as int) == 1,
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-      lastLoginAt: map['last_login_at'] != null
-          ? DateTime.parse(map['last_login_at'] as String)
-          : null,
-    );
-  }
+  factory User.fromMap(Map<String, dynamic> map) => User(
+        id: map['id'] as String,
+        email: map['email'] as String,
+        fullName: map['full_name'] as String,
+        phone: map['phone'] as String?,
+        role: UserRole.fromString(map['role'] as String),
+        isActive: (map['is_active'] as int) == 1,
+        createdAt: DateTime.parse(map['created_at'] as String),
+        updatedAt: DateTime.parse(map['updated_at'] as String),
+        lastLoginAt: map['last_login_at'] != null
+            ? DateTime.parse(map['last_login_at'] as String)
+            : null,
+      );
   final String id;
   final String email;
   final String fullName;

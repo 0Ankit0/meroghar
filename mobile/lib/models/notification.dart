@@ -98,29 +98,30 @@ class AppNotification {
     this.updatedAt,
   });
 
-  factory AppNotification.fromJson(Map<String, dynamic> json) {
-    return AppNotification(
-      id: json['id'] as int,
-      userId: json['user_id'] as int,
-      title: json['title'] as String,
-      body: json['body'] as String,
-      notificationType:
-          NotificationType.fromString(json['notification_type'] as String),
-      priority: NotificationPriority.fromString(json['priority'] as String),
-      deepLink: json['deep_link'] as String?,
-      metadata: json['metadata'] as Map<String, dynamic>?,
-      isRead: json['is_read'] as bool,
-      readAt: json['read_at'] != null ? DateTime.parse(json['read_at']) : null,
-      fcmMessageId: json['fcm_message_id'] as String?,
-      sentAt: json['sent_at'] != null ? DateTime.parse(json['sent_at']) : null,
-      deliveryFailed: json['delivery_failed'] as bool,
-      failureReason: json['failure_reason'] as String?,
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'])
-          : null,
-    );
-  }
+  factory AppNotification.fromJson(Map<String, dynamic> json) =>
+      AppNotification(
+        id: json['id'] as int,
+        userId: json['user_id'] as int,
+        title: json['title'] as String,
+        body: json['body'] as String,
+        notificationType:
+            NotificationType.fromString(json['notification_type'] as String),
+        priority: NotificationPriority.fromString(json['priority'] as String),
+        deepLink: json['deep_link'] as String?,
+        metadata: json['metadata'] as Map<String, dynamic>?,
+        isRead: json['is_read'] as bool,
+        readAt:
+            json['read_at'] != null ? DateTime.parse(json['read_at']) : null,
+        fcmMessageId: json['fcm_message_id'] as String?,
+        sentAt:
+            json['sent_at'] != null ? DateTime.parse(json['sent_at']) : null,
+        deliveryFailed: json['delivery_failed'] as bool,
+        failureReason: json['failure_reason'] as String?,
+        createdAt: DateTime.parse(json['created_at']),
+        updatedAt: json['updated_at'] != null
+            ? DateTime.parse(json['updated_at'])
+            : null,
+      );
   final int id;
   final int userId;
   final String title;
@@ -205,17 +206,16 @@ class NotificationListResponse {
     required this.totalPages,
   });
 
-  factory NotificationListResponse.fromJson(Map<String, dynamic> json) {
-    return NotificationListResponse(
-      notifications: (json['notifications'] as List)
-          .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      total: json['total'] as int,
-      page: json['page'] as int,
-      pageSize: json['page_size'] as int,
-      totalPages: json['total_pages'] as int,
-    );
-  }
+  factory NotificationListResponse.fromJson(Map<String, dynamic> json) =>
+      NotificationListResponse(
+        notifications: (json['notifications'] as List)
+            .map((e) => AppNotification.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        total: json['total'] as int,
+        page: json['page'] as int,
+        pageSize: json['page_size'] as int,
+        totalPages: json['total_pages'] as int,
+      );
   final List<AppNotification> notifications;
   final int total;
   final int page;
@@ -231,13 +231,12 @@ class UnreadCountResponse {
     required this.byPriority,
   });
 
-  factory UnreadCountResponse.fromJson(Map<String, dynamic> json) {
-    return UnreadCountResponse(
-      unreadCount: json['unread_count'] as int,
-      byType: Map<String, int>.from(json['by_type'] as Map),
-      byPriority: Map<String, int>.from(json['by_priority'] as Map),
-    );
-  }
+  factory UnreadCountResponse.fromJson(Map<String, dynamic> json) =>
+      UnreadCountResponse(
+        unreadCount: json['unread_count'] as int,
+        byType: Map<String, int>.from(json['by_type'] as Map),
+        byPriority: Map<String, int>.from(json['by_priority'] as Map),
+      );
   final int unreadCount;
   final Map<String, int> byType;
   final Map<String, int> byPriority;

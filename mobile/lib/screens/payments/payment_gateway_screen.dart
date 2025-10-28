@@ -12,12 +12,12 @@ import 'package:webview_flutter/webview_flutter.dart';
 /// 4. Navigates to appropriate screens based on payment status
 class PaymentGatewayScreen extends StatefulWidget {
   const PaymentGatewayScreen({
-    Key? key,
+    super.key,
     required this.paymentUrl,
     required this.callbackUrl,
     required this.paymentId,
     required this.onPaymentComplete,
-  }) : super(key: key);
+  });
   final String paymentUrl;
   final String callbackUrl;
   final String paymentId;
@@ -147,7 +147,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.check_circle, color: Colors.green, size: 32),
             SizedBox(width: 12),
@@ -158,13 +158,14 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Your payment has been completed successfully!'),
-            SizedBox(height: 16),
-            Text('Transaction ID:',
+            const Text('Your payment has been completed successfully!'),
+            const SizedBox(height: 16),
+            const Text('Transaction ID:',
                 style: TextStyle(fontWeight: FontWeight.bold)),
             Text(result['transaction_id'] ?? 'N/A'),
-            SizedBox(height: 8),
-            Text('Amount:', style: TextStyle(fontWeight: FontWeight.bold)),
+            const SizedBox(height: 8),
+            const Text('Amount:',
+                style: TextStyle(fontWeight: FontWeight.bold)),
             Text('Rs. ${(int.tryParse(result['amount'] ?? '0') ?? 0) / 100}'),
           ],
         ),
@@ -175,7 +176,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
               Navigator.of(context)
                   .pop(result); // Return to previous screen with result
             },
-            child: Text('View Receipt'),
+            child: const Text('View Receipt'),
           ),
         ],
       ),
@@ -187,7 +188,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.error, color: Colors.red, size: 32),
             SizedBox(width: 12),
@@ -204,7 +205,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                 'reason': status
               }); // Return to previous screen
             },
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -216,14 +217,14 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.info, color: Colors.orange, size: 32),
             SizedBox(width: 12),
             Text('Payment Pending'),
           ],
         ),
-        content: Text(
+        content: const Text(
             'Your payment is being processed. We will notify you once it\'s confirmed. '
             'If not updated within 24 hours, please contact support.'),
         actions: [
@@ -233,7 +234,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
               Navigator.of(context)
                   .pop({'status': 'pending'}); // Return to previous screen
             },
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -245,7 +246,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
       context: context,
       barrierDismissible: false,
       builder: (context) => AlertDialog(
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.warning, color: Colors.orange, size: 32),
             SizedBox(width: 12),
@@ -262,7 +263,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                 'message': message
               }); // Return to previous screen
             },
-            child: Text('OK'),
+            child: const Text('OK'),
           ),
         ],
       ),
@@ -272,21 +273,21 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text('Complete Payment'),
+          title: const Text('Complete Payment'),
           leading: IconButton(
-            icon: Icon(Icons.close),
+            icon: const Icon(Icons.close),
             onPressed: () {
               // Show confirmation dialog before closing
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: Text('Cancel Payment?'),
-                  content:
-                      Text('Are you sure you want to cancel this payment?'),
+                  title: const Text('Cancel Payment?'),
+                  content: const Text(
+                      'Are you sure you want to cancel this payment?'),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
-                      child: Text('No'),
+                      child: const Text('No'),
                     ),
                     ElevatedButton(
                       onPressed: () {
@@ -297,7 +298,7 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                       },
                       style:
                           ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                      child: Text('Yes, Cancel'),
+                      child: const Text('Yes, Cancel'),
                     ),
                   ],
                 ),
@@ -314,23 +315,24 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(Icons.error_outline, size: 64, color: Colors.red),
-                    SizedBox(height: 16),
-                    Text(
+                    const Icon(Icons.error_outline,
+                        size: 64, color: Colors.red),
+                    const SizedBox(height: 16),
+                    const Text(
                       'Failed to Load Payment Page',
                       style:
                           TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(height: 8),
+                    const SizedBox(height: 8),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
                       child: Text(
                         _errorMessage,
                         textAlign: TextAlign.center,
                         style: TextStyle(color: Colors.grey[600]),
                       ),
                     ),
-                    SizedBox(height: 24),
+                    const SizedBox(height: 24),
                     ElevatedButton.icon(
                       onPressed: () {
                         setState(() {
@@ -339,8 +341,8 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                         });
                         _controller.loadRequest(Uri.parse(widget.paymentUrl));
                       },
-                      icon: Icon(Icons.refresh),
-                      label: Text('Retry'),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Retry'),
                     ),
                   ],
                 ),
@@ -354,13 +356,13 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
-                      SizedBox(height: 16),
-                      Text(
+                      const CircularProgressIndicator(),
+                      const SizedBox(height: 16),
+                      const Text(
                         'Loading payment page...',
                         style: TextStyle(fontSize: 16),
                       ),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                       Text(
                         'Please wait',
                         style: TextStyle(fontSize: 14, color: Colors.grey[600]),

@@ -120,7 +120,7 @@ class _RentOverrideScreenState extends State<RentOverrideScreen> {
           elevation: 0,
         ),
         body: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Form(
             key: _formKey,
             child: Column(
@@ -130,7 +130,7 @@ class _RentOverrideScreenState extends State<RentOverrideScreen> {
                 Card(
                   color: Colors.orange.shade50,
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -177,7 +177,7 @@ class _RentOverrideScreenState extends State<RentOverrideScreen> {
                 const SizedBox(height: 12),
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
                         _buildInfoRow(
@@ -272,7 +272,7 @@ class _RentOverrideScreenState extends State<RentOverrideScreen> {
                   Card(
                     color: Colors.blue.shade50,
                     child: Padding(
-                      padding: const EdgeInsets.all(16.0),
+                      padding: const EdgeInsets.all(16),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [

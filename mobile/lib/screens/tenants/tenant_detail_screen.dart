@@ -159,7 +159,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen>
       );
 
   Widget _buildOverviewTab() => SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -189,7 +189,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen>
             const SizedBox(height: 12),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     _buildInfoRow('Tenant ID', widget.tenant.id),
@@ -211,7 +211,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen>
             const SizedBox(height: 12),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     _buildHighlightedRow(
@@ -243,7 +243,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen>
             const SizedBox(height: 12),
             Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     _buildInfoRow(
@@ -323,7 +323,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen>
     return RefreshIndicator(
       onRefresh: _loadRentHistory,
       child: ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         itemCount: _rentHistory.length,
         itemBuilder: (context, index) {
           final entry = _rentHistory[index];
@@ -355,7 +355,7 @@ class _TenantDetailScreenState extends State<TenantDetailScreen>
             : BorderSide.none,
       ),
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

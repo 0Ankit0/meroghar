@@ -96,7 +96,7 @@ class MessageProvider with ChangeNotifier {
     required DateTime scheduledAt,
     String? content,
   }) async =>
-      await sendBulkMessages(
+      sendBulkMessages(
         tenantIds: tenantIds,
         template: template,
         channel: channel,
@@ -208,7 +208,7 @@ class MessageProvider with ChangeNotifier {
 
   /// Refresh messages (pull-to-refresh)
   Future<void> refreshMessages() async {
-    await fetchMessages(offset: 0);
+    await fetchMessages();
     await fetchStatistics();
   }
 

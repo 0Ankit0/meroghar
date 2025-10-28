@@ -380,7 +380,7 @@ class _TaxReportScreenState extends State<TaxReportScreen> {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => ReportViewerScreen(
             reportData: response.data,
-            reportTitle: 'Tax Report ${_selectedYear}',
+            reportTitle: 'Tax Report $_selectedYear',
           ),
         ));
       } else {

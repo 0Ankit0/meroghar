@@ -7,10 +7,10 @@ import '../../models/analytics.dart';
 /// Implements T106 from tasks.md
 class RevenueExpensesBarChart extends StatelessWidget {
   const RevenueExpensesBarChart({
-    Key? key,
+    super.key,
     required this.comparison,
     this.height = 300,
-  }) : super(key: key);
+  });
   final RevenueExpensesComparison? comparison;
   final double height;
 
@@ -33,7 +33,7 @@ class RevenueExpensesBarChart extends StatelessWidget {
     return SizedBox(
       height: height,
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             Expanded(
@@ -62,13 +62,8 @@ class RevenueExpensesBarChart extends StatelessWidget {
                     ),
                   ),
                   titlesData: FlTitlesData(
-                    show: true,
-                    rightTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: const AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
+                    rightTitles: const AxisTitles(),
+                    topTitles: const AxisTitles(),
                     bottomTitles: AxisTitles(
                       sideTitles: SideTitles(
                         showTitles: true,
@@ -76,7 +71,7 @@ class RevenueExpensesBarChart extends StatelessWidget {
                           switch (value.toInt()) {
                             case 0:
                               return const Padding(
-                                padding: EdgeInsets.only(top: 8.0),
+                                padding: EdgeInsets.only(top: 8),
                                 child: Text(
                                   'Revenue',
                                   style: TextStyle(
@@ -87,7 +82,7 @@ class RevenueExpensesBarChart extends StatelessWidget {
                               );
                             case 1:
                               return const Padding(
-                                padding: EdgeInsets.only(top: 8.0),
+                                padding: EdgeInsets.only(top: 8),
                                 child: Text(
                                   'Expenses',
                                   style: TextStyle(
@@ -123,7 +118,6 @@ class RevenueExpensesBarChart extends StatelessWidget {
                     border: Border.all(color: Colors.grey.withOpacity(0.3)),
                   ),
                   gridData: FlGridData(
-                    show: true,
                     drawVerticalLine: false,
                     horizontalInterval: maxValue / 5,
                     getDrawingHorizontalLine: (value) => FlLine(
@@ -179,7 +173,7 @@ class RevenueExpensesBarChart extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(12),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [

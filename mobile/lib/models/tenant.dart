@@ -35,42 +35,38 @@ class Tenant {
   });
 
   /// Create Tenant from JSON (API response).
-  factory Tenant.fromJson(Map<String, dynamic> json) {
-    return Tenant(
-      id: json['id'] as String,
-      userId: json['user_id'] as String,
-      propertyId: json['property_id'] as String,
-      moveInDate: DateTime.parse(json['move_in_date'] as String),
-      moveOutDate: json['move_out_date'] != null
-          ? DateTime.parse(json['move_out_date'] as String)
-          : null,
-      monthlyRent: (json['monthly_rent'] as num).toDouble(),
-      securityDeposit: (json['security_deposit'] as num).toDouble(),
-      electricityRate: (json['electricity_rate'] as num).toDouble(),
-      status: TenantStatus.fromString(json['status'] as String),
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
+  factory Tenant.fromJson(Map<String, dynamic> json) => Tenant(
+        id: json['id'] as String,
+        userId: json['user_id'] as String,
+        propertyId: json['property_id'] as String,
+        moveInDate: DateTime.parse(json['move_in_date'] as String),
+        moveOutDate: json['move_out_date'] != null
+            ? DateTime.parse(json['move_out_date'] as String)
+            : null,
+        monthlyRent: (json['monthly_rent'] as num).toDouble(),
+        securityDeposit: (json['security_deposit'] as num).toDouble(),
+        electricityRate: (json['electricity_rate'] as num).toDouble(),
+        status: TenantStatus.fromString(json['status'] as String),
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
 
   /// Create Tenant from SQLite database row.
-  factory Tenant.fromMap(Map<String, dynamic> map) {
-    return Tenant(
-      id: map['id'] as String,
-      userId: map['user_id'] as String,
-      propertyId: map['property_id'] as String,
-      moveInDate: DateTime.parse(map['move_in_date'] as String),
-      moveOutDate: map['move_out_date'] != null
-          ? DateTime.parse(map['move_out_date'] as String)
-          : null,
-      monthlyRent: (map['monthly_rent'] as num).toDouble(),
-      securityDeposit: (map['security_deposit'] as num).toDouble(),
-      electricityRate: (map['electricity_rate'] as num).toDouble(),
-      status: TenantStatus.fromString(map['status'] as String),
-      createdAt: DateTime.parse(map['created_at'] as String),
-      updatedAt: DateTime.parse(map['updated_at'] as String),
-    );
-  }
+  factory Tenant.fromMap(Map<String, dynamic> map) => Tenant(
+        id: map['id'] as String,
+        userId: map['user_id'] as String,
+        propertyId: map['property_id'] as String,
+        moveInDate: DateTime.parse(map['move_in_date'] as String),
+        moveOutDate: map['move_out_date'] != null
+            ? DateTime.parse(map['move_out_date'] as String)
+            : null,
+        monthlyRent: (map['monthly_rent'] as num).toDouble(),
+        securityDeposit: (map['security_deposit'] as num).toDouble(),
+        electricityRate: (map['electricity_rate'] as num).toDouble(),
+        status: TenantStatus.fromString(map['status'] as String),
+        createdAt: DateTime.parse(map['created_at'] as String),
+        updatedAt: DateTime.parse(map['updated_at'] as String),
+      );
   final String id;
   final String userId;
   final String propertyId;

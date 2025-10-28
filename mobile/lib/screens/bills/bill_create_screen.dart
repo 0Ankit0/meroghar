@@ -41,12 +41,12 @@ class _BillCreateScreenState extends State<BillCreateScreen> {
               DropdownButtonFormField<BillType>(
                 value: _billType,
                 decoration: const InputDecoration(labelText: 'Bill Type'),
-                items: BillType.values.map((type) {
-                  return DropdownMenuItem(
-                    value: type,
-                    child: Text(type.displayName),
-                  );
-                }).toList(),
+                items: BillType.values
+                    .map((type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type.displayName),
+                        ))
+                    .toList(),
                 onChanged: (value) => setState(() => _billType = value!),
               ),
               const SizedBox(height: 16),
@@ -72,12 +72,12 @@ class _BillCreateScreenState extends State<BillCreateScreen> {
                 value: _allocationMethod,
                 decoration:
                     const InputDecoration(labelText: 'Allocation Method'),
-                items: AllocationMethod.values.map((method) {
-                  return DropdownMenuItem(
-                    value: method,
-                    child: Text(method.displayName),
-                  );
-                }).toList(),
+                items: AllocationMethod.values
+                    .map((method) => DropdownMenuItem(
+                          value: method,
+                          child: Text(method.displayName),
+                        ))
+                    .toList(),
                 onChanged: (value) =>
                     setState(() => _allocationMethod = value!),
               ),

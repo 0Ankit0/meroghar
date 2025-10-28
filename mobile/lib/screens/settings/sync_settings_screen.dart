@@ -5,9 +5,9 @@ library;
 import 'package:flutter/material.dart';
 
 import '../../services/connectivity_service.dart';
-import '../../services/sync_service.dart';
-import '../../services/offline_queue_service.dart';
 import '../../services/database_service.dart';
+import '../../services/offline_queue_service.dart';
+import '../../services/sync_service.dart';
 
 /// Screen for managing sync preferences.
 ///

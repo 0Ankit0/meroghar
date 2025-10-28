@@ -11,15 +11,14 @@ class RentCollectionTrend {
     required this.pendingAmount,
   });
 
-  factory RentCollectionTrend.fromJson(Map<String, dynamic> json) {
-    return RentCollectionTrend(
-      month: DateTime.parse(json['month'] as String),
-      totalCollected: (json['total_collected'] as num).toDouble(),
-      paymentCount: json['payment_count'] as int,
-      completedAmount: (json['completed_amount'] as num).toDouble(),
-      pendingAmount: (json['pending_amount'] as num).toDouble(),
-    );
-  }
+  factory RentCollectionTrend.fromJson(Map<String, dynamic> json) =>
+      RentCollectionTrend(
+        month: DateTime.parse(json['month'] as String),
+        totalCollected: (json['total_collected'] as num).toDouble(),
+        paymentCount: json['payment_count'] as int,
+        completedAmount: (json['completed_amount'] as num).toDouble(),
+        pendingAmount: (json['pending_amount'] as num).toDouble(),
+      );
   final DateTime month;
   final double totalCollected;
   final int paymentCount;
@@ -93,12 +92,11 @@ class PaymentStatusData {
     required this.amount,
   });
 
-  factory PaymentStatusData.fromJson(Map<String, dynamic> json) {
-    return PaymentStatusData(
-      count: json['count'] as int,
-      amount: (json['amount'] as num).toDouble(),
-    );
-  }
+  factory PaymentStatusData.fromJson(Map<String, dynamic> json) =>
+      PaymentStatusData(
+        count: json['count'] as int,
+        amount: (json['amount'] as num).toDouble(),
+      );
   final int count;
   final double amount;
 
@@ -116,12 +114,10 @@ class DateRange {
     required this.end,
   });
 
-  factory DateRange.fromJson(Map<String, dynamic> json) {
-    return DateRange(
-      start: DateTime.parse(json['start'] as String),
-      end: DateTime.parse(json['end'] as String),
-    );
-  }
+  factory DateRange.fromJson(Map<String, dynamic> json) => DateRange(
+        start: DateTime.parse(json['start'] as String),
+        end: DateTime.parse(json['end'] as String),
+      );
   final DateTime start;
   final DateTime end;
 
@@ -142,15 +138,14 @@ class ExpenseBreakdown {
     required this.percentage,
   });
 
-  factory ExpenseBreakdown.fromJson(Map<String, dynamic> json) {
-    return ExpenseBreakdown(
-      billType: json['bill_type'] as String,
-      billCount: json['bill_count'] as int,
-      totalAmount: (json['total_amount'] as num).toDouble(),
-      averageAmount: (json['average_amount'] as num).toDouble(),
-      percentage: (json['percentage'] as num).toDouble(),
-    );
-  }
+  factory ExpenseBreakdown.fromJson(Map<String, dynamic> json) =>
+      ExpenseBreakdown(
+        billType: json['bill_type'] as String,
+        billCount: json['bill_count'] as int,
+        totalAmount: (json['total_amount'] as num).toDouble(),
+        averageAmount: (json['average_amount'] as num).toDouble(),
+        percentage: (json['percentage'] as num).toDouble(),
+      );
   final String billType;
   final int billCount;
   final double totalAmount;
@@ -177,15 +172,16 @@ class RevenueExpensesComparison {
     required this.dateRange,
   });
 
-  factory RevenueExpensesComparison.fromJson(Map<String, dynamic> json) {
-    return RevenueExpensesComparison(
-      revenue: RevenueData.fromJson(json['revenue'] as Map<String, dynamic>),
-      expenses: ExpenseData.fromJson(json['expenses'] as Map<String, dynamic>),
-      netProfit: (json['net_profit'] as num).toDouble(),
-      profitMargin: (json['profit_margin'] as num).toDouble(),
-      dateRange: DateRange.fromJson(json['date_range'] as Map<String, dynamic>),
-    );
-  }
+  factory RevenueExpensesComparison.fromJson(Map<String, dynamic> json) =>
+      RevenueExpensesComparison(
+        revenue: RevenueData.fromJson(json['revenue'] as Map<String, dynamic>),
+        expenses:
+            ExpenseData.fromJson(json['expenses'] as Map<String, dynamic>),
+        netProfit: (json['net_profit'] as num).toDouble(),
+        profitMargin: (json['profit_margin'] as num).toDouble(),
+        dateRange:
+            DateRange.fromJson(json['date_range'] as Map<String, dynamic>),
+      );
   final RevenueData revenue;
   final ExpenseData expenses;
   final double netProfit;
@@ -209,12 +205,10 @@ class RevenueData {
     required this.paymentCount,
   });
 
-  factory RevenueData.fromJson(Map<String, dynamic> json) {
-    return RevenueData(
-      total: (json['total'] as num).toDouble(),
-      paymentCount: json['payment_count'] as int,
-    );
-  }
+  factory RevenueData.fromJson(Map<String, dynamic> json) => RevenueData(
+        total: (json['total'] as num).toDouble(),
+        paymentCount: json['payment_count'] as int,
+      );
   final double total;
   final int paymentCount;
 
@@ -232,12 +226,10 @@ class ExpenseData {
     required this.billCount,
   });
 
-  factory ExpenseData.fromJson(Map<String, dynamic> json) {
-    return ExpenseData(
-      total: (json['total'] as num).toDouble(),
-      billCount: json['bill_count'] as int,
-    );
-  }
+  factory ExpenseData.fromJson(Map<String, dynamic> json) => ExpenseData(
+        total: (json['total'] as num).toDouble(),
+        billCount: json['bill_count'] as int,
+      );
   final double total;
   final int billCount;
 
@@ -261,18 +253,17 @@ class PropertyPerformance {
     required this.occupancyRate,
   });
 
-  factory PropertyPerformance.fromJson(Map<String, dynamic> json) {
-    return PropertyPerformance(
-      propertyId: json['property_id'] as String,
-      propertyName: json['property_name'] as String,
-      propertyAddress: json['property_address'] as String,
-      tenantCount: json['tenant_count'] as int,
-      totalRevenue: (json['total_revenue'] as num).toDouble(),
-      totalExpenses: (json['total_expenses'] as num).toDouble(),
-      netProfit: (json['net_profit'] as num).toDouble(),
-      occupancyRate: (json['occupancy_rate'] as num).toDouble(),
-    );
-  }
+  factory PropertyPerformance.fromJson(Map<String, dynamic> json) =>
+      PropertyPerformance(
+        propertyId: json['property_id'] as String,
+        propertyName: json['property_name'] as String,
+        propertyAddress: json['property_address'] as String,
+        tenantCount: json['tenant_count'] as int,
+        totalRevenue: (json['total_revenue'] as num).toDouble(),
+        totalExpenses: (json['total_expenses'] as num).toDouble(),
+        netProfit: (json['net_profit'] as num).toDouble(),
+        occupancyRate: (json['occupancy_rate'] as num).toDouble(),
+      );
   final String propertyId;
   final String propertyName;
   final String propertyAddress;

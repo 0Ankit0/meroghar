@@ -120,198 +120,196 @@ class _ExportScreenState extends State<ExportScreen>
       );
 
   Widget _buildExportTab() => Consumer<ExportProvider>(
-        builder: (context, provider, child) {
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Info Card
-                Card(
-                  color: Colors.blue.shade50,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.info_outline,
-                          color: Colors.blue.shade700,
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'Export your payment history to Excel or PDF for your records.',
-                            style: TextStyle(
-                              color: Colors.blue.shade900,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Date Range Section
-                Text(
-                  'Date Range',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 12),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        // Start Date
-                        InkWell(
-                          onTap: provider.isExporting ? null : _selectStartDate,
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'Start Date',
-                              prefixIcon: Icon(Icons.calendar_today),
-                              border: OutlineInputBorder(),
-                            ),
-                            child: Text(_formatDate(_startDate)),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        // End Date
-                        InkWell(
-                          onTap: provider.isExporting ? null : _selectEndDate,
-                          child: InputDecorator(
-                            decoration: const InputDecoration(
-                              labelText: 'End Date',
-                              prefixIcon: Icon(Icons.calendar_today),
-                              border: OutlineInputBorder(),
-                            ),
-                            child: Text(_formatDate(_endDate)),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        // Duration info
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.shade100,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.date_range, size: 16),
-                              const SizedBox(width: 8),
-                              Text(
-                                '${_endDate.difference(_startDate).inDays} days',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                // Export Format Section
-                Text(
-                  'Export Format',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 12),
-                Card(
-                  child: Column(
+        builder: (context, provider, child) => SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Info Card
+              Card(
+                color: Colors.blue.shade50,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
                     children: [
-                      RadioListTile<ExportFormat>(
-                        title: const Text('Excel (.xlsx)'),
-                        subtitle: const Text('Best for data analysis'),
-                        value: ExportFormat.excel,
-                        groupValue: _selectedFormat,
-                        onChanged: provider.isExporting
-                            ? null
-                            : (value) {
-                                setState(() => _selectedFormat = value!);
-                              },
-                        secondary: const Icon(Icons.table_chart),
+                      Icon(
+                        Icons.info_outline,
+                        color: Colors.blue.shade700,
                       ),
-                      const Divider(height: 1),
-                      RadioListTile<ExportFormat>(
-                        title: const Text('PDF (.pdf)'),
-                        subtitle: const Text('Best for printing and sharing'),
-                        value: ExportFormat.pdf,
-                        groupValue: _selectedFormat,
-                        onChanged: provider.isExporting
-                            ? null
-                            : (value) {
-                                setState(() => _selectedFormat = value!);
-                              },
-                        secondary: const Icon(Icons.picture_as_pdf),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Export your payment history to Excel or PDF for your records.',
+                          style: TextStyle(
+                            color: Colors.blue.shade900,
+                            fontSize: 14,
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+              ),
+              const SizedBox(height: 24),
 
-                // Download Progress
-                if (provider.isExporting) ...[
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Downloading...',
-                            style: TextStyle(fontWeight: FontWeight.bold),
+              // Date Range Section
+              Text(
+                'Date Range',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      // Start Date
+                      InkWell(
+                        onTap: provider.isExporting ? null : _selectStartDate,
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Start Date',
+                            prefixIcon: Icon(Icons.calendar_today),
+                            border: OutlineInputBorder(),
                           ),
-                          const SizedBox(height: 12),
-                          LinearProgressIndicator(
-                            value: provider.downloadProgress,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            '${(provider.downloadProgress * 100).toStringAsFixed(0)}%',
-                            style: const TextStyle(fontSize: 12),
-                          ),
-                        ],
+                          child: Text(_formatDate(_startDate)),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // Export Button
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: provider.isExporting ? null : _handleExport,
-                    icon: provider.isExporting
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
+                      const SizedBox(height: 16),
+                      // End Date
+                      InkWell(
+                        onTap: provider.isExporting ? null : _selectEndDate,
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'End Date',
+                            prefixIcon: Icon(Icons.calendar_today),
+                            border: OutlineInputBorder(),
+                          ),
+                          child: Text(_formatDate(_endDate)),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      // Duration info
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: Colors.grey.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            const Icon(Icons.date_range, size: 16),
+                            const SizedBox(width: 8),
+                            Text(
+                              '${_endDate.difference(_startDate).inDays} days',
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          )
-                        : const Icon(Icons.download),
-                    label: Text(
-                      provider.isExporting ? 'Exporting...' : 'Export',
-                      style: const TextStyle(fontSize: 16),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Export Format Section
+              Text(
+                'Export Format',
+                style: Theme.of(context).textTheme.titleLarge,
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: Column(
+                  children: [
+                    RadioListTile<ExportFormat>(
+                      title: const Text('Excel (.xlsx)'),
+                      subtitle: const Text('Best for data analysis'),
+                      value: ExportFormat.excel,
+                      groupValue: _selectedFormat,
+                      onChanged: provider.isExporting
+                          ? null
+                          : (value) {
+                              setState(() => _selectedFormat = value!);
+                            },
+                      secondary: const Icon(Icons.table_chart),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    const Divider(height: 1),
+                    RadioListTile<ExportFormat>(
+                      title: const Text('PDF (.pdf)'),
+                      subtitle: const Text('Best for printing and sharing'),
+                      value: ExportFormat.pdf,
+                      groupValue: _selectedFormat,
+                      onChanged: provider.isExporting
+                          ? null
+                          : (value) {
+                              setState(() => _selectedFormat = value!);
+                            },
+                      secondary: const Icon(Icons.picture_as_pdf),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Download Progress
+              if (provider.isExporting) ...[
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Downloading...',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        const SizedBox(height: 12),
+                        LinearProgressIndicator(
+                          value: provider.downloadProgress,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          '${(provider.downloadProgress * 100).toStringAsFixed(0)}%',
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const SizedBox(height: 24),
               ],
-            ),
-          );
-        },
+
+              // Export Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: provider.isExporting ? null : _handleExport,
+                  icon: provider.isExporting
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Icon(Icons.download),
+                  label: Text(
+                    provider.isExporting ? 'Exporting...' : 'Export',
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
 
   Widget _buildHistoryTab() => Consumer<ExportProvider>(
@@ -363,7 +361,7 @@ class _ExportScreenState extends State<ExportScreen>
               // Clear All Button
               if (provider.history.isNotEmpty)
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: const EdgeInsets.all(8),
                   child: TextButton.icon(
                     onPressed: () => _confirmClearHistory(provider),
                     icon: const Icon(Icons.delete_sweep, color: Colors.red),

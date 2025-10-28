@@ -176,7 +176,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
                 ),
               ),
             ),
-            ...dateNotifications.map(_buildNotificationTile).toList(),
+            ...dateNotifications.map(_buildNotificationTile),
           ],
         );
       },
@@ -223,7 +223,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
       confirmDismiss: (direction) async {
         // Mark as read when swiped
         final provider = context.read<NotificationProvider>();
-        return await provider.markAsRead([notification.id]);
+        return provider.markAsRead([notification.id]);
       },
       child: ListTile(
         leading: _getTypeIcon(notification.notificationType),

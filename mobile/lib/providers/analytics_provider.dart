@@ -1,5 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
+
 import '../models/analytics.dart';
 import '../services/api_service.dart';
 

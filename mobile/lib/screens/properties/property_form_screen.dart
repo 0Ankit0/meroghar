@@ -119,7 +119,7 @@ class _PropertyFormScreenState extends State<PropertyFormScreen> {
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Form(
                   key: _formKey,
                   child: Column(

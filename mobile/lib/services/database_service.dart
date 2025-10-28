@@ -33,7 +33,7 @@ class DatabaseService {
     final databasesPath = await getDatabasesPath();
     final path = join(databasesPath, Environment.localDbName);
 
-    return await openDatabase(
+    return openDatabase(
       path,
       version: Environment.localDbVersion,
       onCreate: _onCreate,
@@ -352,8 +352,7 @@ class DatabaseService {
   }
 
   /// Get device name for display.
-  Future<String?> getDeviceName() async =>
-      await getDeviceMetadata('device_name');
+  Future<String?> getDeviceName() async => getDeviceMetadata('device_name');
 
   /// Set device name for display.
   Future<void> setDeviceName(String name) async {

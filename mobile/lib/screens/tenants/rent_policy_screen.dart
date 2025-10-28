@@ -107,7 +107,7 @@ class _RentPolicyScreenState extends State<RentPolicyScreen> {
         body: _isLoading
             ? const Center(child: CircularProgressIndicator())
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Form(
                   key: _formKey,
                   child: Column(
@@ -117,7 +117,7 @@ class _RentPolicyScreenState extends State<RentPolicyScreen> {
                       Card(
                         color: Colors.blue.shade50,
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(16),
                           child: Row(
                             children: [
                               Icon(
@@ -148,7 +148,7 @@ class _RentPolicyScreenState extends State<RentPolicyScreen> {
                       const SizedBox(height: 12),
                       Card(
                         child: Padding(
-                          padding: const EdgeInsets.all(16.0),
+                          padding: const EdgeInsets.all(16),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -283,7 +283,7 @@ class _RentPolicyScreenState extends State<RentPolicyScreen> {
                         Card(
                           color: Colors.green.shade50,
                           child: Padding(
-                            padding: const EdgeInsets.all(16.0),
+                            padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [

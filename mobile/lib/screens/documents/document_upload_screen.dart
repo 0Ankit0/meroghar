@@ -30,7 +30,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Upload Document')),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
@@ -56,8 +56,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                 ElevatedButton(
                   child: const Text('Pick File'),
                   onPressed: () async {
-                    final result =
-                        await FilePicker.platform.pickFiles(withData: false);
+                    final result = await FilePicker.platform.pickFiles();
                     if (result != null && result.files.isNotEmpty) {
                       setState(() => _pickedFile = result.files.first);
                     }
@@ -69,7 +68,6 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
             ),
             const SizedBox(height: 16),
             ElevatedButton(
-              child: const Text('Upload'),
               onPressed: provider.isLoading
                   ? null
                   : () async {
@@ -155,6 +153,7 @@ class _DocumentUploadScreenState extends State<DocumentUploadScreen> {
                                 Text(provider.error ?? 'Failed to complete')));
                       }
                     },
+              child: const Text('Upload'),
             )
           ],
         ),

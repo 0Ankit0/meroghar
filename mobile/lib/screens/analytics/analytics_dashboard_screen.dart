@@ -12,7 +12,7 @@ import 'analytics_detail_screen.dart';
 /// Analytics dashboard screen with multiple chart widgets
 /// Implements T103 from tasks.md
 class AnalyticsDashboardScreen extends StatefulWidget {
-  const AnalyticsDashboardScreen({Key? key}) : super(key: key);
+  const AnalyticsDashboardScreen({super.key});
 
   @override
   State<AnalyticsDashboardScreen> createState() =>
@@ -62,7 +62,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
             IconButton(
               icon: const Icon(Icons.download),
               tooltip: 'Export',
-              onPressed: () => _showExportDialog(),
+              onPressed: _showExportDialog,
             ),
           ],
         ),
@@ -102,7 +102,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                     if (provider.isLoading) {
                       return const Center(
                         child: Padding(
-                          padding: EdgeInsets.all(32.0),
+                          padding: EdgeInsets.all(32),
                           child: CircularProgressIndicator(),
                         ),
                       );
@@ -178,72 +178,70 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
         ),
       );
 
-  Widget _buildPropertySelector() {
-    return Consumer<PropertyProvider>(
-      builder: (context, propertyProvider, child) {
-        if (propertyProvider.isLoading) {
-          return const Card(
+  Widget _buildPropertySelector() => Consumer<PropertyProvider>(
+        builder: (context, propertyProvider, child) {
+          if (propertyProvider.isLoading) {
+            return const Card(
+              child: Padding(
+                padding: EdgeInsets.all(12.0),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+
+          final properties = propertyProvider.properties;
+
+          return Card(
             child: Padding(
-              padding: EdgeInsets.all(12.0),
-              child: Center(child: CircularProgressIndicator()),
+              padding: const EdgeInsets.all(12.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Property Filter',
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  DropdownButtonFormField<String?>(
+                    value: _selectedPropertyId,
+                    decoration: const InputDecoration(
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      border: OutlineInputBorder(),
+                    ),
+                    hint: const Text('All Properties'),
+                    items: [
+                      const DropdownMenuItem<String?>(
+                        value: null,
+                        child: Text('All Properties'),
+                      ),
+                      ...properties.map((property) => DropdownMenuItem<String?>(
+                            value: property.id,
+                            child: Text(property.name),
+                          )),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedPropertyId = value;
+                      });
+                      if (value != null) {
+                        propertyProvider.selectProperty(
+                          propertyProvider.getPropertyById(value),
+                        );
+                      }
+                      _loadAnalytics();
+                    },
+                  ),
+                ],
+              ),
             ),
           );
-        }
-
-        final properties = propertyProvider.properties;
-
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text(
-                  'Property Filter',
-                  style: TextStyle(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<String?>(
-                  value: _selectedPropertyId,
-                  decoration: const InputDecoration(
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    border: OutlineInputBorder(),
-                  ),
-                  hint: const Text('All Properties'),
-                  items: [
-                    const DropdownMenuItem<String?>(
-                      value: null,
-                      child: Text('All Properties'),
-                    ),
-                    ...properties.map((property) => DropdownMenuItem<String?>(
-                          value: property.id,
-                          child: Text(property.name),
-                        )),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedPropertyId = value;
-                    });
-                    if (value != null) {
-                      propertyProvider.selectProperty(
-                        propertyProvider.getPropertyById(value),
-                      );
-                    }
-                    _loadAnalytics();
-                  },
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
+        },
+      );
 
   Widget _buildSectionHeader(String title, VoidCallback onViewDetails) =>
       Padding(
-        padding: const EdgeInsets.only(bottom: 16.0),
+        padding: const EdgeInsets.only(bottom: 16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -268,7 +266,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     if (status == null) {
       return const Card(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16),
           child: Text('No payment status data'),
         ),
       );
@@ -276,7 +274,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             _buildStatusRow(
@@ -354,7 +352,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     if (properties.isEmpty) {
       return const Card(
         child: Padding(
-          padding: EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(16),
           child: Text('No property performance data'),
         ),
       );
@@ -421,7 +419,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           if (summary == null || summary.byCategory.isEmpty) {
             return Card(
               child: Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.all(16),
                 child: Column(
                   children: [
                     const Icon(Icons.receipt_long,
@@ -455,7 +453,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
           return Card(
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -530,7 +528,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                         ],
                       ),
                     );
-                  }).toList(),
+                  }),
                 ],
               ),
             ),

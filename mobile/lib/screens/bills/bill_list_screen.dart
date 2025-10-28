@@ -78,7 +78,7 @@ class _BillListScreenState extends State<BillListScreen> {
             }
 
             // Filter bills
-            List<Bill> bills = provider.bills;
+            var bills = provider.bills;
             if (widget.propertyId != null) {
               bills = provider.getBillsByProperty(widget.propertyId!);
             }
@@ -149,15 +149,12 @@ class _BillListScreenState extends State<BillListScreen> {
                   decoration: const InputDecoration(labelText: 'Status'),
                   items: [
                     const DropdownMenuItem(
-                      value: null,
                       child: Text('All'),
                     ),
-                    ...BillStatus.values.map((status) {
-                      return DropdownMenuItem(
-                        value: status,
-                        child: Text(status.displayName),
-                      );
-                    }),
+                    ...BillStatus.values.map((status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status.displayName),
+                        )),
                   ],
                   onChanged: (value) => setState(() => tempStatus = value),
                 ),
@@ -167,15 +164,12 @@ class _BillListScreenState extends State<BillListScreen> {
                   decoration: const InputDecoration(labelText: 'Type'),
                   items: [
                     const DropdownMenuItem(
-                      value: null,
                       child: Text('All'),
                     ),
-                    ...BillType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }),
+                    ...BillType.values.map((type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type.displayName),
+                        )),
                   ],
                   onChanged: (value) => setState(() => tempType = value),
                 ),
@@ -350,7 +344,7 @@ class _StatusChip extends StatelessWidget {
         style: const TextStyle(color: Colors.white, fontSize: 12),
       ),
       backgroundColor: color,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
+      padding: const EdgeInsets.symmetric(horizontal: 8),
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
   }

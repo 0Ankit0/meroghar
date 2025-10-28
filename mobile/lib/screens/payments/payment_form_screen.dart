@@ -53,7 +53,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
   }
 
   Future<void> _selectDate(BuildContext context, bool isPaymentDate) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate:
           isPaymentDate ? _paymentDate : (_periodStart ?? DateTime.now()),
@@ -73,7 +73,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
   }
 
   Future<void> _selectPeriodEnd(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: _periodEnd ?? _periodStart ?? DateTime.now(),
       firstDate: _periodStart ?? DateTime(2020),
@@ -143,7 +143,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
       body: paymentProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -152,7 +152,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     // Tenant Info Card
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

@@ -143,34 +143,32 @@ class Expense {
   });
 
   /// Create from JSON
-  factory Expense.fromJson(Map<String, dynamic> json) {
-    return Expense(
-      id: json['id'] as String,
-      propertyId: json['property_id'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      category: ExpenseCategory.fromJson(json['category'] as String),
-      expenseDate: DateTime.parse(json['expense_date'] as String),
-      description: json['description'] as String,
-      vendorName: json['vendor_name'] as String?,
-      invoiceNumber: json['invoice_number'] as String?,
-      receiptUrl: json['receipt_url'] as String?,
-      paidBy: json['paid_by'] as String?,
-      isReimbursable: json['is_reimbursable'] as bool,
-      isReimbursed: json['is_reimbursed'] as bool,
-      reimbursedDate: json['reimbursed_date'] != null
-          ? DateTime.parse(json['reimbursed_date'] as String)
-          : null,
-      status: ExpenseStatus.fromJson(json['status'] as String),
-      recordedBy: json['recorded_by'] as String,
-      approvedBy: json['approved_by'] as String?,
-      approvedDate: json['approved_date'] != null
-          ? DateTime.parse(json['approved_date'] as String)
-          : null,
-      rejectionReason: json['rejection_reason'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
+  factory Expense.fromJson(Map<String, dynamic> json) => Expense(
+        id: json['id'] as String,
+        propertyId: json['property_id'] as String,
+        amount: (json['amount'] as num).toDouble(),
+        category: ExpenseCategory.fromJson(json['category'] as String),
+        expenseDate: DateTime.parse(json['expense_date'] as String),
+        description: json['description'] as String,
+        vendorName: json['vendor_name'] as String?,
+        invoiceNumber: json['invoice_number'] as String?,
+        receiptUrl: json['receipt_url'] as String?,
+        paidBy: json['paid_by'] as String?,
+        isReimbursable: json['is_reimbursable'] as bool,
+        isReimbursed: json['is_reimbursed'] as bool,
+        reimbursedDate: json['reimbursed_date'] != null
+            ? DateTime.parse(json['reimbursed_date'] as String)
+            : null,
+        status: ExpenseStatus.fromJson(json['status'] as String),
+        recordedBy: json['recorded_by'] as String,
+        approvedBy: json['approved_by'] as String?,
+        approvedDate: json['approved_date'] != null
+            ? DateTime.parse(json['approved_date'] as String)
+            : null,
+        rejectionReason: json['rejection_reason'] as String?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: DateTime.parse(json['updated_at'] as String),
+      );
 
   /// Unique expense identifier
   final String id;
@@ -329,18 +327,16 @@ class ExpenseSummary {
   });
 
   /// Create from JSON
-  factory ExpenseSummary.fromJson(Map<String, dynamic> json) {
-    return ExpenseSummary(
-      totalAmount: (json['total_amount'] as num).toDouble(),
-      pendingAmount: (json['pending_amount'] as num).toDouble(),
-      approvedAmount: (json['approved_amount'] as num).toDouble(),
-      reimbursedAmount: (json['reimbursed_amount'] as num).toDouble(),
-      outstandingAmount: (json['outstanding_amount'] as num).toDouble(),
-      byCategory: (json['by_category'] as Map<String, dynamic>).map(
-        (key, value) => MapEntry(key, (value as num).toDouble()),
-      ),
-    );
-  }
+  factory ExpenseSummary.fromJson(Map<String, dynamic> json) => ExpenseSummary(
+        totalAmount: (json['total_amount'] as num).toDouble(),
+        pendingAmount: (json['pending_amount'] as num).toDouble(),
+        approvedAmount: (json['approved_amount'] as num).toDouble(),
+        reimbursedAmount: (json['reimbursed_amount'] as num).toDouble(),
+        outstandingAmount: (json['outstanding_amount'] as num).toDouble(),
+        byCategory: (json['by_category'] as Map<String, dynamic>).map(
+          (key, value) => MapEntry(key, (value as num).toDouble()),
+        ),
+      );
 
   /// Total amount
   final double totalAmount;

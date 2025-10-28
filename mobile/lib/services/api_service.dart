@@ -415,26 +415,24 @@ class ApiResponse<T> {
   factory ApiResponse.success(
     T? data, {
     String? message,
-  }) {
-    return ApiResponse<T>(
-      success: true,
-      data: data,
-      message: message,
-    );
-  }
+  }) =>
+      ApiResponse<T>(
+        success: true,
+        data: data,
+        message: message,
+      );
 
   factory ApiResponse.error(
     String message, {
     int? statusCode,
     List<String>? details,
-  }) {
-    return ApiResponse<T>(
-      success: false,
-      message: message,
-      statusCode: statusCode,
-      details: details,
-    );
-  }
+  }) =>
+      ApiResponse<T>(
+        success: false,
+        message: message,
+        statusCode: statusCode,
+        details: details,
+      );
   final bool success;
   final T? data;
   final String? message;

@@ -5,11 +5,11 @@ import 'package:intl/intl.dart';
 /// Implements T107 from tasks.md
 class DateRangePicker extends StatelessWidget {
   const DateRangePicker({
-    Key? key,
+    super.key,
     required this.startDate,
     required this.endDate,
     required this.onDateRangeSelected,
-  }) : super(key: key);
+  });
   final DateTime? startDate;
   final DateTime? endDate;
   final Function(DateTime?, DateTime?) onDateRangeSelected;
@@ -17,7 +17,7 @@ class DateRangePicker extends StatelessWidget {
   @override
   Widget build(BuildContext context) => Card(
         child: Padding(
-          padding: const EdgeInsets.all(12.0),
+          padding: const EdgeInsets.all(12),
           child: Row(
             children: [
               Expanded(
@@ -106,9 +106,9 @@ class DateRangePicker extends StatelessWidget {
 /// Quick date range selector with preset options
 class QuickDateRangeSelector extends StatelessWidget {
   const QuickDateRangeSelector({
-    Key? key,
+    super.key,
     required this.onDateRangeSelected,
-  }) : super(key: key);
+  });
   final Function(DateTime?, DateTime?) onDateRangeSelected;
 
   @override
@@ -121,7 +121,7 @@ class QuickDateRangeSelector extends StatelessWidget {
             label: 'This Month',
             onTap: () {
               final now = DateTime.now();
-              final start = DateTime(now.year, now.month, 1);
+              final start = DateTime(now.year, now.month);
               final end = DateTime.now();
               onDateRangeSelected(start, end);
             },
@@ -131,8 +131,8 @@ class QuickDateRangeSelector extends StatelessWidget {
             label: 'Last Month',
             onTap: () {
               final now = DateTime.now();
-              final lastMonth = DateTime(now.year, now.month - 1, 1);
-              final start = DateTime(lastMonth.year, lastMonth.month, 1);
+              final lastMonth = DateTime(now.year, now.month - 1);
+              final start = DateTime(lastMonth.year, lastMonth.month);
               final end = DateTime(now.year, now.month, 0);
               onDateRangeSelected(start, end);
             },
@@ -160,7 +160,7 @@ class QuickDateRangeSelector extends StatelessWidget {
             label: 'This Year',
             onTap: () {
               final now = DateTime.now();
-              final start = DateTime(now.year, 1, 1);
+              final start = DateTime(now.year, 1);
               final end = DateTime.now();
               onDateRangeSelected(start, end);
             },
@@ -170,7 +170,7 @@ class QuickDateRangeSelector extends StatelessWidget {
             label: 'Last Year',
             onTap: () {
               final now = DateTime.now();
-              final start = DateTime(now.year - 1, 1, 1);
+              final start = DateTime(now.year - 1, 1);
               final end = DateTime(now.year - 1, 12, 31);
               onDateRangeSelected(start, end);
             },

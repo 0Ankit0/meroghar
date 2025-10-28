@@ -10,11 +10,11 @@ import 'package:flutter/material.dart';
 /// - IME Pay (backup gateway)
 class PaymentMethodScreen extends StatefulWidget {
   const PaymentMethodScreen({
-    Key? key,
+    super.key,
     required this.amount,
     required this.tenantId,
     required this.paymentType,
-  }) : super(key: key);
+  });
   final double amount;
   final String tenantId;
   final String paymentType;
@@ -57,7 +57,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   @override
   Widget build(BuildContext context) => Scaffold(
         appBar: AppBar(
-          title: Text('Select Payment Method'),
+          title: const Text('Select Payment Method'),
           centerTitle: true,
         ),
         body: Column(
@@ -65,13 +65,12 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             // Amount display
             Container(
               width: double.infinity,
-              padding: EdgeInsets.all(24),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
                 color: Theme.of(context).primaryColor.withOpacity(0.1),
                 border: Border(
                   bottom: BorderSide(
                     color: Colors.grey[300]!,
-                    width: 1,
                   ),
                 ),
               ),
@@ -84,7 +83,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       color: Colors.grey[600],
                     ),
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     'Rs. ${widget.amount.toStringAsFixed(2)}',
                     style: TextStyle(
@@ -93,7 +92,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                       color: Theme.of(context).primaryColor,
                     ),
                   ),
-                  SizedBox(height: 4),
+                  const SizedBox(height: 4),
                   Text(
                     widget.paymentType,
                     style: TextStyle(
@@ -108,7 +107,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
             // Payment methods list
             Expanded(
               child: ListView.builder(
-                padding: EdgeInsets.all(16),
+                padding: const EdgeInsets.all(16),
                 itemCount: _paymentMethods.length,
                 itemBuilder: (context, index) {
                   final method = _paymentMethods[index];
@@ -119,8 +118,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
             // Proceed button
             Container(
-              padding: EdgeInsets.all(16),
-              decoration: BoxDecoration(
+              padding: const EdgeInsets.all(16),
+              decoration: const BoxDecoration(
                 color: Colors.white,
                 boxShadow: [
                   BoxShadow(
@@ -139,7 +138,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         ? _proceedToPayment
                         : null,
                     child: _isProcessing
-                        ? SizedBox(
+                        ? const SizedBox(
                             height: 24,
                             width: 24,
                             child: CircularProgressIndicator(
@@ -148,7 +147,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                                   AlwaysStoppedAnimation<Color>(Colors.white),
                             ),
                           )
-                        : Text(
+                        : const Text(
                             'Proceed to Payment',
                             style: TextStyle(
                                 fontSize: 16, fontWeight: FontWeight.bold),
@@ -166,7 +165,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
     final canSelect = method.isAvailable && !_isProcessing;
 
     return Card(
-      margin: EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 12),
       elevation: isSelected ? 4 : 1,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
@@ -188,7 +187,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
         child: Opacity(
           opacity: method.isAvailable ? 1.0 : 0.5,
           child: Padding(
-            padding: EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16),
             child: Row(
               children: [
                 // Radio button
@@ -203,7 +202,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         }
                       : null,
                 ),
-                SizedBox(width: 12),
+                const SizedBox(width: 12),
 
                 // Logo placeholder (will be replaced with actual logo when assets are added)
                 Container(
@@ -215,7 +214,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                   ),
                   child: Icon(Icons.payment, color: Colors.grey[600]),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
 
                 // Method details
                 Expanded(
@@ -226,15 +225,15 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         children: [
                           Text(
                             method.name,
-                            style: TextStyle(
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           if (method.isRecommended) ...[
-                            SizedBox(width: 8),
+                            const SizedBox(width: 8),
                             Container(
-                              padding: EdgeInsets.symmetric(
+                              padding: const EdgeInsets.symmetric(
                                 horizontal: 8,
                                 vertical: 2,
                               ),
@@ -242,7 +241,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                                 color: Colors.green,
                                 borderRadius: BorderRadius.circular(4),
                               ),
-                              child: Text(
+                              child: const Text(
                                 'RECOMMENDED',
                                 style: TextStyle(
                                   color: Colors.white,
@@ -254,7 +253,7 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                           ],
                         ],
                       ),
-                      SizedBox(height: 4),
+                      const SizedBox(height: 4),
                       Text(
                         method.description,
                         style: TextStyle(
@@ -263,8 +262,8 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
                         ),
                       ),
                       if (!method.isAvailable) ...[
-                        SizedBox(height: 4),
-                        Text(
+                        const SizedBox(height: 4),
+                        const Text(
                           'Coming soon',
                           style: TextStyle(
                             fontSize: 12,

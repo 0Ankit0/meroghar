@@ -51,38 +51,36 @@ class Document {
     this.updatedAt,
   });
 
-  factory Document.fromJson(Map<String, dynamic> json) {
-    return Document(
-      id: json['id'] as int,
-      title: json['title'] as String,
-      description: json['description'] as String?,
-      documentType: documentTypeFromString(json['document_type'] as String),
-      status: documentStatusFromString(json['status'] as String),
-      fileUrl: json['file_url'] as String,
-      fileName: json['file_name'] as String,
-      fileSize: json['file_size'] as int,
-      fileSizeMb: (json['file_size_mb'] as num).toDouble(),
-      mimeType: json['mime_type'] as String,
-      storageKey: json['storage_key'] as String,
-      expirationDate: json['expiration_date'] != null
-          ? DateTime.parse(json['expiration_date'] as String)
-          : null,
-      isExpired: json['is_expired'] as bool,
-      daysUntilExpiration: json['days_until_expiration'] as int?,
-      needsReminder: json['needs_reminder'] as bool,
-      reminderSent: json['reminder_sent'] as bool,
-      reminderDaysBefore: json['reminder_days_before'] as int,
-      version: json['version'] as int,
-      parentDocumentId: json['parent_document_id'] as int?,
-      uploadedBy: json['uploaded_by'] as int,
-      tenantId: json['tenant_id'] as int?,
-      propertyId: json['property_id'] as int?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: json['updated_at'] != null
-          ? DateTime.parse(json['updated_at'] as String)
-          : null,
-    );
-  }
+  factory Document.fromJson(Map<String, dynamic> json) => Document(
+        id: json['id'] as int,
+        title: json['title'] as String,
+        description: json['description'] as String?,
+        documentType: documentTypeFromString(json['document_type'] as String),
+        status: documentStatusFromString(json['status'] as String),
+        fileUrl: json['file_url'] as String,
+        fileName: json['file_name'] as String,
+        fileSize: json['file_size'] as int,
+        fileSizeMb: (json['file_size_mb'] as num).toDouble(),
+        mimeType: json['mime_type'] as String,
+        storageKey: json['storage_key'] as String,
+        expirationDate: json['expiration_date'] != null
+            ? DateTime.parse(json['expiration_date'] as String)
+            : null,
+        isExpired: json['is_expired'] as bool,
+        daysUntilExpiration: json['days_until_expiration'] as int?,
+        needsReminder: json['needs_reminder'] as bool,
+        reminderSent: json['reminder_sent'] as bool,
+        reminderDaysBefore: json['reminder_days_before'] as int,
+        version: json['version'] as int,
+        parentDocumentId: json['parent_document_id'] as int?,
+        uploadedBy: json['uploaded_by'] as int,
+        tenantId: json['tenant_id'] as int?,
+        propertyId: json['property_id'] as int?,
+        createdAt: DateTime.parse(json['created_at'] as String),
+        updatedAt: json['updated_at'] != null
+            ? DateTime.parse(json['updated_at'] as String)
+            : null,
+      );
   final int id;
   final String title;
   final String? description;
@@ -371,17 +369,16 @@ class DocumentUploadResponse {
     required this.allowedMimeTypes,
   });
 
-  factory DocumentUploadResponse.fromJson(Map<String, dynamic> json) {
-    return DocumentUploadResponse(
-      uploadUrl: json['upload_url'] as String,
-      storageKey: json['storage_key'] as String,
-      expiresIn: json['expires_in'] as int,
-      maxFileSize: json['max_file_size'] as int,
-      allowedMimeTypes: (json['allowed_mime_types'] as List<dynamic>)
-          .map((e) => e as String)
-          .toList(),
-    );
-  }
+  factory DocumentUploadResponse.fromJson(Map<String, dynamic> json) =>
+      DocumentUploadResponse(
+        uploadUrl: json['upload_url'] as String,
+        storageKey: json['storage_key'] as String,
+        expiresIn: json['expires_in'] as int,
+        maxFileSize: json['max_file_size'] as int,
+        allowedMimeTypes: (json['allowed_mime_types'] as List<dynamic>)
+            .map((e) => e as String)
+            .toList(),
+      );
   final String uploadUrl;
   final String storageKey;
   final int expiresIn;
@@ -420,15 +417,14 @@ class DocumentDownloadResponse {
     required this.mimeType,
   });
 
-  factory DocumentDownloadResponse.fromJson(Map<String, dynamic> json) {
-    return DocumentDownloadResponse(
-      downloadUrl: json['download_url'] as String,
-      expiresIn: json['expires_in'] as int,
-      fileName: json['file_name'] as String,
-      fileSize: json['file_size'] as int,
-      mimeType: json['mime_type'] as String,
-    );
-  }
+  factory DocumentDownloadResponse.fromJson(Map<String, dynamic> json) =>
+      DocumentDownloadResponse(
+        downloadUrl: json['download_url'] as String,
+        expiresIn: json['expires_in'] as int,
+        fileName: json['file_name'] as String,
+        fileSize: json['file_size'] as int,
+        mimeType: json['mime_type'] as String,
+      );
   final String downloadUrl;
   final int expiresIn;
   final String fileName;
@@ -445,16 +441,15 @@ class DocumentListResponse {
     required this.pageSize,
   });
 
-  factory DocumentListResponse.fromJson(Map<String, dynamic> json) {
-    return DocumentListResponse(
-      documents: (json['documents'] as List<dynamic>)
-          .map((e) => Document.fromJson(e as Map<String, dynamic>))
-          .toList(),
-      total: json['total'] as int,
-      page: json['page'] as int,
-      pageSize: json['page_size'] as int,
-    );
-  }
+  factory DocumentListResponse.fromJson(Map<String, dynamic> json) =>
+      DocumentListResponse(
+        documents: (json['documents'] as List<dynamic>)
+            .map((e) => Document.fromJson(e as Map<String, dynamic>))
+            .toList(),
+        total: json['total'] as int,
+        page: json['page'] as int,
+        pageSize: json['page_size'] as int,
+      );
   final List<Document> documents;
   final int total;
   final int page;

@@ -4,14 +4,13 @@ import '../services/api_service.dart';
 
 /// Provider for tenant-related state management
 class TenantProvider with ChangeNotifier {
+  TenantProvider(this._apiService);
   final ApiService _apiService;
-  
+
   List<Tenant> _tenants = [];
   Tenant? _selectedTenant;
   bool _isLoading = false;
   String? _error;
-
-  TenantProvider(this._apiService);
 
   // Getters
   List<Tenant> get tenants => _tenants;
@@ -26,13 +25,13 @@ class TenantProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      String endpoint = '/api/v1/tenants';
+      var endpoint = '/api/v1/tenants';
       if (propertyId != null) {
         endpoint += '?property_id=$propertyId';
       }
-      
+
       final response = await _apiService.get(endpoint);
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['items'] ?? response.data;
         _tenants = data.map((json) => Tenant.fromJson(json)).toList();
@@ -63,9 +62,8 @@ class TenantProvider with ChangeNotifier {
   }
 
   /// Get active tenants only
-  List<Tenant> get activeTenants {
-    return _tenants.where((t) => t.status == 'active').toList();
-  }
+  List<Tenant> get activeTenants =>
+      _tenants.where((t) => t.status == 'active').toList();
 
   /// Clear all data
   void clear() {

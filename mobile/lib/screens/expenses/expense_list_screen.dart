@@ -70,15 +70,13 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                     isExpanded: true,
                     items: [
                       const DropdownMenuItem(
-                        value: null,
                         child: Text('All Categories'),
                       ),
-                      ...ExpenseCategory.values.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category.displayName),
-                        );
-                      }),
+                      ...ExpenseCategory.values
+                          .map((category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(category.displayName),
+                              )),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -95,15 +93,12 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
                     isExpanded: true,
                     items: [
                       const DropdownMenuItem(
-                        value: null,
                         child: Text('All Statuses'),
                       ),
-                      ...ExpenseStatus.values.map((status) {
-                        return DropdownMenuItem(
-                          value: status,
-                          child: Text(status.displayName),
-                        );
-                      }),
+                      ...ExpenseStatus.values.map((status) => DropdownMenuItem(
+                            value: status,
+                            child: Text(status.displayName),
+                          )),
                     ],
                     onChanged: (value) {
                       setState(() {
@@ -422,115 +417,113 @@ class _ExpenseListScreenState extends State<ExpenseListScreen> {
         minChildSize: 0.5,
         maxChildSize: 0.95,
         expand: false,
-        builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Icon(
-                      _getCategoryIcon(expense.category),
-                      size: 32,
-                      color: Theme.of(context).primaryColor,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        expense.category.displayName,
-                        style: Theme.of(context).textTheme.headlineSmall,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const Divider(height: 24),
-                _buildDetailRow(
-                    'Amount', '\$${expense.amount.toStringAsFixed(2)}'),
-                _buildDetailRow('Date',
-                    '${expense.expenseDate.day}/${expense.expenseDate.month}/${expense.expenseDate.year}'),
-                _buildDetailRow('Status', expense.status.displayName),
-                _buildDetailRow('Description', expense.description),
-                if (expense.vendorName != null)
-                  _buildDetailRow('Vendor', expense.vendorName!),
-                if (expense.invoiceNumber != null)
-                  _buildDetailRow('Invoice Number', expense.invoiceNumber!),
-                if (expense.paidBy != null)
-                  _buildDetailRow('Paid By', expense.paidBy!),
-                _buildDetailRow(
-                  'Reimbursable',
-                  expense.isReimbursable ? 'Yes' : 'No',
-                ),
-                if (expense.isReimbursed)
-                  _buildDetailRow(
-                    'Reimbursed Date',
-                    '${expense.reimbursedDate!.day}/${expense.reimbursedDate!.month}/${expense.reimbursedDate!.year}',
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    _getCategoryIcon(expense.category),
+                    size: 32,
+                    color: Theme.of(context).primaryColor,
                   ),
-                if (expense.approvedBy != null)
-                  _buildDetailRow(
-                    'Approved Date',
-                    '${expense.approvedDate!.day}/${expense.approvedDate!.month}/${expense.approvedDate!.year}',
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      expense.category.displayName,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                    ),
                   ),
-                if (expense.rejectionReason != null)
-                  _buildDetailRow('Rejection Reason', expense.rejectionReason!),
-                if (expense.receiptUrl != null) ...[
-                  const SizedBox(height: 16),
-                  const Text('Receipt',
-                      style: TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  // Display receipt image or view button
-                  if (expense.receiptUrl != null &&
-                      expense.receiptUrl!.isNotEmpty)
-                    Column(
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            expense.receiptUrl!,
-                            height: 200,
-                            width: double.infinity,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Container(
-                                height: 200,
-                                color: Colors.grey[200],
-                                child: const Center(
-                                  child: Icon(Icons.error_outline, size: 48),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        ElevatedButton.icon(
-                          icon: const Icon(Icons.open_in_new),
-                          label: const Text('View Full Receipt'),
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ReceiptViewerDialog(
-                                  receiptUrl: expense.receiptUrl!,
-                                  expenseName: expense.description,
-                                ),
+                  IconButton(
+                    icon: const Icon(Icons.close),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              const Divider(height: 24),
+              _buildDetailRow(
+                  'Amount', '\$${expense.amount.toStringAsFixed(2)}'),
+              _buildDetailRow('Date',
+                  '${expense.expenseDate.day}/${expense.expenseDate.month}/${expense.expenseDate.year}'),
+              _buildDetailRow('Status', expense.status.displayName),
+              _buildDetailRow('Description', expense.description),
+              if (expense.vendorName != null)
+                _buildDetailRow('Vendor', expense.vendorName!),
+              if (expense.invoiceNumber != null)
+                _buildDetailRow('Invoice Number', expense.invoiceNumber!),
+              if (expense.paidBy != null)
+                _buildDetailRow('Paid By', expense.paidBy!),
+              _buildDetailRow(
+                'Reimbursable',
+                expense.isReimbursable ? 'Yes' : 'No',
+              ),
+              if (expense.isReimbursed)
+                _buildDetailRow(
+                  'Reimbursed Date',
+                  '${expense.reimbursedDate!.day}/${expense.reimbursedDate!.month}/${expense.reimbursedDate!.year}',
+                ),
+              if (expense.approvedBy != null)
+                _buildDetailRow(
+                  'Approved Date',
+                  '${expense.approvedDate!.day}/${expense.approvedDate!.month}/${expense.approvedDate!.year}',
+                ),
+              if (expense.rejectionReason != null)
+                _buildDetailRow('Rejection Reason', expense.rejectionReason!),
+              if (expense.receiptUrl != null) ...[
+                const SizedBox(height: 16),
+                const Text('Receipt',
+                    style: TextStyle(fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                // Display receipt image or view button
+                if (expense.receiptUrl != null &&
+                    expense.receiptUrl!.isNotEmpty)
+                  Column(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.network(
+                          expense.receiptUrl!,
+                          height: 200,
+                          width: double.infinity,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              height: 200,
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: Icon(Icons.error_outline, size: 48),
                               ),
                             );
                           },
                         ),
-                      ],
-                    )
-                  else
-                    const Text('No receipt attached',
-                        style: TextStyle(color: Colors.grey)),
-                ],
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton.icon(
+                        icon: const Icon(Icons.open_in_new),
+                        label: const Text('View Full Receipt'),
+                        onPressed: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ReceiptViewerDialog(
+                                receiptUrl: expense.receiptUrl!,
+                                expenseName: expense.description,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ],
+                  )
+                else
+                  const Text('No receipt attached',
+                      style: TextStyle(color: Colors.grey)),
               ],
-            ),
-          );
-        },
+            ],
+          ),
+        ),
       ),
     );
   }

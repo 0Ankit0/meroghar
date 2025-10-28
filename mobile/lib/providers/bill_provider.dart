@@ -71,7 +71,7 @@ class BillProvider with ChangeNotifier {
   /// Calculate total unpaid amount for a tenant
   double getTotalUnpaidForTenant(String tenantId) =>
       getUnpaidAllocationsForTenant(tenantId)
-          .fold(0.0, (sum, alloc) => sum + alloc.allocatedAmount);
+          .fold(0, (sum, alloc) => sum + alloc.allocatedAmount);
 
   /// Create a new bill
   Future<Bill?> createBill({
@@ -523,7 +523,7 @@ class BillProvider with ChangeNotifier {
         );
 
         final allocations =
-            allocationMaps.map((m) => BillAllocation.fromJson(m)).toList();
+            allocationMaps.map(BillAllocation.fromJson).toList();
 
         final billData = Map<String, dynamic>.from(billMap);
         billData['allocations'] = allocations.map((a) => a.toJson()).toList();

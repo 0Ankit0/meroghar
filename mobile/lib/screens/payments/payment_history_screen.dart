@@ -51,135 +51,133 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) {
-          return AlertDialog(
-            title: const Text('Filter Payments'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text('Payment Type'),
-                  DropdownButton<PaymentType?>(
-                    value: _filterType,
-                    isExpanded: true,
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('All Types'),
-                      ),
-                      ...PaymentType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(type.displayName),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _filterType = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  const Text('Payment Status'),
-                  DropdownButton<PaymentStatus?>(
-                    value: _filterStatus,
-                    isExpanded: true,
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('All Statuses'),
-                      ),
-                      ...PaymentStatus.values.map((status) {
-                        return DropdownMenuItem(
-                          value: status,
-                          child: Text(status.displayName),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) {
-                      setState(() {
-                        _filterStatus = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.date_range),
-                    label: Text(
-                      _filterDateFrom != null
-                          ? 'From: ${_filterDateFrom!.day}/${_filterDateFrom!.month}/${_filterDateFrom!.year}'
-                          : 'Select From Date',
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Filter Payments'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text('Payment Type'),
+                DropdownButton<PaymentType?>(
+                  value: _filterType,
+                  isExpanded: true,
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('All Types'),
                     ),
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _filterDateFrom ?? DateTime.now(),
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now(),
+                    ...PaymentType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.displayName),
                       );
-                      if (picked != null) {
-                        setState(() {
-                          _filterDateFrom = picked;
-                        });
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 8),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.date_range),
-                    label: Text(
-                      _filterDateTo != null
-                          ? 'To: ${_filterDateTo!.day}/${_filterDateTo!.month}/${_filterDateTo!.year}'
-                          : 'Select To Date',
+                    }),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _filterType = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                const Text('Payment Status'),
+                DropdownButton<PaymentStatus?>(
+                  value: _filterStatus,
+                  isExpanded: true,
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('All Statuses'),
                     ),
-                    onPressed: () async {
-                      final picked = await showDatePicker(
-                        context: context,
-                        initialDate: _filterDateTo ?? DateTime.now(),
-                        firstDate: _filterDateFrom ?? DateTime(2020),
-                        lastDate: DateTime.now(),
+                    ...PaymentStatus.values.map((status) {
+                      return DropdownMenuItem(
+                        value: status,
+                        child: Text(status.displayName),
                       );
-                      if (picked != null) {
-                        setState(() {
-                          _filterDateTo = picked;
-                        });
-                      }
-                    },
+                    }),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _filterStatus = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.date_range),
+                  label: Text(
+                    _filterDateFrom != null
+                        ? 'From: ${_filterDateFrom!.day}/${_filterDateFrom!.month}/${_filterDateFrom!.year}'
+                        : 'Select From Date',
                   ),
-                ],
-              ),
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _filterDateFrom ?? DateTime.now(),
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _filterDateFrom = picked;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  icon: const Icon(Icons.date_range),
+                  label: Text(
+                    _filterDateTo != null
+                        ? 'To: ${_filterDateTo!.day}/${_filterDateTo!.month}/${_filterDateTo!.year}'
+                        : 'Select To Date',
+                  ),
+                  onPressed: () async {
+                    final picked = await showDatePicker(
+                      context: context,
+                      initialDate: _filterDateTo ?? DateTime.now(),
+                      firstDate: _filterDateFrom ?? DateTime(2020),
+                      lastDate: DateTime.now(),
+                    );
+                    if (picked != null) {
+                      setState(() {
+                        _filterDateTo = picked;
+                      });
+                    }
+                  },
+                ),
+              ],
             ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  setState(() {
-                    _filterType = null;
-                    _filterStatus = null;
-                    _filterDateFrom = null;
-                    _filterDateTo = null;
-                  });
-                },
-                child: const Text('Clear'),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: const Text('Cancel'),
-              ),
-              ElevatedButton(
-                onPressed: () {
-                  Navigator.pop(context);
-                  this.setState(() {});
-                  _loadPayments();
-                },
-                child: const Text('Apply'),
-              ),
-            ],
-          );
-        },
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                setState(() {
+                  _filterType = null;
+                  _filterStatus = null;
+                  _filterDateFrom = null;
+                  _filterDateTo = null;
+                });
+              },
+              child: const Text('Clear'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                this.setState(() {});
+                _loadPayments();
+              },
+              child: const Text('Apply'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -318,7 +316,7 @@ class _PaymentCard extends StatelessWidget {
             _showPaymentDetails(context);
           },
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -370,7 +368,6 @@ class _PaymentCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
                               color: _getStatusColor(),
-                              width: 1,
                             ),
                           ),
                           child: Text(
@@ -427,97 +424,95 @@ class _PaymentCard extends StatelessWidget {
         minChildSize: 0.4,
         maxChildSize: 0.9,
         expand: false,
-        builder: (context, scrollController) {
-          return SingleChildScrollView(
-            controller: scrollController,
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Center(
-                  child: Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                      color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2),
-                    ),
+        builder: (context, scrollController) => SingleChildScrollView(
+          controller: scrollController,
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Payment Details',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const Divider(height: 32),
+              _DetailRow(
+                label: 'Amount',
+                value: payment.formattedAmount,
+                valueStyle: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+              _DetailRow(
+                label: 'Payment Type',
+                value: payment.paymentType.displayName,
+              ),
+              _DetailRow(
+                label: 'Payment Method',
+                value: payment.paymentMethod.displayName,
+              ),
+              _DetailRow(
+                label: 'Status',
+                value: payment.status.displayName,
+              ),
+              _DetailRow(
+                label: 'Payment Date',
+                value:
+                    '${payment.paymentDate.day}/${payment.paymentDate.month}/${payment.paymentDate.year}',
+              ),
+              if (payment.periodDisplay != null)
+                _DetailRow(
+                  label: 'Payment Period',
+                  value: payment.periodDisplay!,
+                ),
+              if (payment.transactionReference != null)
+                _DetailRow(
+                  label: 'Transaction Reference',
+                  value: payment.transactionReference!,
+                ),
+              if (payment.notes != null) ...[
                 const SizedBox(height: 16),
                 Text(
-                  'Payment Details',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  'Notes',
+                  style: Theme.of(context).textTheme.titleSmall,
                 ),
-                const Divider(height: 32),
-                _DetailRow(
-                  label: 'Amount',
-                  value: payment.formattedAmount,
-                  valueStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                _DetailRow(
-                  label: 'Payment Type',
-                  value: payment.paymentType.displayName,
-                ),
-                _DetailRow(
-                  label: 'Payment Method',
-                  value: payment.paymentMethod.displayName,
-                ),
-                _DetailRow(
-                  label: 'Status',
-                  value: payment.status.displayName,
-                ),
-                _DetailRow(
-                  label: 'Payment Date',
-                  value:
-                      '${payment.paymentDate.day}/${payment.paymentDate.month}/${payment.paymentDate.year}',
-                ),
-                if (payment.periodDisplay != null)
-                  _DetailRow(
-                    label: 'Payment Period',
-                    value: payment.periodDisplay!,
-                  ),
-                if (payment.transactionReference != null)
-                  _DetailRow(
-                    label: 'Transaction Reference',
-                    value: payment.transactionReference!,
-                  ),
-                if (payment.notes != null) ...[
-                  const SizedBox(height: 16),
-                  Text(
-                    'Notes',
-                    style: Theme.of(context).textTheme.titleSmall,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(payment.notes!),
-                ],
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.receipt),
-                    label: const Text('View Receipt'),
-                    onPressed: () {
-                      Navigator.pop(context); // Close the bottom sheet
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ReceiptViewScreen(
-                            paymentId: payment.id,
-                            tenantName: payment.tenantId,
-                          ),
-                        ),
-                      );
-                    },
-                  ),
-                ),
+                const SizedBox(height: 8),
+                Text(payment.notes!),
               ],
-            ),
-          );
-        },
+              const SizedBox(height: 24),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  icon: const Icon(Icons.receipt),
+                  label: const Text('View Receipt'),
+                  onPressed: () {
+                    Navigator.pop(context); // Close the bottom sheet
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ReceiptViewScreen(
+                          paymentId: payment.id,
+                          tenantName: payment.tenantId,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

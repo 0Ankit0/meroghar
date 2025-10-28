@@ -57,7 +57,7 @@ class _SyncStatusIndicatorState extends State<SyncStatusIndicator> {
             onTap: widget.onTap ?? _handleTap,
             borderRadius: BorderRadius.circular(20),
             child: Padding(
-              padding: const EdgeInsets.all(8.0),
+              padding: const EdgeInsets.all(8),
               child: Stack(
                 children: [
                   _buildStatusIcon(status),
@@ -67,7 +67,7 @@ class _SyncStatusIndicatorState extends State<SyncStatusIndicator> {
                       top: 0,
                       child: Container(
                         padding: const EdgeInsets.all(4),
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           color: Colors.red,
                           shape: BoxShape.circle,
                         ),

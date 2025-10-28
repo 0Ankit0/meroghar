@@ -4,14 +4,13 @@ import '../services/api_service.dart';
 
 /// Provider for property-related state management
 class PropertyProvider with ChangeNotifier {
+  PropertyProvider(this._apiService);
   final ApiService _apiService;
-  
+
   List<Property> _properties = [];
   Property? _selectedProperty;
   bool _isLoading = false;
   String? _error;
-
-  PropertyProvider(this._apiService);
 
   // Getters
   List<Property> get properties => _properties;
@@ -27,11 +26,11 @@ class PropertyProvider with ChangeNotifier {
 
     try {
       final response = await _apiService.get('/api/v1/properties');
-      
+
       if (response.statusCode == 200) {
         final List<dynamic> data = response.data['items'] ?? response.data;
         _properties = data.map((json) => Property.fromJson(json)).toList();
-        
+
         // Set first property as selected if none selected
         if (_selectedProperty == null && _properties.isNotEmpty) {
           _selectedProperty = _properties.first;

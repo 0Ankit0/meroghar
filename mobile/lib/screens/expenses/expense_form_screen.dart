@@ -73,7 +73,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
+    final picked = await showDatePicker(
       context: context,
       initialDate: _expenseDate,
       firstDate: DateTime(2020),
@@ -226,7 +226,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
       body: expenseProvider.isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(16),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -235,7 +235,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                     // Property info
                     Card(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: const EdgeInsets.all(16),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [

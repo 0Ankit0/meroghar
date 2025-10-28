@@ -5,12 +5,12 @@ import 'package:intl/intl.dart';
 /// Implements T108 from tasks.md
 class AnalyticsDetailScreen extends StatelessWidget {
   const AnalyticsDetailScreen({
-    Key? key,
+    super.key,
     required this.reportType,
     this.propertyId,
     this.startDate,
     this.endDate,
-  }) : super(key: key);
+  });
   final String reportType;
   final String? propertyId;
   final DateTime? startDate;
@@ -22,7 +22,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
           title: Text(_getTitle()),
         ),
         body: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -63,7 +63,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
     if (startDate == null || endDate == null) {
       return const Card(
         child: Padding(
-          padding: EdgeInsets.all(12.0),
+          padding: EdgeInsets.all(12),
           child: Text('Date range: All time'),
         ),
       );
@@ -71,7 +71,7 @@ class AnalyticsDetailScreen extends StatelessWidget {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(12.0),
+        padding: const EdgeInsets.all(12),
         child: Row(
           children: [
             const Icon(Icons.calendar_today, size: 16),

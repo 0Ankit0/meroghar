@@ -13,7 +13,7 @@ class DocumentViewerScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text(document.title)),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

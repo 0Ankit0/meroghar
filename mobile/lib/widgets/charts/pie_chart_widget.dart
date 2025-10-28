@@ -7,10 +7,10 @@ import '../../models/analytics.dart';
 /// Implements T105 from tasks.md
 class ExpenseBreakdownPieChart extends StatefulWidget {
   const ExpenseBreakdownPieChart({
-    Key? key,
+    super.key,
     required this.expenses,
     this.size = 250,
-  }) : super(key: key);
+  });
   final List<ExpenseBreakdown> expenses;
   final double size;
 
@@ -131,9 +131,10 @@ class _ExpenseBreakdownPieChartState extends State<ExpenseBreakdownPieChart> {
     return colors[index % colors.length];
   }
 
-  String _formatBillType(String type) => type.split('_').map((word) {
-        return word[0].toUpperCase() + word.substring(1).toLowerCase();
-      }).join(' ');
+  String _formatBillType(String type) => type
+      .split('_')
+      .map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase())
+      .join(' ');
 
   String _formatCurrency(double value) {
     final formatter = NumberFormat.currency(symbol: '\$', decimalDigits: 0);

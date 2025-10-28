@@ -9,11 +9,11 @@ import '../models/message.dart';
 
 class MessageStatusWidget extends StatelessWidget {
   const MessageStatusWidget({
-    Key? key,
+    super.key,
     required this.message,
     this.showLabel = false,
     this.iconSize = 24,
-  }) : super(key: key);
+  });
   final Message message;
   final bool showLabel;
   final double iconSize;

@@ -3,8 +3,6 @@
 /// Implements T066 from tasks.md.
 library;
 
-import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';

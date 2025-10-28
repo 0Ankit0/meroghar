@@ -9,10 +9,10 @@ import '../models/message.dart';
 
 class MessageTemplatePicker extends StatelessWidget {
   const MessageTemplatePicker({
-    Key? key,
+    super.key,
     required this.selectedTemplate,
     required this.onTemplateSelected,
-  }) : super(key: key);
+  });
   final MessageTemplate selectedTemplate;
   final Function(MessageTemplate) onTemplateSelected;
 
