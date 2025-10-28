@@ -173,15 +173,12 @@ async def _send_email_notification(email: str, data: dict[str, any]) -> None:
         data: Payment and tenant data
 
     Note:
-        This is a placeholder implementation. In production, integrate with:
-        - SendGrid API
-        - AWS SES
-        - SMTP server
-        - Or other email service
+        Integrates with SendGrid, SMTP, or other email service based on configuration.
     """
-    # TODO: Implement actual email sending
-    # For now, just log the email that would be sent
-
+    from ..core.config import get_settings
+    
+    settings = get_settings()
+    
     email_body = f"""
     Dear {data['tenant_name']},
 
@@ -202,27 +199,69 @@ async def _send_email_notification(email: str, data: dict[str, any]) -> None:
     Meroghar Property Management
     """
 
-    logger.info(
-        f"[EMAIL PLACEHOLDER] Would send email to {email}:\n"
-        f"Subject: Payment Confirmation - Rs. {data['amount']}\n"
-        f"Body:\n{email_body}"
-    )
+    # Check if email backend is configured
+    if not (settings.sendgrid_api_key or (settings.smtp_host and settings.smtp_username)):
+        logger.warning(
+            f"[EMAIL NOT CONFIGURED] Would send email to {email}:\n"
+            f"Subject: Payment Confirmation - {data['currency']} {data['amount']}\n"
+            f"Please configure SendGrid (SENDGRID_API_KEY) or SMTP settings to enable email sending."
+        )
+        return
 
-    # In production, replace above with actual email sending:
-    # import smtplib
-    # from email.mime.text import MIMEText
-    # from email.mime.multipart import MIMEMultipart
-    #
-    # msg = MIMEMultipart()
-    # msg['From'] = "noreply@meroghar.com"
-    # msg['To'] = email
-    # msg['Subject'] = f"Payment Confirmation - Rs. {data['amount']}"
-    # msg.attach(MIMEText(email_body, 'plain'))
-    #
-    # with smtplib.SMTP('smtp.gmail.com', 587) as server:
-    #     server.starttls()
-    #     server.login("your_email@gmail.com", "your_password")
-    #     server.send_message(msg)
+    # Send actual email
+    try:
+        # Try SendGrid first
+        if settings.sendgrid_api_key:
+            try:
+                from sendgrid import SendGridAPIClient
+                from sendgrid.helpers.mail import Mail
+
+                message = Mail(
+                    from_email=(settings.sendgrid_from_email, settings.sendgrid_from_name),
+                    to_emails=email,
+                    subject=f"Payment Confirmation - {data['currency']} {data['amount']}",
+                    plain_text_content=email_body,
+                )
+
+                sg = SendGridAPIClient(settings.sendgrid_api_key)
+                response = sg.send(message)
+
+                logger.info(
+                    f"Payment confirmation email sent via SendGrid to {email}: "
+                    f"status={response.status_code}, payment_id={data['payment_id']}"
+                )
+                return
+            except ImportError:
+                logger.warning("SendGrid library not installed, falling back to SMTP")
+            except Exception as e:
+                logger.error(f"SendGrid email failed: {str(e)}, falling back to SMTP")
+
+        # Fall back to SMTP
+        if settings.smtp_host and settings.smtp_username and settings.smtp_password:
+            import smtplib
+            from email.mime.text import MIMEText
+            from email.mime.multipart import MIMEMultipart
+
+            msg = MIMEMultipart()
+            msg['From'] = f"{settings.smtp_from_name} <{settings.smtp_from_email}>"
+            msg['To'] = email
+            msg['Subject'] = f"Payment Confirmation - {data['currency']} {data['amount']}"
+            msg.attach(MIMEText(email_body, 'plain'))
+
+            with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+                if settings.smtp_use_tls:
+                    server.starttls()
+                server.login(settings.smtp_username, settings.smtp_password)
+                server.send_message(msg)
+
+            logger.info(
+                f"Payment confirmation email sent via SMTP to {email}: payment_id={data['payment_id']}"
+            )
+        else:
+            logger.warning("SMTP not configured - email not sent")
+
+    except Exception as e:
+        logger.error(f"Failed to send payment confirmation email to {email}: {str(e)}", exc_info=True)
 
 
 async def _send_sms_notification(phone: str, data: dict[str, any]) -> None:
@@ -233,40 +272,49 @@ async def _send_sms_notification(phone: str, data: dict[str, any]) -> None:
         data: Payment and tenant data
 
     Note:
-        This is a placeholder implementation. In production, integrate with:
-        - Twilio SMS API
-        - Nepal Telecom SMS Gateway
-        - Sparrow SMS (Nepal)
-        - Or other SMS service
+        Integrates with Twilio SMS, Sparrow SMS (Nepal), or other SMS service.
     """
-    # TODO: Implement actual SMS sending
-    # For now, just log the SMS that would be sent
-
+    from ..core.config import get_settings
+    
+    settings = get_settings()
+    
     sms_body = (
         f"Meroghar: Payment confirmed! "
-        f"Amount: Rs.{data['amount']} "
+        f"Amount: {data['currency']}{data['amount']} "
         f"Type: {data['payment_type']} "
-        f"Ref: {data['transaction_reference'][:8]} "
+        f"Ref: {data['transaction_reference'][:8] if data['transaction_reference'] else 'N/A'} "
         f"Receipt available in app."
     )
 
-    logger.info(f"[SMS PLACEHOLDER] Would send SMS to {phone}:\n{sms_body}")
+    # Check if SMS backend is configured
+    if not (settings.twilio_account_sid and settings.twilio_auth_token):
+        logger.warning(
+            f"[SMS NOT CONFIGURED] Would send SMS to {phone}:\n{sms_body}\n"
+            f"Please configure Twilio (TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN) to enable SMS sending."
+        )
+        return
 
-    # In production, replace above with actual SMS sending:
-    # For Nepal, popular options:
-    # 1. Sparrow SMS: https://sparrowsms.com/
-    # 2. Nepal Telecom SMS Gateway
-    # 3. Twilio (international)
-    #
-    # Example with Twilio:
-    # from twilio.rest import Client
-    #
-    # client = Client(account_sid, auth_token)
-    # message = client.messages.create(
-    #     body=sms_body,
-    #     from_='+1234567890',
-    #     to=phone
-    # )
+    # Send actual SMS via Twilio
+    try:
+        from twilio.rest import Client
+
+        client = Client(settings.twilio_account_sid, settings.twilio_auth_token)
+        
+        message = client.messages.create(
+            body=sms_body,
+            from_=settings.twilio_phone_number,
+            to=phone
+        )
+
+        logger.info(
+            f"Payment confirmation SMS sent via Twilio to {phone}: "
+            f"sid={message.sid}, payment_id={data['payment_id']}"
+        )
+
+    except ImportError:
+        logger.error("Twilio library not installed. Install with: pip install twilio")
+    except Exception as e:
+        logger.error(f"Failed to send payment confirmation SMS to {phone}: {str(e)}", exc_info=True)
 
 
 __all__ = ["send_payment_confirmation"]

@@ -140,6 +140,81 @@ class PaymentService:
 
         return payment
 
+    async def create_pending_payment(
+        self,
+        tenant_id: UUID,
+        property_id: UUID,
+        amount: Decimal,
+        payment_type: PaymentType,
+        transaction_reference: str | None,
+        gateway: str,
+    ) -> Payment:
+        """Create a pending payment record for online payment tracking.
+
+        This creates a payment record in PENDING status for tracking
+        online payment gateway transactions.
+
+        Args:
+            tenant_id: Tenant making the payment
+            property_id: Property for the payment
+            amount: Payment amount
+            payment_type: Type of payment (rent, security deposit, etc.)
+            transaction_reference: Gateway transaction reference/ID
+            gateway: Payment gateway name
+
+        Returns:
+            Created pending payment record
+
+        Raises:
+            ValueError: If tenant not found or validation fails
+        """
+        # Verify tenant exists
+        result = await self.session.execute(
+            select(Tenant).where(
+                Tenant.id == tenant_id,
+                Tenant.property_id == property_id,
+            )
+        )
+        tenant = result.scalar_one_or_none()
+
+        if not tenant:
+            raise ValueError(
+                f"Tenant {tenant_id} not found for property {property_id}"
+            )
+
+        # Create pending payment record
+        from ..models.payment import PaymentMethod
+        
+        payment = Payment(
+            tenant_id=tenant_id,
+            property_id=property_id,
+            recorded_by=tenant.user_id,  # User who initiated the payment
+            amount=amount,
+            currency=tenant.property.base_currency if hasattr(tenant, 'property') else 'NPR',
+            payment_method=PaymentMethod.ONLINE,
+            payment_type=payment_type,
+            status=PaymentStatus.PENDING,
+            payment_date=date.today(),
+            transaction_reference=transaction_reference,
+            notes=f"Online payment via {gateway}",
+            metadata={
+                "gateway": gateway,
+                "initiated_at": datetime.utcnow().isoformat(),
+                "status": "pending",
+            },
+        )
+
+        self.session.add(payment)
+        await self.session.commit()
+        await self.session.refresh(payment)
+
+        logger.info(
+            f"Pending payment created: payment_id={payment.id}, tenant_id={tenant_id}, "
+            f"amount={amount}, gateway={gateway}, transaction_ref={transaction_reference}"
+        )
+
+        return payment
+
     async def calculate_balance(
         self,
         tenant_id: UUID,

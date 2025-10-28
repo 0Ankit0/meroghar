@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     # Server
     host: str = Field(default="0.0.0.0", alias="HOST")
     port: int = Field(default=8000, alias="PORT")
+    website_url: str = Field(
+        default="http://localhost:8000", alias="WEBSITE_URL"
+    )
 
     # Database
     database_url: str = Field(
@@ -121,6 +124,20 @@ class Settings(BaseSettings):
     twilio_auth_token: str | None = Field(default=None, alias="TWILIO_AUTH_TOKEN")
     twilio_phone_number: str | None = Field(default=None, alias="TWILIO_PHONE_NUMBER")
     twilio_whatsapp_number: str | None = Field(default=None, alias="TWILIO_WHATSAPP_NUMBER")
+
+    # Email Configuration (SMTP)
+    smtp_host: str | None = Field(default=None, alias="SMTP_HOST")
+    smtp_port: int = Field(default=587, alias="SMTP_PORT")
+    smtp_username: str | None = Field(default=None, alias="SMTP_USERNAME")
+    smtp_password: str | None = Field(default=None, alias="SMTP_PASSWORD")
+    smtp_from_email: str = Field(default="noreply@meroghar.com", alias="SMTP_FROM_EMAIL")
+    smtp_from_name: str = Field(default="MeroGhar", alias="SMTP_FROM_NAME")
+    smtp_use_tls: bool = Field(default=True, alias="SMTP_USE_TLS")
+
+    # SendGrid (alternative to SMTP)
+    sendgrid_api_key: str | None = Field(default=None, alias="SENDGRID_API_KEY")
+    sendgrid_from_email: str = Field(default="noreply@meroghar.com", alias="SENDGRID_FROM_EMAIL")
+    sendgrid_from_name: str = Field(default="MeroGhar", alias="SENDGRID_FROM_NAME")
 
     # Push Notifications
     firebase_credentials_path: str | None = Field(default=None, alias="FIREBASE_CREDENTIALS_PATH")

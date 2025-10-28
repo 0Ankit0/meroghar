@@ -318,8 +318,24 @@ async def export_analytics_data(
                 end_date=end_date,
             )
 
-        # TODO: Implement actual file generation with openpyxl/reportlab
-        # For now, return the data with export metadata
+        # Generate file based on format
+        import tempfile
+        import os
+        from datetime import datetime as dt
+        
+        timestamp = dt.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"analytics_{report_type}_{timestamp}"
+        
+        if format == "xlsx":
+            # Excel export using openpyxl
+            file_path = await _generate_excel_export(data, report_type, filename)
+        elif format == "pdf":
+            # PDF export using reportlab
+            file_path = await _generate_pdf_export(data, report_type, filename, start_date, end_date)
+        else:
+            # CSV export (simple format)
+            file_path = await _generate_csv_export(data, report_type, filename)
+        
         logger.info(
             f"User {current_user.id} exported {report_type} analytics "
             f"(format={format}, property={property_id}, period={start_date} to {end_date})"
@@ -329,8 +345,9 @@ async def export_analytics_data(
             "success": True,
             "report_type": report_type,
             "format": format,
+            "file_path": file_path,
+            "filename": os.path.basename(file_path),
             "data": data,
-            "message": "Export functionality will be implemented with openpyxl/reportlab",
             "date_range": {
                 "start": start_date.isoformat() if start_date else None,
                 "end": end_date.isoformat() if end_date else None,
@@ -342,3 +359,194 @@ async def export_analytics_data(
     except Exception as e:
         logger.error(f"Error exporting analytics data: {str(e)}", exc_info=True)
         raise HTTPException(status_code=500, detail="Failed to export analytics data")
+
+
+# Helper functions for file export
+
+async def _generate_excel_export(data: dict, report_type: str, filename: str) -> str:
+    """Generate Excel file using openpyxl."""
+    import tempfile
+    import os
+    
+    try:
+        from openpyxl import Workbook
+        from openpyxl.styles import Font, Alignment, PatternFill
+    except ImportError:
+        logger.warning("openpyxl not installed, falling back to CSV")
+        return await _generate_csv_export(data, report_type, filename)
+    
+    wb = Workbook()
+    ws = wb.active
+    ws.title = report_type.replace("-", " ").title()
+    
+    # Header style
+    header_fill = PatternFill(start_color="366092", end_color="366092", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True)
+    
+    # Add title
+    ws["A1"] = f"Analytics Report: {report_type.replace('-', ' ').title()}"
+    ws["A1"].font = Font(size=16, bold=True)
+    ws.merge_cells("A1:D1")
+    
+    # Add data based on report type
+    row = 3
+    if isinstance(data, list):
+        if len(data) > 0:
+            # Headers
+            headers = list(data[0].keys())
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=row, column=col, value=header.replace("_", " ").title())
+                cell.fill = header_fill
+                cell.font = header_font
+                cell.alignment = Alignment(horizontal="center")
+            
+            # Data rows
+            for item in data:
+                row += 1
+                for col, key in enumerate(headers, 1):
+                    ws.cell(row=row, column=col, value=item.get(key))
+    else:
+        # Handle dict data
+        ws.cell(row=row, column=1, value="Metric").fill = header_fill
+        ws.cell(row=row, column=1).font = header_font
+        ws.cell(row=row, column=2, value="Value").fill = header_fill
+        ws.cell(row=row, column=2).font = header_font
+        
+        for key, value in data.items():
+            row += 1
+            ws.cell(row=row, column=1, value=key.replace("_", " ").title())
+            ws.cell(row=row, column=2, value=str(value))
+    
+    # Auto-adjust column widths
+    for column in ws.columns:
+        max_length = 0
+        column_letter = column[0].column_letter
+        for cell in column:
+            try:
+                if len(str(cell.value)) > max_length:
+                    max_length = len(cell.value)
+            except:
+                pass
+        adjusted_width = min(max_length + 2, 50)
+        ws.column_dimensions[column_letter].width = adjusted_width
+    
+    # Save file
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, f"{filename}.xlsx")
+    wb.save(file_path)
+    
+    logger.info(f"Generated Excel export: {file_path}")
+    return file_path
+
+
+async def _generate_pdf_export(
+    data: dict, 
+    report_type: str, 
+    filename: str,
+    start_date: date | None = None,
+    end_date: date | None = None,
+) -> str:
+    """Generate PDF file using reportlab."""
+    import tempfile
+    import os
+    
+    try:
+        from reportlab.lib import colors
+        from reportlab.lib.pagesizes import letter, A4
+        from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+        from reportlab.lib.units import inch
+        from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph, Spacer
+        from reportlab.lib.enums import TA_CENTER, TA_LEFT
+    except ImportError:
+        logger.warning("reportlab not installed, falling back to CSV")
+        return await _generate_csv_export(data, report_type, filename)
+    
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, f"{filename}.pdf")
+    
+    doc = SimpleDocTemplate(file_path, pagesize=letter)
+    elements = []
+    styles = getSampleStyleSheet()
+    
+    # Title
+    title_style = ParagraphStyle(
+        'CustomTitle',
+        parent=styles['Heading1'],
+        fontSize=24,
+        textColor=colors.HexColor('#2C3E50'),
+        spaceAfter=30,
+        alignment=TA_CENTER,
+    )
+    elements.append(Paragraph(f"Analytics Report: {report_type.replace('-', ' ').title()}", title_style))
+    
+    # Date range
+    if start_date and end_date:
+        date_text = f"Period: {start_date.strftime('%Y-%m-%d')} to {end_date.strftime('%Y-%m-%d')}"
+        elements.append(Paragraph(date_text, styles['Normal']))
+    elements.append(Spacer(1, 20))
+    
+    # Data table
+    if isinstance(data, list) and len(data) > 0:
+        headers = list(data[0].keys())
+        table_data = [[h.replace("_", " ").title() for h in headers]]
+        
+        for item in data:
+            row = [str(item.get(key, "")) for key in headers]
+            table_data.append(row)
+        
+        t = Table(table_data)
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'CENTER'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+            ('BACKGROUND', (0, 1), (-1, -1), colors.beige),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(t)
+    else:
+        # Handle dict data
+        table_data = [["Metric", "Value"]]
+        for key, value in data.items():
+            table_data.append([key.replace("_", " ").title(), str(value)])
+        
+        t = Table(table_data)
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#366092')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.whitesmoke),
+            ('ALIGN', (0, 0), (-1, -1), 'LEFT'),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('GRID', (0, 0), (-1, -1), 1, colors.black),
+        ]))
+        elements.append(t)
+    
+    doc.build(elements)
+    logger.info(f"Generated PDF export: {file_path}")
+    return file_path
+
+
+async def _generate_csv_export(data: dict, report_type: str, filename: str) -> str:
+    """Generate CSV file (fallback when libraries not available)."""
+    import tempfile
+    import os
+    import csv
+    
+    temp_dir = tempfile.gettempdir()
+    file_path = os.path.join(temp_dir, f"{filename}.csv")
+    
+    with open(file_path, 'w', newline='', encoding='utf-8') as csvfile:
+        if isinstance(data, list) and len(data) > 0:
+            headers = list(data[0].keys())
+            writer = csv.DictWriter(csvfile, fieldnames=headers)
+            writer.writeheader()
+            writer.writerows(data)
+        else:
+            writer = csv.writer(csvfile)
+            writer.writerow(["Metric", "Value"])
+            for key, value in data.items():
+                writer.writerow([key, str(value)])
+    
+    logger.info(f"Generated CSV export: {file_path}")
+    return file_path

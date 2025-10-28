@@ -18,6 +18,7 @@ from sqlalchemy.orm import selectinload
 
 from ...api.dependencies import (CommonQueryParams, get_current_user,
                                  require_role)
+from ...core.config import get_settings
 from ...core.database import get_async_db
 from ...models.payment import Payment, PaymentStatus, PaymentType
 from ...models.property import PropertyAssignment
@@ -562,13 +563,19 @@ async def initiate_online_payment(
 
         purchase_order_id = f"PAY-{tenant_id}-{int(datetime.utcnow().timestamp())}"
 
+        # Get settings for configuration
+        settings = get_settings()
+        
+        # Get property_id from tenant
+        property_id = tenant.property_id
+        
         # Initiate payment with gateway
         result = await gateway_service.initiate_payment(
             amount=amount,
             purchase_order_id=purchase_order_id,
             purchase_order_name=f"{payment_type.value.replace('_', ' ').title()} - Tenant {tenant_id}",
-            return_url=f"{session.bind.url}/api/v1/webhooks/{gateway.value}",  # Webhook URL
-            website_url="https://meroghar.com",  # TODO: Get from config
+            return_url=f"{settings.website_url}/api/v1/webhooks/{gateway.value}",  # Webhook URL
+            website_url=settings.website_url,
             customer_name=tenant.user.full_name if hasattr(tenant, "user") else None,
             customer_email=tenant.user.email if hasattr(tenant, "user") else None,
             customer_phone=tenant.user.phone if hasattr(tenant, "user") else None,
@@ -578,8 +585,18 @@ async def initiate_online_payment(
         )
 
         # Store payment intent in database (for tracking)
-        PaymentService(session)
-        # TODO: Create pending payment record
+        payment_service = PaymentService(session)
+        # Create pending payment record for tracking
+        from ...schemas.payment import PaymentCreateRequest
+        
+        pending_payment = await payment_service.create_pending_payment(
+            tenant_id=tenant_id,
+            property_id=property_id,
+            amount=amount,
+            payment_type=payment_type,
+            transaction_reference=result.get("pidx") or result.get("transaction_id"),
+            gateway=gateway.value,
+        )
 
         logger.info(
             f"Online payment initiated: tenant_id={tenant_id}, amount={amount}, "

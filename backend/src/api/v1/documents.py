@@ -305,11 +305,55 @@ async def list_documents(
     if expiring_after:
         filters.append(Document.expiration_date >= expiring_after)
 
-    # Add access control filter (user can see documents they uploaded or have access to)
-    # TODO: Add more sophisticated access control based on RLS policies
+    # Add sophisticated access control filter based on RLS policies and user role
+    # Users can see documents based on:
+    # 1. Documents they uploaded
+    # 2. Documents related to properties they own (if owner)
+    # 3. Documents related to properties they manage (if intermediary)
+    # 4. Their own tenant documents (if tenant)
+    # 5. Documents shared with them explicitly
+    
+    from ...models.property import Property, PropertyAssignment
+    from ...models.tenant import Tenant
+    from ...models.user import UserRole
+    
     access_filters = [
         Document.uploaded_by == current_user.id,
     ]
+    
+    # Role-based access control
+    if current_user.role == UserRole.OWNER:
+        # Owners can see documents for their properties
+        access_filters.append(
+            Document.property_id.in_(
+                select(Property.id).where(Property.owner_id == current_user.id)
+            )
+        )
+    elif current_user.role == UserRole.INTERMEDIARY:
+        # Intermediaries can see documents for properties they manage
+        access_filters.append(
+            Document.property_id.in_(
+                select(PropertyAssignment.property_id).where(
+                    and_(
+                        PropertyAssignment.intermediary_id == current_user.id,
+                        PropertyAssignment.is_active == True,
+                    )
+                )
+            )
+        )
+    elif current_user.role == UserRole.TENANT:
+        # Tenants can see their own documents
+        access_filters.append(
+            Document.tenant_id.in_(
+                select(Tenant.id).where(Tenant.user_id == current_user.id)
+            )
+        )
+    
+    # Add filter for explicitly shared documents (if sharing metadata exists)
+    # Documents can have a 'shared_with' field in metadata listing user IDs
+    access_filters.append(
+        Document.metadata.contains({'shared_with': [str(current_user.id)]})
+    )
 
     if filters:
         query = query.where(and_(*filters, or_(*access_filters)))

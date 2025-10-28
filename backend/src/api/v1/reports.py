@@ -610,15 +610,71 @@ def schedule_report(
         )
 
     try:
-        # TODO: Implement scheduling logic with Celery Beat
-        # This will be implemented in T231 (Celery task creation)
+        # Implement scheduling logic with Celery Beat
+        # Get the template to verify it exists and is schedulable
+        result = await session.execute(
+            select(ReportTemplate).where(ReportTemplate.id == request.template_id)
+        )
+        template = result.scalar_one_or_none()
+        
+        if not template:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Report template {request.template_id} not found",
+            )
+        
+        if not template.schedule_enabled:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Template does not have scheduling enabled",
+            )
+        
+        # Schedule the report using Celery Beat
+        from ...tasks.report_tasks import generate_scheduled_reports
+        from celery.schedules import crontab
+        from ...tasks.celery_app import celery_app
+        
+        # Create a unique task name for this template
+        task_name = f"scheduled_report_{template.id}"
+        
+        # Determine schedule based on template frequency
+        if template.schedule_frequency == "daily":
+            schedule = crontab(hour=0, minute=0)  # Daily at midnight
+        elif template.schedule_frequency == "weekly":
+            schedule = crontab(hour=0, minute=0, day_of_week=1)  # Monday at midnight
+        elif template.schedule_frequency == "monthly":
+            schedule = crontab(hour=0, minute=0, day_of_month=1)  # 1st of month at midnight
+        elif template.schedule_frequency == "quarterly":
+            schedule = crontab(hour=0, minute=0, day_of_month=1, month_of_year='1,4,7,10')  # Quarterly
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Unsupported schedule frequency: {template.schedule_frequency}",
+            )
+        
+        # Add the scheduled task to Celery Beat
+        celery_app.conf.beat_schedule[task_name] = {
+            'task': 'src.tasks.report_tasks.generate_scheduled_reports',
+            'schedule': schedule,
+            'args': (),
+        }
+        
+        # Update template metadata with schedule info
+        if not template.metadata:
+            template.metadata = {}
+        template.metadata['scheduled_task_name'] = task_name
+        template.metadata['last_scheduled'] = datetime.utcnow().isoformat()
+        
+        await session.commit()
 
-        logger.info(f"Scheduled report template {request.template_id} for user {current_user.id}")
+        logger.info(f"Scheduled report template {request.template_id} for user {current_user.id} with frequency {template.schedule_frequency}")
 
         return {
             "status": "success",
-            "message": "Report scheduled successfully",
+            "message": f"Report scheduled successfully ({template.schedule_frequency})",
             "template_id": str(request.template_id),
+            "schedule_frequency": template.schedule_frequency,
+            "next_run": "Will run based on schedule",
         }
 
     except Exception as e:

@@ -97,9 +97,9 @@ async def _generate_scheduled_reports_async() -> dict:
                             f"from template {template.id} ({template.name})"
                         )
 
-                        # TODO: Email report to configured recipients
-                        # This would be implemented using the message service
-                        # _send_report_email(template, generated_report)
+                        # Email report to configured recipients if specified
+                        if template.metadata and template.metadata.get("email_recipients"):
+                            await _send_report_email(template, generated_report, session)
 
                 except Exception as e:
                     error_msg = (
@@ -362,8 +362,9 @@ async def _cleanup_old_reports_async(retention_days: int) -> dict:
 
             for report in old_reports:
                 try:
-                    # TODO: Delete file from storage (S3, local, etc.)
-                    # _delete_report_file(report.file_url)
+                    # Delete file from storage (S3, local, etc.)
+                    if report.file_url:
+                        await _delete_report_file(report.file_url)
 
                     await session.delete(report)
                     deleted_count += 1
@@ -391,3 +392,147 @@ async def _cleanup_old_reports_async(retention_days: int) -> dict:
                 "error": str(e),
                 "timestamp": datetime.utcnow().isoformat(),
             }
+
+
+async def _send_report_email(
+    template: ReportTemplate,
+    report: GeneratedReport,
+    session,
+) -> None:
+    """Send generated report via email to configured recipients.
+    
+    Args:
+        template: Report template with email configuration
+        report: Generated report to send
+        session: Database session
+    """
+    from ..core.config import get_settings
+    from ..services.message_service import MessageService
+    
+    settings = get_settings()
+    
+    # Get email recipients from template metadata
+    recipients = template.metadata.get("email_recipients", [])
+    if not recipients:
+        logger.warning(f"No email recipients configured for template {template.id}")
+        return
+    
+    # Check if email is configured
+    if not (settings.sendgrid_api_key or (settings.smtp_host and settings.smtp_username)):
+        logger.warning(
+            f"Email backend not configured - cannot send report {report.id}. "
+            f"Configure SendGrid or SMTP settings."
+        )
+        return
+    
+    # Create email subject and body
+    subject = f"Scheduled Report: {template.name}"
+    body = f"""
+    A scheduled report has been generated:
+    
+    Report: {template.name}
+    Type: {template.report_type.value}
+    Generated: {report.generated_at.strftime('%Y-%m-%d %H:%M:%S')}
+    Period: {report.period_start.strftime('%Y-%m-%d')} to {report.period_end.strftime('%Y-%m-%d')}
+    
+    Report ID: {report.id}
+    File: {report.file_url or 'Data available in system'}
+    
+    This report was automatically generated based on your scheduled template configuration.
+    
+    ---
+    MeroGhar Property Management System
+    """
+    
+    # Send to each recipient
+    message_service = MessageService(session)
+    
+    for recipient_email in recipients:
+        try:
+            result = await message_service.send_email(
+                to_email=recipient_email,
+                subject=subject,
+                body=body,
+            )
+            
+            if result.get("success"):
+                logger.info(
+                    f"Report {report.id} emailed to {recipient_email}: "
+                    f"message_id={result.get('message_id')}"
+                )
+            else:
+                logger.error(
+                    f"Failed to email report {report.id} to {recipient_email}: "
+                    f"{result.get('response')}"
+                )
+        except Exception as e:
+            logger.error(
+                f"Error emailing report {report.id} to {recipient_email}: {str(e)}",
+                exc_info=True
+            )
+
+
+async def _delete_report_file(file_url: str) -> None:
+    """Delete report file from storage.
+    
+    Supports:
+    - S3 storage (if configured)
+    - Local filesystem
+    
+    Args:
+        file_url: URL or path to the file
+    """
+    import os
+    from ..core.config import get_settings
+    
+    settings = get_settings()
+    
+    try:
+        # Check if it's an S3 URL
+        if file_url.startswith('s3://') or file_url.startswith('https://') and 's3' in file_url:
+            # S3 deletion
+            if settings.aws_access_key_id and settings.aws_secret_access_key:
+                try:
+                    import boto3
+                    
+                    # Extract bucket and key from URL
+                    if file_url.startswith('s3://'):
+                        # Format: s3://bucket-name/key/path
+                        parts = file_url[5:].split('/', 1)
+                        bucket_name = parts[0]
+                        key = parts[1] if len(parts) > 1 else ''
+                    else:
+                        # Format: https://bucket-name.s3.region.amazonaws.com/key/path
+                        from urllib.parse import urlparse
+                        parsed = urlparse(file_url)
+                        bucket_name = parsed.netloc.split('.')[0]
+                        key = parsed.path.lstrip('/')
+                    
+                    s3_client = boto3.client(
+                        's3',
+                        aws_access_key_id=settings.aws_access_key_id,
+                        aws_secret_access_key=settings.aws_secret_access_key,
+                        region_name=settings.aws_region,
+                    )
+                    
+                    s3_client.delete_object(Bucket=bucket_name, Key=key)
+                    logger.info(f"Deleted S3 file: {bucket_name}/{key}")
+                except ImportError:
+                    logger.warning("boto3 not installed - cannot delete S3 file")
+                except Exception as e:
+                    logger.error(f"Failed to delete S3 file {file_url}: {str(e)}")
+            else:
+                logger.warning("AWS credentials not configured - cannot delete S3 file")
+        else:
+            # Local filesystem deletion
+            if os.path.exists(file_url):
+                os.remove(file_url)
+                logger.info(f"Deleted local file: {file_url}")
+            else:
+                logger.warning(f"File not found for deletion: {file_url}")
+    
+    except Exception as e:
+        logger.error(f"Failed to delete report file {file_url}: {str(e)}", exc_info=True)
+
+
+__all__ = ["generate_scheduled_reports", "cleanup_old_reports"]

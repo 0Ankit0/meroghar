@@ -398,6 +398,7 @@ class AnalyticsService:
                 Property.id,
                 Property.name,
                 Property.address,
+                Property.total_units,
                 func.count(func.distinct(Tenant.id)).label("tenant_count"),
                 func.sum(
                     case(
@@ -438,7 +439,7 @@ class AnalyticsService:
                     ),
                 )
             )
-            .group_by(Property.id, Property.name, Property.address)
+            .group_by(Property.id, Property.name, Property.address, Property.total_units)
             .order_by(
                 func.sum(
                     case(
@@ -468,7 +469,23 @@ class AnalyticsService:
                 "total_revenue": float(row.total_revenue or 0),
                 "total_expenses": float(row.total_expenses or 0),
                 "net_profit": float((row.total_revenue or 0) - (row.total_expenses or 0)),
-                "occupancy_rate": 100.0,  # TODO: Calculate based on units when implemented
+                "occupancy_rate": self._calculate_occupancy_rate(
+                    row.tenant_count or 0, row.total_units
+                ),
             }
             for row in rows
         ]
+
+    def _calculate_occupancy_rate(self, occupied_units: int, total_units: int) -> float:
+        """Calculate occupancy rate percentage.
+        
+        Args:
+            occupied_units: Number of occupied units (active tenants)
+            total_units: Total number of units in the property
+            
+        Returns:
+            Occupancy rate as a percentage (0.0 to 100.0)
+        """
+        if total_units <= 0:
+            return 0.0
+        return round((occupied_units / total_units) * 100.0, 2)

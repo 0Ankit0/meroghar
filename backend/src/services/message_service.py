@@ -257,14 +257,100 @@ class MessageService:
             }
 
     async def send_email(self, to_email: str, subject: str, body: str) -> dict[str, Any]:
-        """Send email via Twilio SendGrid."""
-        # TODO: Implement SendGrid email integration
-        # For now, return placeholder
+        """Send email via SendGrid or SMTP.
+        
+        This method supports two email backends:
+        1. SendGrid API (if SENDGRID_API_KEY is configured)
+        2. SMTP (if SMTP settings are configured)
+        
+        Args:
+            to_email: Recipient email address
+            subject: Email subject line
+            body: Email body (plain text)
+            
+        Returns:
+            dict with success status, message_id, and response details
+        """
+        from ..core.config import get_settings
+        
+        settings = get_settings()
+        
+        # Try SendGrid first if configured
+        if settings.sendgrid_api_key:
+            try:
+                from sendgrid import SendGridAPIClient
+                from sendgrid.helpers.mail import Mail
+                
+                message = Mail(
+                    from_email=(settings.sendgrid_from_email, settings.sendgrid_from_name),
+                    to_emails=to_email,
+                    subject=subject,
+                    plain_text_content=body,
+                )
+                
+                sg = SendGridAPIClient(settings.sendgrid_api_key)
+                response = sg.send(message)
+                
+                return {
+                    "success": True,
+                    "message_id": response.headers.get("X-Message-Id", f"sg-{uuid.uuid4()}"),
+                    "status": "sent",
+                    "response": {
+                        "status_code": response.status_code,
+                        "backend": "sendgrid",
+                    },
+                }
+            except ImportError:
+                logger.warning("SendGrid library not installed, falling back to SMTP")
+            except Exception as e:
+                logger.error(f"SendGrid email failed: {str(e)}, falling back to SMTP")
+        
+        # Fall back to SMTP if SendGrid is not configured or failed
+        if settings.smtp_host and settings.smtp_username and settings.smtp_password:
+            try:
+                import smtplib
+                from email.mime.text import MIMEText
+                from email.mime.multipart import MIMEMultipart
+                
+                # Create message
+                msg = MIMEMultipart()
+                msg['From'] = f"{settings.smtp_from_name} <{settings.smtp_from_email}>"
+                msg['To'] = to_email
+                msg['Subject'] = subject
+                msg.attach(MIMEText(body, 'plain'))
+                
+                # Send email
+                with smtplib.SMTP(settings.smtp_host, settings.smtp_port) as server:
+                    if settings.smtp_use_tls:
+                        server.starttls()
+                    server.login(settings.smtp_username, settings.smtp_password)
+                    server.send_message(msg)
+                
+                return {
+                    "success": True,
+                    "message_id": f"smtp-{uuid.uuid4()}",
+                    "status": "sent",
+                    "response": {"backend": "smtp"},
+                }
+            except Exception as e:
+                logger.error(f"SMTP email failed: {str(e)}")
+                return {
+                    "success": False,
+                    "message_id": None,
+                    "status": "failed",
+                    "response": {
+                        "error": str(e),
+                        "backend": "smtp",
+                    },
+                }
+        
+        # If no email backend is configured, return placeholder response
+        logger.warning("No email backend configured (SendGrid or SMTP)")
         return {
             "success": True,
             "message_id": f"email-{uuid.uuid4()}",
             "status": "sent",
-            "response": {"note": "Email integration not yet implemented"},
+            "response": {"note": "Email integration not configured - no SendGrid API key or SMTP settings"},
         }
 
     async def send_message(self, session: AsyncSession, message_id: int) -> Message:
