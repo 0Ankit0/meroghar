@@ -112,114 +112,112 @@ class _IntermediaryFormScreenState extends State<IntermediaryFormScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create User'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'User Information',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _fullNameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Full Name *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.person),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Create User'),
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'User Information',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Name is required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.email),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: _validateEmail,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone',
-                        hintText: 'Optional',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.phone),
-                      ),
-                      keyboardType: TextInputType.phone,
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<UserRole>(
-                      initialValue: _selectedRole,
-                      decoration: const InputDecoration(
-                        labelText: 'Role *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.badge),
-                      ),
-                      items: const [
-                        DropdownMenuItem(
-                          value: UserRole.tenant,
-                          child: Text('Tenant'),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _fullNameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Full Name *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.person),
                         ),
-                        DropdownMenuItem(
-                          value: UserRole.intermediary,
-                          child: Text('Intermediary/Manager'),
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Name is required' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(
+                          labelText: 'Email *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.email),
                         ),
-                      ],
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedRole = value);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration: InputDecoration(
-                        labelText: 'Initial Password *',
-                        hintText: 'User can change later',
-                        border: const OutlineInputBorder(),
-                        prefixIcon: const Icon(Icons.lock),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility
-                                : Icons.visibility_off,
+                        keyboardType: TextInputType.emailAddress,
+                        validator: _validateEmail,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: const InputDecoration(
+                          labelText: 'Phone',
+                          hintText: 'Optional',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.phone),
+                        ),
+                        keyboardType: TextInputType.phone,
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<UserRole>(
+                        initialValue: _selectedRole,
+                        decoration: const InputDecoration(
+                          labelText: 'Role *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.badge),
+                        ),
+                        items: const [
+                          DropdownMenuItem(
+                            value: UserRole.tenant,
+                            child: Text('Tenant'),
                           ),
-                          onPressed: () => setState(
-                              () => _obscurePassword = !_obscurePassword),
+                          DropdownMenuItem(
+                            value: UserRole.intermediary,
+                            child: Text('Intermediary/Manager'),
+                          ),
+                        ],
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedRole = value);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: InputDecoration(
+                          labelText: 'Initial Password *',
+                          hintText: 'User can change later',
+                          border: const OutlineInputBorder(),
+                          prefixIcon: const Icon(Icons.lock),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _obscurePassword
+                                  ? Icons.visibility
+                                  : Icons.visibility_off,
+                            ),
+                            onPressed: () => setState(
+                                () => _obscurePassword = !_obscurePassword),
+                          ),
                         ),
+                        obscureText: _obscurePassword,
+                        validator: _validatePassword,
                       ),
-                      obscureText: _obscurePassword,
-                      validator: _validatePassword,
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _handleSubmit,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text('Create User'),
                       ),
-                      child: const Text('Create User'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
-            ),
-    );
-  }
+      );
 }

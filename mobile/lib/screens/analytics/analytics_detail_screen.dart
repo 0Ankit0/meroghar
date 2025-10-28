@@ -4,11 +4,6 @@ import 'package:intl/intl.dart';
 /// Analytics detail drill-down screen
 /// Implements T108 from tasks.md
 class AnalyticsDetailScreen extends StatelessWidget {
-  final String reportType;
-  final String? propertyId;
-  final DateTime? startDate;
-  final DateTime? endDate;
-
   const AnalyticsDetailScreen({
     Key? key,
     required this.reportType,
@@ -16,34 +11,36 @@ class AnalyticsDetailScreen extends StatelessWidget {
     this.startDate,
     this.endDate,
   }) : super(key: key);
+  final String reportType;
+  final String? propertyId;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(_getTitle()),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDateRangeInfo(),
-            const SizedBox(height: 16),
-            const Expanded(
-              child: Center(
-                child: Text(
-                  'Detailed view will be populated with specific data based on report type',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text(_getTitle()),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildDateRangeInfo(),
+              const SizedBox(height: 16),
+              const Expanded(
+                child: Center(
+                  child: Text(
+                    'Detailed view will be populated with specific data based on report type',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey),
+                  ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   String _getTitle() {
     switch (reportType) {

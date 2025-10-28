@@ -13,12 +13,11 @@ import '../../providers/payment_provider.dart';
 import '../../services/api_service.dart';
 
 class TenantListScreen extends StatefulWidget {
-  final String? propertyId;
-
   const TenantListScreen({
     super.key,
     this.propertyId,
   });
+  final String? propertyId;
 
   @override
   State<TenantListScreen> createState() => _TenantListScreenState();
@@ -154,112 +153,109 @@ class _TenantListScreenState extends State<TenantListScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Tenants'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showFilterDialog,
-          ),
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadTenants,
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search tenants...',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(30),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Tenants'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: _showFilterDialog,
+            ),
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadTenants,
+            ),
+          ],
+        ),
+        body: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search tenants...',
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey.shade100,
                 ),
-                filled: true,
-                fillColor: Colors.grey.shade100,
               ),
             ),
-          ),
-          if (_isLoading)
-            const Expanded(
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if (_errorMessage != null)
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline,
-                        size: 64, color: Colors.red.shade300),
-                    const SizedBox(height: 16),
-                    Text(_errorMessage!),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: _loadTenants,
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              ),
-            )
-          else if (_filteredTenants.isEmpty)
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.people_outline,
-                        size: 64, color: Colors.grey.shade400),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No tenants found',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey.shade600,
+            if (_isLoading)
+              const Expanded(
+                child: Center(child: CircularProgressIndicator()),
+              )
+            else if (_errorMessage != null)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.error_outline,
+                          size: 64, color: Colors.red.shade300),
+                      const SizedBox(height: 16),
+                      Text(_errorMessage!),
+                      const SizedBox(height: 16),
+                      ElevatedButton(
+                        onPressed: _loadTenants,
+                        child: const Text('Retry'),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                ),
+              )
+            else if (_filteredTenants.isEmpty)
+              Expanded(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.people_outline,
+                          size: 64, color: Colors.grey.shade400),
+                      const SizedBox(height: 16),
+                      Text(
+                        'No tenants found',
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey.shade600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            else
+              Expanded(
+                child: RefreshIndicator(
+                  onRefresh: _loadTenants,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: _filteredTenants.length,
+                    itemBuilder: (context, index) {
+                      final tenant = _filteredTenants[index];
+                      return _TenantCard(tenant: tenant);
+                    },
+                  ),
                 ),
               ),
-            )
-          else
-            Expanded(
-              child: RefreshIndicator(
-                onRefresh: _loadTenants,
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _filteredTenants.length,
-                  itemBuilder: (context, index) {
-                    final tenant = _filteredTenants[index];
-                    return _TenantCard(tenant: tenant);
-                  },
-                ),
-              ),
-            ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Navigate to tenant creation
-          Navigator.pushNamed(context, '/tenants/create');
-        },
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
+          ],
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            // Navigate to tenant creation
+            Navigator.pushNamed(context, '/tenants/create');
+          },
+          child: const Icon(Icons.add),
+        ),
+      );
 }
 
 class _TenantCard extends StatefulWidget {
-  final Tenant tenant;
-
   const _TenantCard({required this.tenant});
+  final Tenant tenant;
 
   @override
   State<_TenantCard> createState() => _TenantCardState();
@@ -582,42 +578,39 @@ class _TenantCardState extends State<_TenantCard> {
 }
 
 class _InfoItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
   const _InfoItem({
     required this.icon,
     required this.label,
     required this.value,
   });
+  final IconData icon;
+  final String label;
+  final String value;
 
   @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon, size: 16, color: Colors.grey.shade600),
-        const SizedBox(width: 4),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 11,
-                color: Colors.grey.shade600,
+  Widget build(BuildContext context) => Row(
+        children: [
+          Icon(icon, size: 16, color: Colors.grey.shade600),
+          const SizedBox(width: 4),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.grey.shade600,
+                ),
               ),
-            ),
-            Text(
-              value,
-              style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+            ],
+          ),
+        ],
+      );
 }

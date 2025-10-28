@@ -24,58 +24,6 @@ enum DocumentStatus {
 }
 
 class Document {
-  final int id;
-  final String title;
-  final String? description;
-  final DocumentType documentType;
-  final DocumentStatus status;
-  final String fileUrl;
-  final String fileName;
-  final int fileSize;
-  final double fileSizeMb;
-  final String mimeType;
-  final String storageKey;
-  final DateTime? expirationDate;
-  final bool isExpired;
-  final int? daysUntilExpiration;
-  final bool needsReminder;
-  final bool reminderSent;
-  final int reminderDaysBefore;
-  final int version;
-  final int? parentDocumentId;
-  final int uploadedBy;
-  final int? tenantId;
-  final int? propertyId;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-
-  // Computed properties
-  bool get canRenew =>
-      isExpired || (daysUntilExpiration != null && daysUntilExpiration! <= 30);
-  bool get isActive => status == DocumentStatus.active;
-  bool get isArchived => status == DocumentStatus.archived;
-  bool get hasExpiration => expirationDate != null;
-  bool get isLatestVersion => parentDocumentId == null;
-
-  /// Get human-readable file size
-  String get fileSizeFormatted {
-    if (fileSizeMb < 1) {
-      return '${(fileSizeMb * 1024).toStringAsFixed(0)} KB';
-    } else {
-      return '${fileSizeMb.toStringAsFixed(2)} MB';
-    }
-  }
-
-  /// Get document type label
-  String get typeLabel {
-    return documentTypeToLabel(documentType);
-  }
-
-  /// Get status label
-  String get statusLabel {
-    return documentStatusToLabel(status);
-  }
-
   Document({
     required this.id,
     required this.title,
@@ -135,35 +83,80 @@ class Document {
           : null,
     );
   }
+  final int id;
+  final String title;
+  final String? description;
+  final DocumentType documentType;
+  final DocumentStatus status;
+  final String fileUrl;
+  final String fileName;
+  final int fileSize;
+  final double fileSizeMb;
+  final String mimeType;
+  final String storageKey;
+  final DateTime? expirationDate;
+  final bool isExpired;
+  final int? daysUntilExpiration;
+  final bool needsReminder;
+  final bool reminderSent;
+  final int reminderDaysBefore;
+  final int version;
+  final int? parentDocumentId;
+  final int uploadedBy;
+  final int? tenantId;
+  final int? propertyId;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'title': title,
-      'description': description,
-      'document_type': documentTypeToString(documentType),
-      'status': documentStatusToString(status),
-      'file_url': fileUrl,
-      'file_name': fileName,
-      'file_size': fileSize,
-      'file_size_mb': fileSizeMb,
-      'mime_type': mimeType,
-      'storage_key': storageKey,
-      'expiration_date': expirationDate?.toIso8601String(),
-      'is_expired': isExpired,
-      'days_until_expiration': daysUntilExpiration,
-      'needs_reminder': needsReminder,
-      'reminder_sent': reminderSent,
-      'reminder_days_before': reminderDaysBefore,
-      'version': version,
-      'parent_document_id': parentDocumentId,
-      'uploaded_by': uploadedBy,
-      'tenant_id': tenantId,
-      'property_id': propertyId,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-    };
+  // Computed properties
+  bool get canRenew =>
+      isExpired || (daysUntilExpiration != null && daysUntilExpiration! <= 30);
+  bool get isActive => status == DocumentStatus.active;
+  bool get isArchived => status == DocumentStatus.archived;
+  bool get hasExpiration => expirationDate != null;
+  bool get isLatestVersion => parentDocumentId == null;
+
+  /// Get human-readable file size
+  String get fileSizeFormatted {
+    if (fileSizeMb < 1) {
+      return '${(fileSizeMb * 1024).toStringAsFixed(0)} KB';
+    } else {
+      return '${fileSizeMb.toStringAsFixed(2)} MB';
+    }
   }
+
+  /// Get document type label
+  String get typeLabel => documentTypeToLabel(documentType);
+
+  /// Get status label
+  String get statusLabel => documentStatusToLabel(status);
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'title': title,
+        'description': description,
+        'document_type': documentTypeToString(documentType),
+        'status': documentStatusToString(status),
+        'file_url': fileUrl,
+        'file_name': fileName,
+        'file_size': fileSize,
+        'file_size_mb': fileSizeMb,
+        'mime_type': mimeType,
+        'storage_key': storageKey,
+        'expiration_date': expirationDate?.toIso8601String(),
+        'is_expired': isExpired,
+        'days_until_expiration': daysUntilExpiration,
+        'needs_reminder': needsReminder,
+        'reminder_sent': reminderSent,
+        'reminder_days_before': reminderDaysBefore,
+        'version': version,
+        'parent_document_id': parentDocumentId,
+        'uploaded_by': uploadedBy,
+        'tenant_id': tenantId,
+        'property_id': propertyId,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+      };
 
   Document copyWith({
     int? id,
@@ -190,34 +183,33 @@ class Document {
     int? propertyId,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return Document(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      description: description ?? this.description,
-      documentType: documentType ?? this.documentType,
-      status: status ?? this.status,
-      fileUrl: fileUrl ?? this.fileUrl,
-      fileName: fileName ?? this.fileName,
-      fileSize: fileSize ?? this.fileSize,
-      fileSizeMb: fileSizeMb ?? this.fileSizeMb,
-      mimeType: mimeType ?? this.mimeType,
-      storageKey: storageKey ?? this.storageKey,
-      expirationDate: expirationDate ?? this.expirationDate,
-      isExpired: isExpired ?? this.isExpired,
-      daysUntilExpiration: daysUntilExpiration ?? this.daysUntilExpiration,
-      needsReminder: needsReminder ?? this.needsReminder,
-      reminderSent: reminderSent ?? this.reminderSent,
-      reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
-      version: version ?? this.version,
-      parentDocumentId: parentDocumentId ?? this.parentDocumentId,
-      uploadedBy: uploadedBy ?? this.uploadedBy,
-      tenantId: tenantId ?? this.tenantId,
-      propertyId: propertyId ?? this.propertyId,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      Document(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        description: description ?? this.description,
+        documentType: documentType ?? this.documentType,
+        status: status ?? this.status,
+        fileUrl: fileUrl ?? this.fileUrl,
+        fileName: fileName ?? this.fileName,
+        fileSize: fileSize ?? this.fileSize,
+        fileSizeMb: fileSizeMb ?? this.fileSizeMb,
+        mimeType: mimeType ?? this.mimeType,
+        storageKey: storageKey ?? this.storageKey,
+        expirationDate: expirationDate ?? this.expirationDate,
+        isExpired: isExpired ?? this.isExpired,
+        daysUntilExpiration: daysUntilExpiration ?? this.daysUntilExpiration,
+        needsReminder: needsReminder ?? this.needsReminder,
+        reminderSent: reminderSent ?? this.reminderSent,
+        reminderDaysBefore: reminderDaysBefore ?? this.reminderDaysBefore,
+        version: version ?? this.version,
+        parentDocumentId: parentDocumentId ?? this.parentDocumentId,
+        uploadedBy: uploadedBy ?? this.uploadedBy,
+        tenantId: tenantId ?? this.tenantId,
+        propertyId: propertyId ?? this.propertyId,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   // Helper methods for enum conversion
   static DocumentType documentTypeFromString(String value) {
@@ -341,14 +333,6 @@ class Document {
 
 /// Request to initiate document upload
 class DocumentUploadRequest {
-  final String title;
-  final String? description;
-  final DocumentType documentType;
-  final DateTime? expirationDate;
-  final int reminderDaysBefore;
-  final int? tenantId;
-  final int? propertyId;
-
   DocumentUploadRequest({
     required this.title,
     this.description,
@@ -358,28 +342,27 @@ class DocumentUploadRequest {
     this.tenantId,
     this.propertyId,
   });
+  final String title;
+  final String? description;
+  final DocumentType documentType;
+  final DateTime? expirationDate;
+  final int reminderDaysBefore;
+  final int? tenantId;
+  final int? propertyId;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'title': title,
-      'description': description,
-      'document_type': Document.documentTypeToString(documentType),
-      'expiration_date': expirationDate?.toIso8601String(),
-      'reminder_days_before': reminderDaysBefore,
-      'tenant_id': tenantId,
-      'property_id': propertyId,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'title': title,
+        'description': description,
+        'document_type': Document.documentTypeToString(documentType),
+        'expiration_date': expirationDate?.toIso8601String(),
+        'reminder_days_before': reminderDaysBefore,
+        'tenant_id': tenantId,
+        'property_id': propertyId,
+      };
 }
 
 /// Response from upload URL request
 class DocumentUploadResponse {
-  final String uploadUrl;
-  final String storageKey;
-  final int expiresIn;
-  final int maxFileSize;
-  final List<String> allowedMimeTypes;
-
   DocumentUploadResponse({
     required this.uploadUrl,
     required this.storageKey,
@@ -399,40 +382,36 @@ class DocumentUploadResponse {
           .toList(),
     );
   }
+  final String uploadUrl;
+  final String storageKey;
+  final int expiresIn;
+  final int maxFileSize;
+  final List<String> allowedMimeTypes;
 }
 
 /// Request to complete document upload
 class DocumentCompleteRequest {
-  final String storageKey;
-  final String fileName;
-  final int fileSize;
-  final String mimeType;
-
   DocumentCompleteRequest({
     required this.storageKey,
     required this.fileName,
     required this.fileSize,
     required this.mimeType,
   });
-
-  Map<String, dynamic> toJson() {
-    return {
-      'storage_key': storageKey,
-      'file_name': fileName,
-      'file_size': fileSize,
-      'mime_type': mimeType,
-    };
-  }
-}
-
-/// Response with download URL
-class DocumentDownloadResponse {
-  final String downloadUrl;
-  final int expiresIn;
+  final String storageKey;
   final String fileName;
   final int fileSize;
   final String mimeType;
 
+  Map<String, dynamic> toJson() => {
+        'storage_key': storageKey,
+        'file_name': fileName,
+        'file_size': fileSize,
+        'mime_type': mimeType,
+      };
+}
+
+/// Response with download URL
+class DocumentDownloadResponse {
   DocumentDownloadResponse({
     required this.downloadUrl,
     required this.expiresIn,
@@ -450,15 +429,15 @@ class DocumentDownloadResponse {
       mimeType: json['mime_type'] as String,
     );
   }
+  final String downloadUrl;
+  final int expiresIn;
+  final String fileName;
+  final int fileSize;
+  final String mimeType;
 }
 
 /// Paginated list of documents
 class DocumentListResponse {
-  final List<Document> documents;
-  final int total;
-  final int page;
-  final int pageSize;
-
   DocumentListResponse({
     required this.documents,
     required this.total,
@@ -476,6 +455,10 @@ class DocumentListResponse {
       pageSize: json['page_size'] as int,
     );
   }
+  final List<Document> documents;
+  final int total;
+  final int page;
+  final int pageSize;
 
   int get totalPages => (total / pageSize).ceil();
   bool get hasNextPage => page < totalPages;

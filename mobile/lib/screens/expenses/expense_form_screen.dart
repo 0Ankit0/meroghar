@@ -14,14 +14,15 @@ import '../../models/property.dart';
 import '../../providers/expense_provider.dart';
 
 class ExpenseFormScreen extends StatefulWidget {
-  final Property property;
-  final Expense? expense; // For editing existing expense
+  // For editing existing expense
 
   const ExpenseFormScreen({
     super.key,
     required this.property,
     this.expense,
   });
+  final Property property;
+  final Expense? expense;
 
   @override
   State<ExpenseFormScreen> createState() => _ExpenseFormScreenState();
@@ -89,7 +90,7 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
 
   Future<void> _pickImage(ImageSource source) async {
     try {
-      final XFile? pickedFile = await _imagePicker.pickImage(
+      final pickedFile = await _imagePicker.pickImage(
         source: source,
         maxWidth: 1920,
         maxHeight: 1080,
@@ -261,12 +262,12 @@ class _ExpenseFormScreenState extends State<ExpenseFormScreen> {
                         border: OutlineInputBorder(),
                         prefixIcon: Icon(Icons.category),
                       ),
-                      items: ExpenseCategory.values.map((category) {
-                        return DropdownMenuItem(
-                          value: category,
-                          child: Text(category.displayName),
-                        );
-                      }).toList(),
+                      items: ExpenseCategory.values
+                          .map((category) => DropdownMenuItem(
+                                value: category,
+                                child: Text(category.displayName),
+                              ))
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {

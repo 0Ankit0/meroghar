@@ -22,9 +22,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 
 /// FCM Service for managing push notifications
 class FCMService {
-  static final FCMService _instance = FCMService._internal();
   factory FCMService() => _instance;
   FCMService._internal();
+  static final FCMService _instance = FCMService._internal();
 
   final FirebaseMessaging _messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _localNotifications =

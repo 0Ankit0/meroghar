@@ -12,10 +12,6 @@ import '../config/env.example.dart';
 /// - iOS: Keychain
 /// - Android: EncryptedSharedPreferences
 class SecureStorageService {
-  static final SecureStorageService instance = SecureStorageService._internal();
-
-  late final FlutterSecureStorage _storage;
-
   factory SecureStorageService() => instance;
 
   SecureStorageService._internal() {
@@ -28,6 +24,9 @@ class SecureStorageService {
       ),
     );
   }
+  static final SecureStorageService instance = SecureStorageService._internal();
+
+  late final FlutterSecureStorage _storage;
 
   /// Generate storage key with prefix.
   String _key(String key) => '${Environment.secureStoragePrefix}$key';
@@ -43,9 +42,8 @@ class SecureStorageService {
   }
 
   /// Get access token.
-  Future<String?> getAccessToken() async {
-    return await _storage.read(key: _key(Environment.accessTokenKey));
-  }
+  Future<String?> getAccessToken() async =>
+      await _storage.read(key: _key(Environment.accessTokenKey));
 
   /// Delete access token.
   Future<void> deleteAccessToken() async {
@@ -61,9 +59,8 @@ class SecureStorageService {
   }
 
   /// Get refresh token.
-  Future<String?> getRefreshToken() async {
-    return await _storage.read(key: _key(Environment.refreshTokenKey));
-  }
+  Future<String?> getRefreshToken() async =>
+      await _storage.read(key: _key(Environment.refreshTokenKey));
 
   /// Delete refresh token.
   Future<void> deleteRefreshToken() async {
@@ -107,9 +104,8 @@ class SecureStorageService {
   }
 
   /// Get user ID.
-  Future<String?> getUserId() async {
-    return await _storage.read(key: _key(Environment.userIdKey));
-  }
+  Future<String?> getUserId() async =>
+      await _storage.read(key: _key(Environment.userIdKey));
 
   /// Delete user ID.
   Future<void> deleteUserId() async {
@@ -127,9 +123,8 @@ class SecureStorageService {
   }
 
   /// Read any string value.
-  Future<String?> readString(String key) async {
-    return await _storage.read(key: _key(key));
-  }
+  Future<String?> readString(String key) async =>
+      await _storage.read(key: _key(key));
 
   /// Delete any value.
   Future<void> delete(String key) async {
@@ -145,9 +140,7 @@ class SecureStorageService {
   // ==================== Bulk Operations ====================
 
   /// Get all stored keys.
-  Future<Map<String, String>> readAll() async {
-    return await _storage.readAll();
-  }
+  Future<Map<String, String>> readAll() async => await _storage.readAll();
 
   /// Delete all stored values (logout).
   Future<void> deleteAll() async {
@@ -210,21 +203,11 @@ class SecureStorageService {
 
 /// Authentication session data model.
 class AuthSession {
-  final String accessToken;
-  final String refreshToken;
-  final String userId;
-
   const AuthSession({
     required this.accessToken,
     required this.refreshToken,
     required this.userId,
   });
-
-  Map<String, dynamic> toJson() => {
-        'accessToken': accessToken,
-        'refreshToken': refreshToken,
-        'userId': userId,
-      };
 
   factory AuthSession.fromJson(Map<String, dynamic> json) {
     return AuthSession(
@@ -233,4 +216,13 @@ class AuthSession {
       userId: json['userId'] as String,
     );
   }
+  final String accessToken;
+  final String refreshToken;
+  final String userId;
+
+  Map<String, dynamic> toJson() => {
+        'accessToken': accessToken,
+        'refreshToken': refreshToken,
+        'userId': userId,
+      };
 }

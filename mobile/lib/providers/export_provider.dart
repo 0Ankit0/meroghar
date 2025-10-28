@@ -28,15 +28,6 @@ enum ExportStatus {
 
 /// Information about an export operation.
 class ExportHistoryEntry {
-  final String id;
-  final String title;
-  final ExportFormat format;
-  final DateTime createdAt;
-  final ExportStatus status;
-  final String? filePath;
-  final String? error;
-  final int? fileSize;
-
   ExportHistoryEntry({
     required this.id,
     required this.title,
@@ -47,6 +38,14 @@ class ExportHistoryEntry {
     this.error,
     this.fileSize,
   });
+  final String id;
+  final String title;
+  final ExportFormat format;
+  final DateTime createdAt;
+  final ExportStatus status;
+  final String? filePath;
+  final String? error;
+  final int? fileSize;
 
   ExportHistoryEntry copyWith({
     String? id,
@@ -57,35 +56,33 @@ class ExportHistoryEntry {
     String? filePath,
     String? error,
     int? fileSize,
-  }) {
-    return ExportHistoryEntry(
-      id: id ?? this.id,
-      title: title ?? this.title,
-      format: format ?? this.format,
-      createdAt: createdAt ?? this.createdAt,
-      status: status ?? this.status,
-      filePath: filePath ?? this.filePath,
-      error: error ?? this.error,
-      fileSize: fileSize ?? this.fileSize,
-    );
-  }
+  }) =>
+      ExportHistoryEntry(
+        id: id ?? this.id,
+        title: title ?? this.title,
+        format: format ?? this.format,
+        createdAt: createdAt ?? this.createdAt,
+        status: status ?? this.status,
+        filePath: filePath ?? this.filePath,
+        error: error ?? this.error,
+        fileSize: fileSize ?? this.fileSize,
+      );
 }
 
 /// Provider for managing payment export operations and history.
 class ExportProvider with ChangeNotifier {
+  ExportProvider(this._fileService);
   final FileService _fileService;
 
   final List<ExportHistoryEntry> _history = [];
   bool _isExporting = false;
   String? _error;
-  double _downloadProgress = 0.0;
+  double _downloadProgress = 0;
 
   List<ExportHistoryEntry> get history => List.unmodifiable(_history);
   bool get isExporting => _isExporting;
   String? get error => _error;
   double get downloadProgress => _downloadProgress;
-
-  ExportProvider(this._fileService);
 
   /// Export payment history for the current user.
   ///
@@ -255,24 +252,19 @@ class ExportProvider with ChangeNotifier {
   }
 
   /// Get total size of all exported files.
-  int get totalExportSize {
-    return _history.fold<int>(
-      0,
-      (sum, entry) => sum + (entry.fileSize ?? 0),
-    );
-  }
+  int get totalExportSize => _history.fold<int>(
+        0,
+        (sum, entry) => sum + (entry.fileSize ?? 0),
+      );
 
   /// Get count of completed exports.
-  int get completedExportCount {
-    return _history.where((e) => e.status == ExportStatus.completed).length;
-  }
+  int get completedExportCount =>
+      _history.where((e) => e.status == ExportStatus.completed).length;
 
   void clearError() {
     _error = null;
     notifyListeners();
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 }

@@ -24,202 +24,201 @@ class _LanguageSettingsScreenState extends State<LanguageSettingsScreen> {
   bool _isChanging = false;
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Language Settings'),
-        elevation: 0,
-      ),
-      body: Consumer<LanguageProvider>(
-        builder: (context, languageProvider, child) {
-          if (!languageProvider.isInitialized) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Language Settings'),
+          elevation: 0,
+        ),
+        body: Consumer<LanguageProvider>(
+          builder: (context, languageProvider, child) {
+            if (!languageProvider.isInitialized) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            }
 
-          final languages = languageProvider.getSupportedLanguages();
+            final languages = languageProvider.getSupportedLanguages();
 
-          return Column(
-            children: [
-              // Info banner
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.info_outline,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        'Select your preferred language. The app will be displayed in the selected language.',
-                        style: TextStyle(
-                          color:
-                              Theme.of(context).colorScheme.onPrimaryContainer,
-                          fontSize: 14,
+            return Column(
+              children: [
+                // Info banner
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  margin: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.info_outline,
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          'Select your preferred language. The app will be displayed in the selected language.',
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .colorScheme
+                                .onPrimaryContainer,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
 
-              // Language list
-              Expanded(
-                child: ListView.builder(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: languages.length,
-                  itemBuilder: (context, index) {
-                    final language = languages[index];
-                    final isSelected =
-                        languageProvider.isLanguageSelected(language.code);
+                // Language list
+                Expanded(
+                  child: ListView.builder(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    itemCount: languages.length,
+                    itemBuilder: (context, index) {
+                      final language = languages[index];
+                      final isSelected =
+                          languageProvider.isLanguageSelected(language.code);
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        leading: Container(
-                          width: 48,
-                          height: 48,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest,
-                            borderRadius: BorderRadius.circular(24),
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 12),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
                           ),
-                          child: Center(
-                            child: Text(
-                              language.nativeName[0].toUpperCase(),
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
-                                color: isSelected
-                                    ? Theme.of(context).colorScheme.onPrimary
-                                    : Theme.of(context)
-                                        .colorScheme
-                                        .onSurfaceVariant,
-                              ),
+                          leading: Container(
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: isSelected
+                                  ? Theme.of(context).colorScheme.primary
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .surfaceContainerHighest,
+                              borderRadius: BorderRadius.circular(24),
                             ),
-                          ),
-                        ),
-                        title: Text(
-                          language.nativeName,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                        subtitle: Row(
-                          children: [
-                            Text(
-                              language.name,
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                              ),
-                            ),
-                            if (language.isRTL) ...[
-                              const SizedBox(width: 8),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
+                            child: Center(
+                              child: Text(
+                                language.nativeName[0].toUpperCase(),
+                                style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.onPrimary
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .onSurfaceVariant,
                                 ),
-                                decoration: BoxDecoration(
+                              ),
+                            ),
+                          ),
+                          title: Text(
+                            language.nativeName,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          subtitle: Row(
+                            children: [
+                              Text(
+                                language.name,
+                                style: TextStyle(
+                                  fontSize: 14,
                                   color: Theme.of(context)
                                       .colorScheme
-                                      .secondaryContainer,
-                                  borderRadius: BorderRadius.circular(4),
+                                      .onSurfaceVariant,
                                 ),
-                                child: Text(
-                                  'RTL',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.bold,
+                              ),
+                              if (language.isRTL) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
                                     color: Theme.of(context)
                                         .colorScheme
-                                        .onSecondaryContainer,
+                                        .secondaryContainer,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                  child: Text(
+                                    'RTL',
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Theme.of(context)
+                                          .colorScheme
+                                          .onSecondaryContainer,
+                                    ),
                                   ),
                                 ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
+                          trailing: isSelected
+                              ? Icon(
+                                  Icons.check_circle,
+                                  color: Theme.of(context).colorScheme.primary,
+                                  size: 28,
+                                )
+                              : Icon(
+                                  Icons.radio_button_unchecked,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                  size: 28,
+                                ),
+                          onTap: isSelected || _isChanging
+                              ? null
+                              : () => _changeLanguage(language.code),
                         ),
-                        trailing: isSelected
-                            ? Icon(
-                                Icons.check_circle,
-                                color: Theme.of(context).colorScheme.primary,
-                                size: 28,
-                              )
-                            : Icon(
-                                Icons.radio_button_unchecked,
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
-                                size: 28,
-                              ),
-                        onTap: isSelected || _isChanging
-                            ? null
-                            : () => _changeLanguage(language.code),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
 
-              // Current language indicator
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.surface,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, -2),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.language,
-                      color: Theme.of(context).colorScheme.primary,
-                      size: 20,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Current: ${languageProvider.currentLanguageName}',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Theme.of(context).colorScheme.onSurface,
+                // Current language indicator
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surface,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 4,
+                        offset: const Offset(0, -2),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.language,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Current: ${languageProvider.currentLanguageName}',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+              ],
+            );
+          },
+        ),
+      );
 
   /// Change the app language
   Future<void> _changeLanguage(String languageCode) async {

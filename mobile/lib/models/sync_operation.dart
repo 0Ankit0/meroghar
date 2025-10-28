@@ -5,16 +5,6 @@ import 'dart:convert';
 
 /// Represents a queued operation for offline sync.
 class SyncOperation {
-  final int? id;
-  final OperationType operation;
-  final String entityType; // 'property', 'tenant', 'payment', etc.
-  final String entityId;
-  final Map<String, dynamic> data; // parsed JSON payload
-  final SyncStatus status;
-  final int retryCount;
-  final DateTime createdAt;
-  final DateTime? lastAttemptAt;
-
   const SyncOperation({
     this.id,
     required this.operation,
@@ -53,35 +43,6 @@ class SyncOperation {
     );
   }
 
-  /// Convert to database map. Dates become ISO8601 strings.
-  Map<String, dynamic> toMap() {
-    return {
-      if (id != null) 'id': id,
-      'operation': operation.asString,
-      'entity_type': entityType,
-      'entity_id': entityId,
-      'data': json.encode(data),
-      'status': status.asString,
-      'retry_count': retryCount,
-      'created_at': createdAt.toUtc().toIso8601String(),
-      if (lastAttemptAt != null)
-        'last_attempt_at': lastAttemptAt!.toUtc().toIso8601String(),
-    };
-  }
-
-  /// JSON serialization for network or local cache (not DB map which uses strings)
-  Map<String, dynamic> toJson() => {
-        if (id != null) 'id': id,
-        'operation': operation.asString,
-        'entity_type': entityType,
-        'entity_id': entityId,
-        'data': data,
-        'status': status.asString,
-        'retry_count': retryCount,
-        'created_at': createdAt.toUtc().toIso8601String(),
-        'last_attempt_at': lastAttemptAt?.toUtc().toIso8601String(),
-      };
-
   factory SyncOperation.fromJson(Map<String, dynamic> jsonMap) {
     DateTime parseDate(dynamic v) {
       if (v == null) return DateTime.fromMillisecondsSinceEpoch(0);
@@ -105,6 +66,42 @@ class SyncOperation {
           : null,
     );
   }
+  final int? id;
+  final OperationType operation;
+  final String entityType; // 'property', 'tenant', 'payment', etc.
+  final String entityId;
+  final Map<String, dynamic> data; // parsed JSON payload
+  final SyncStatus status;
+  final int retryCount;
+  final DateTime createdAt;
+  final DateTime? lastAttemptAt;
+
+  /// Convert to database map. Dates become ISO8601 strings.
+  Map<String, dynamic> toMap() => {
+        if (id != null) 'id': id,
+        'operation': operation.asString,
+        'entity_type': entityType,
+        'entity_id': entityId,
+        'data': json.encode(data),
+        'status': status.asString,
+        'retry_count': retryCount,
+        'created_at': createdAt.toUtc().toIso8601String(),
+        if (lastAttemptAt != null)
+          'last_attempt_at': lastAttemptAt!.toUtc().toIso8601String(),
+      };
+
+  /// JSON serialization for network or local cache (not DB map which uses strings)
+  Map<String, dynamic> toJson() => {
+        if (id != null) 'id': id,
+        'operation': operation.asString,
+        'entity_type': entityType,
+        'entity_id': entityId,
+        'data': data,
+        'status': status.asString,
+        'retry_count': retryCount,
+        'created_at': createdAt.toUtc().toIso8601String(),
+        'last_attempt_at': lastAttemptAt?.toUtc().toIso8601String(),
+      };
 
   SyncOperation copyWith({
     int? id,
@@ -116,42 +113,39 @@ class SyncOperation {
     int? retryCount,
     DateTime? createdAt,
     DateTime? lastAttemptAt,
-  }) {
-    return SyncOperation(
-      id: id ?? this.id,
-      operation: operation ?? this.operation,
-      entityType: entityType ?? this.entityType,
-      entityId: entityId ?? this.entityId,
-      data: data ?? this.data,
-      status: status ?? this.status,
-      retryCount: retryCount ?? this.retryCount,
-      createdAt: createdAt ?? this.createdAt,
-      lastAttemptAt: lastAttemptAt ?? this.lastAttemptAt,
-    );
-  }
+  }) =>
+      SyncOperation(
+        id: id ?? this.id,
+        operation: operation ?? this.operation,
+        entityType: entityType ?? this.entityType,
+        entityId: entityId ?? this.entityId,
+        data: data ?? this.data,
+        status: status ?? this.status,
+        retryCount: retryCount ?? this.retryCount,
+        createdAt: createdAt ?? this.createdAt,
+        lastAttemptAt: lastAttemptAt ?? this.lastAttemptAt,
+      );
 
   /// Whether this operation should be retried.
   bool get needsRetry => status != SyncStatus.completed && retryCount < 5;
 
   /// Return a new instance with incremented retry count and updated lastAttemptAt.
-  SyncOperation withRetryAttempted(DateTime attemptTime) {
-    return copyWith(retryCount: retryCount + 1, lastAttemptAt: attemptTime);
-  }
+  SyncOperation withRetryAttempted(DateTime attemptTime) =>
+      copyWith(retryCount: retryCount + 1, lastAttemptAt: attemptTime);
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other is SyncOperation &&
-            other.id == id &&
-            other.operation == operation &&
-            other.entityType == entityType &&
-            other.entityId == entityId &&
-            mapEquals(other.data, data) &&
-            other.status == status &&
-            other.retryCount == retryCount &&
-            other.createdAt == createdAt &&
-            other.lastAttemptAt == lastAttemptAt);
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncOperation &&
+          other.id == id &&
+          other.operation == operation &&
+          other.entityType == entityType &&
+          other.entityId == entityId &&
+          mapEquals(other.data, data) &&
+          other.status == status &&
+          other.retryCount == retryCount &&
+          other.createdAt == createdAt &&
+          other.lastAttemptAt == lastAttemptAt);
 
   @override
   int get hashCode => Object.hash(

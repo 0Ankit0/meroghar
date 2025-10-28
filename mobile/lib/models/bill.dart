@@ -172,18 +172,6 @@ enum RecurringFrequency {
 /// Bill allocation model
 @immutable
 class BillAllocation {
-  final String id;
-  final String billId;
-  final String tenantId;
-  final double allocatedAmount;
-  final double? percentage;
-  final bool isPaid;
-  final DateTime? paidDate;
-  final String? paymentId;
-  final String? notes;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
   const BillAllocation({
     required this.id,
     required this.billId,
@@ -217,22 +205,31 @@ class BillAllocation {
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
+  final String id;
+  final String billId;
+  final String tenantId;
+  final double allocatedAmount;
+  final double? percentage;
+  final bool isPaid;
+  final DateTime? paidDate;
+  final String? paymentId;
+  final String? notes;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'bill_id': billId,
-      'tenant_id': tenantId,
-      'allocated_amount': allocatedAmount,
-      'percentage': percentage,
-      'is_paid': isPaid,
-      'paid_date': paidDate?.toIso8601String(),
-      'payment_id': paymentId,
-      'notes': notes,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'bill_id': billId,
+        'tenant_id': tenantId,
+        'allocated_amount': allocatedAmount,
+        'percentage': percentage,
+        'is_paid': isPaid,
+        'paid_date': paidDate?.toIso8601String(),
+        'payment_id': paymentId,
+        'notes': notes,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   BillAllocation copyWith({
     String? id,
@@ -246,21 +243,20 @@ class BillAllocation {
     String? notes,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return BillAllocation(
-      id: id ?? this.id,
-      billId: billId ?? this.billId,
-      tenantId: tenantId ?? this.tenantId,
-      allocatedAmount: allocatedAmount ?? this.allocatedAmount,
-      percentage: percentage ?? this.percentage,
-      isPaid: isPaid ?? this.isPaid,
-      paidDate: paidDate ?? this.paidDate,
-      paymentId: paymentId ?? this.paymentId,
-      notes: notes ?? this.notes,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      BillAllocation(
+        id: id ?? this.id,
+        billId: billId ?? this.billId,
+        tenantId: tenantId ?? this.tenantId,
+        allocatedAmount: allocatedAmount ?? this.allocatedAmount,
+        percentage: percentage ?? this.percentage,
+        isPaid: isPaid ?? this.isPaid,
+        paidDate: paidDate ?? this.paidDate,
+        paymentId: paymentId ?? this.paymentId,
+        notes: notes ?? this.notes,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   @override
   bool operator ==(Object other) =>
@@ -282,24 +278,6 @@ class BillAllocation {
 /// Bill model
 @immutable
 class Bill {
-  final String id;
-  final String propertyId;
-  final BillType billType;
-  final double totalAmount;
-  final String currency;
-  final DateTime periodStart;
-  final DateTime periodEnd;
-  final DateTime dueDate;
-  final BillStatus status;
-  final AllocationMethod allocationMethod;
-  final String? description;
-  final String? billNumber;
-  final DateTime? paidDate;
-  final String? createdBy;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final List<BillAllocation> allocations;
-
   const Bill({
     required this.id,
     required this.propertyId,
@@ -348,28 +326,43 @@ class Bill {
           : const [],
     );
   }
+  final String id;
+  final String propertyId;
+  final BillType billType;
+  final double totalAmount;
+  final String currency;
+  final DateTime periodStart;
+  final DateTime periodEnd;
+  final DateTime dueDate;
+  final BillStatus status;
+  final AllocationMethod allocationMethod;
+  final String? description;
+  final String? billNumber;
+  final DateTime? paidDate;
+  final String? createdBy;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final List<BillAllocation> allocations;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'property_id': propertyId,
-      'bill_type': billType.toJson(),
-      'total_amount': totalAmount,
-      'currency': currency,
-      'period_start': periodStart.toIso8601String(),
-      'period_end': periodEnd.toIso8601String(),
-      'due_date': dueDate.toIso8601String(),
-      'status': status.toJson(),
-      'allocation_method': allocationMethod.toJson(),
-      'description': description,
-      'bill_number': billNumber,
-      'paid_date': paidDate?.toIso8601String(),
-      'created_by': createdBy,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'allocations': allocations.map((e) => e.toJson()).toList(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'property_id': propertyId,
+        'bill_type': billType.toJson(),
+        'total_amount': totalAmount,
+        'currency': currency,
+        'period_start': periodStart.toIso8601String(),
+        'period_end': periodEnd.toIso8601String(),
+        'due_date': dueDate.toIso8601String(),
+        'status': status.toJson(),
+        'allocation_method': allocationMethod.toJson(),
+        'description': description,
+        'bill_number': billNumber,
+        'paid_date': paidDate?.toIso8601String(),
+        'created_by': createdBy,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'allocations': allocations.map((e) => e.toJson()).toList(),
+      };
 
   Bill copyWith({
     String? id,
@@ -389,44 +382,38 @@ class Bill {
     DateTime? createdAt,
     DateTime? updatedAt,
     List<BillAllocation>? allocations,
-  }) {
-    return Bill(
-      id: id ?? this.id,
-      propertyId: propertyId ?? this.propertyId,
-      billType: billType ?? this.billType,
-      totalAmount: totalAmount ?? this.totalAmount,
-      currency: currency ?? this.currency,
-      periodStart: periodStart ?? this.periodStart,
-      periodEnd: periodEnd ?? this.periodEnd,
-      dueDate: dueDate ?? this.dueDate,
-      status: status ?? this.status,
-      allocationMethod: allocationMethod ?? this.allocationMethod,
-      description: description ?? this.description,
-      billNumber: billNumber ?? this.billNumber,
-      paidDate: paidDate ?? this.paidDate,
-      createdBy: createdBy ?? this.createdBy,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      allocations: allocations ?? this.allocations,
-    );
-  }
+  }) =>
+      Bill(
+        id: id ?? this.id,
+        propertyId: propertyId ?? this.propertyId,
+        billType: billType ?? this.billType,
+        totalAmount: totalAmount ?? this.totalAmount,
+        currency: currency ?? this.currency,
+        periodStart: periodStart ?? this.periodStart,
+        periodEnd: periodEnd ?? this.periodEnd,
+        dueDate: dueDate ?? this.dueDate,
+        status: status ?? this.status,
+        allocationMethod: allocationMethod ?? this.allocationMethod,
+        description: description ?? this.description,
+        billNumber: billNumber ?? this.billNumber,
+        paidDate: paidDate ?? this.paidDate,
+        createdBy: createdBy ?? this.createdBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        allocations: allocations ?? this.allocations,
+      );
 
   /// Get total paid amount from allocations
-  double get totalPaid {
-    return allocations
-        .where((alloc) => alloc.isPaid)
-        .fold(0.0, (sum, alloc) => sum + alloc.allocatedAmount);
-  }
+  double get totalPaid => allocations
+      .where((alloc) => alloc.isPaid)
+      .fold(0.0, (sum, alloc) => sum + alloc.allocatedAmount);
 
   /// Get number of paid allocations
-  int get paidCount {
-    return allocations.where((alloc) => alloc.isPaid).length;
-  }
+  int get paidCount => allocations.where((alloc) => alloc.isPaid).length;
 
   /// Check if bill is overdue
-  bool get isOverdue {
-    return dueDate.isBefore(DateTime.now()) && status != BillStatus.paid;
-  }
+  bool get isOverdue =>
+      dueDate.isBefore(DateTime.now()) && status != BillStatus.paid;
 
   @override
   bool operator ==(Object other) =>
@@ -447,22 +434,6 @@ class Bill {
 /// Recurring bill model
 @immutable
 class RecurringBill {
-  final String id;
-  final String propertyId;
-  final BillType billType;
-  final RecurringFrequency frequency;
-  final AllocationMethod allocationMethod;
-  final double estimatedAmount;
-  final String currency;
-  final int dayOfMonth;
-  final String? description;
-  final bool isActive;
-  final DateTime? lastGenerated;
-  final DateTime? nextGeneration;
-  final String? createdBy;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
   const RecurringBill({
     required this.id,
     required this.propertyId,
@@ -505,26 +476,39 @@ class RecurringBill {
       updatedAt: DateTime.parse(json['updated_at'] as String),
     );
   }
+  final String id;
+  final String propertyId;
+  final BillType billType;
+  final RecurringFrequency frequency;
+  final AllocationMethod allocationMethod;
+  final double estimatedAmount;
+  final String currency;
+  final int dayOfMonth;
+  final String? description;
+  final bool isActive;
+  final DateTime? lastGenerated;
+  final DateTime? nextGeneration;
+  final String? createdBy;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'property_id': propertyId,
-      'bill_type': billType.toJson(),
-      'frequency': frequency.toJson(),
-      'allocation_method': allocationMethod.toJson(),
-      'estimated_amount': estimatedAmount,
-      'currency': currency,
-      'day_of_month': dayOfMonth,
-      'description': description,
-      'is_active': isActive,
-      'last_generated': lastGenerated?.toIso8601String(),
-      'next_generation': nextGeneration?.toIso8601String(),
-      'created_by': createdBy,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'property_id': propertyId,
+        'bill_type': billType.toJson(),
+        'frequency': frequency.toJson(),
+        'allocation_method': allocationMethod.toJson(),
+        'estimated_amount': estimatedAmount,
+        'currency': currency,
+        'day_of_month': dayOfMonth,
+        'description': description,
+        'is_active': isActive,
+        'last_generated': lastGenerated?.toIso8601String(),
+        'next_generation': nextGeneration?.toIso8601String(),
+        'created_by': createdBy,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   RecurringBill copyWith({
     String? id,
@@ -542,25 +526,24 @@ class RecurringBill {
     String? createdBy,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return RecurringBill(
-      id: id ?? this.id,
-      propertyId: propertyId ?? this.propertyId,
-      billType: billType ?? this.billType,
-      frequency: frequency ?? this.frequency,
-      allocationMethod: allocationMethod ?? this.allocationMethod,
-      estimatedAmount: estimatedAmount ?? this.estimatedAmount,
-      currency: currency ?? this.currency,
-      dayOfMonth: dayOfMonth ?? this.dayOfMonth,
-      description: description ?? this.description,
-      isActive: isActive ?? this.isActive,
-      lastGenerated: lastGenerated ?? this.lastGenerated,
-      nextGeneration: nextGeneration ?? this.nextGeneration,
-      createdBy: createdBy ?? this.createdBy,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      RecurringBill(
+        id: id ?? this.id,
+        propertyId: propertyId ?? this.propertyId,
+        billType: billType ?? this.billType,
+        frequency: frequency ?? this.frequency,
+        allocationMethod: allocationMethod ?? this.allocationMethod,
+        estimatedAmount: estimatedAmount ?? this.estimatedAmount,
+        currency: currency ?? this.currency,
+        dayOfMonth: dayOfMonth ?? this.dayOfMonth,
+        description: description ?? this.description,
+        isActive: isActive ?? this.isActive,
+        lastGenerated: lastGenerated ?? this.lastGenerated,
+        nextGeneration: nextGeneration ?? this.nextGeneration,
+        createdBy: createdBy ?? this.createdBy,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   @override
   bool operator ==(Object other) =>

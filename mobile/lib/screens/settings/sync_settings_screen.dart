@@ -61,95 +61,89 @@ class _SyncSettingsScreenState extends State<SyncSettingsScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sync Settings'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildAutoSyncSection(),
-                const SizedBox(height: 24),
-                _buildDeviceSection(),
-                const SizedBox(height: 24),
-                _buildQueueSection(),
-                const SizedBox(height: 24),
-                _buildServerStatusSection(),
-                const SizedBox(height: 24),
-                _buildActionsSection(),
-              ],
-            ),
-    );
-  }
-
-  Widget _buildAutoSyncSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Auto Sync',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            SwitchListTile(
-              title: const Text('Auto-sync when online'),
-              subtitle: const Text(
-                'Automatically sync changes when internet connection is restored',
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Sync Settings'),
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _buildAutoSyncSection(),
+                  const SizedBox(height: 24),
+                  _buildDeviceSection(),
+                  const SizedBox(height: 24),
+                  _buildQueueSection(),
+                  const SizedBox(height: 24),
+                  _buildServerStatusSection(),
+                  const SizedBox(height: 24),
+                  _buildActionsSection(),
+                ],
               ),
-              value: _autoSyncEnabled,
-              onChanged: (value) {
-                setState(() {
-                  _autoSyncEnabled = value;
-                  _connectivityService.autoSyncEnabled = value;
-                });
+      );
 
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      value ? 'Auto-sync enabled' : 'Auto-sync disabled',
+  Widget _buildAutoSyncSection() => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Auto Sync',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              SwitchListTile(
+                title: const Text('Auto-sync when online'),
+                subtitle: const Text(
+                  'Automatically sync changes when internet connection is restored',
+                ),
+                value: _autoSyncEnabled,
+                onChanged: (value) {
+                  setState(() {
+                    _autoSyncEnabled = value;
+                    _connectivityService.autoSyncEnabled = value;
+                  });
+
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        value ? 'Auto-sync enabled' : 'Auto-sync disabled',
+                      ),
                     ),
-                  ),
-                );
-              },
-            ),
-          ],
+                  );
+                },
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
-  Widget _buildDeviceSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Device Information',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow('Device ID', _deviceId ?? 'Not set'),
-            const SizedBox(height: 8),
-            _buildInfoRow('Device Name', _deviceName ?? 'Not set'),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _editDeviceName,
-              icon: const Icon(Icons.edit),
-              label: const Text('Edit Device Name'),
-            ),
-          ],
+  Widget _buildDeviceSection() => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Device Information',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              _buildInfoRow('Device ID', _deviceId ?? 'Not set'),
+              const SizedBox(height: 8),
+              _buildInfoRow('Device Name', _deviceName ?? 'Not set'),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _editDeviceName,
+                icon: const Icon(Icons.edit),
+                label: const Text('Edit Device Name'),
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildQueueSection() {
     if (_queueStats == null) return const SizedBox.shrink();
@@ -247,98 +241,93 @@ class _SyncSettingsScreenState extends State<SyncSettingsScreen> {
     );
   }
 
-  Widget _buildActionsSection() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const Text(
-              'Actions',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton.icon(
-              onPressed: _isSyncing ? null : _manualSync,
-              icon: _isSyncing
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Icon(Icons.sync),
-              label: Text(_isSyncing ? 'Syncing...' : 'Sync Now'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _clearCompletedOperations,
-              icon: const Icon(Icons.clear_all),
-              label: const Text('Clear Completed Operations'),
-            ),
-            const SizedBox(height: 8),
-            OutlinedButton.icon(
-              onPressed: _refreshStatus,
-              icon: const Icon(Icons.refresh),
-              label: const Text('Refresh Status'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        Flexible(
-          child: Text(
-            value,
-            style: const TextStyle(color: Colors.grey),
-            textAlign: TextAlign.end,
+  Widget _buildActionsSection() => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Actions',
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _isSyncing ? null : _manualSync,
+                icon: _isSyncing
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.sync),
+                label: Text(_isSyncing ? 'Syncing...' : 'Sync Now'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _clearCompletedOperations,
+                icon: const Icon(Icons.clear_all),
+                label: const Text('Clear Completed Operations'),
+              ),
+              const SizedBox(height: 8),
+              OutlinedButton.icon(
+                onPressed: _refreshStatus,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Refresh Status'),
+              ),
+            ],
           ),
         ),
-      ],
-    );
-  }
+      );
 
-  Widget _buildStatRow(String label, int value, Color color,
-      {bool bold = false}) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
+  Widget _buildInfoRow(String label, String value) => Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontWeight: bold ? FontWeight.bold : FontWeight.normal,
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-            decoration: BoxDecoration(
-              color: color.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: color),
-            ),
+          Flexible(
             child: Text(
-              value.toString(),
-              style: TextStyle(
-                color: color,
-                fontWeight: FontWeight.bold,
-              ),
+              value,
+              style: const TextStyle(color: Colors.grey),
+              textAlign: TextAlign.end,
             ),
           ),
         ],
-      ),
-    );
-  }
+      );
+
+  Widget _buildStatRow(String label, int value, Color color,
+          {bool bold = false}) =>
+      Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              label,
+              style: TextStyle(
+                fontWeight: bold ? FontWeight.bold : FontWeight.normal,
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: color),
+              ),
+              child: Text(
+                value.toString(),
+                style: TextStyle(
+                  color: color,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
 
   Future<void> _editDeviceName() async {
     final controller = TextEditingController(text: _deviceName ?? '');

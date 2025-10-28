@@ -11,28 +11,15 @@ enum TenantStatus {
   const TenantStatus(this.value);
   final String value;
 
-  static TenantStatus fromString(String value) {
-    return TenantStatus.values.firstWhere(
-      (status) => status.value == value,
-      orElse: () => throw ArgumentError('Invalid tenant status: $value'),
-    );
-  }
+  static TenantStatus fromString(String value) =>
+      TenantStatus.values.firstWhere(
+        (status) => status.value == value,
+        orElse: () => throw ArgumentError('Invalid tenant status: $value'),
+      );
 }
 
 /// Tenant model with all fields from backend.
 class Tenant {
-  final String id;
-  final String userId;
-  final String propertyId;
-  final DateTime moveInDate;
-  final DateTime? moveOutDate;
-  final double monthlyRent;
-  final double securityDeposit;
-  final double electricityRate;
-  final TenantStatus status;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
   Tenant({
     required this.id,
     required this.userId,
@@ -46,16 +33,6 @@ class Tenant {
     required this.createdAt,
     required this.updatedAt,
   });
-
-  /// Calculate months stayed (including partial months).
-  int get monthsStayed {
-    final endDate = moveOutDate ?? DateTime.now();
-    final difference = endDate.difference(moveInDate);
-    return (difference.inDays / 30).ceil();
-  }
-
-  /// Check if tenant is currently active.
-  bool get isActive => status == TenantStatus.active && moveOutDate == null;
 
   /// Create Tenant from JSON (API response).
   factory Tenant.fromJson(Map<String, dynamic> json) {
@@ -76,23 +53,6 @@ class Tenant {
     );
   }
 
-  /// Convert Tenant to JSON for API requests.
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'user_id': userId,
-      'property_id': propertyId,
-      'move_in_date': moveInDate.toIso8601String().split('T')[0], // Date only
-      'move_out_date': moveOutDate?.toIso8601String().split('T')[0],
-      'monthly_rent': monthlyRent,
-      'security_deposit': securityDeposit,
-      'electricity_rate': electricityRate,
-      'status': status.value,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
-
   /// Create Tenant from SQLite database row.
   factory Tenant.fromMap(Map<String, dynamic> map) {
     return Tenant(
@@ -111,23 +71,57 @@ class Tenant {
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
+  final String id;
+  final String userId;
+  final String propertyId;
+  final DateTime moveInDate;
+  final DateTime? moveOutDate;
+  final double monthlyRent;
+  final double securityDeposit;
+  final double electricityRate;
+  final TenantStatus status;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Calculate months stayed (including partial months).
+  int get monthsStayed {
+    final endDate = moveOutDate ?? DateTime.now();
+    final difference = endDate.difference(moveInDate);
+    return (difference.inDays / 30).ceil();
+  }
+
+  /// Check if tenant is currently active.
+  bool get isActive => status == TenantStatus.active && moveOutDate == null;
+
+  /// Convert Tenant to JSON for API requests.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'user_id': userId,
+        'property_id': propertyId,
+        'move_in_date': moveInDate.toIso8601String().split('T')[0], // Date only
+        'move_out_date': moveOutDate?.toIso8601String().split('T')[0],
+        'monthly_rent': monthlyRent,
+        'security_deposit': securityDeposit,
+        'electricity_rate': electricityRate,
+        'status': status.value,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   /// Convert Tenant to SQLite database row.
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'user_id': userId,
-      'property_id': propertyId,
-      'move_in_date': moveInDate.toIso8601String(),
-      'move_out_date': moveOutDate?.toIso8601String(),
-      'monthly_rent': monthlyRent,
-      'security_deposit': securityDeposit,
-      'electricity_rate': electricityRate,
-      'status': status.value,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'user_id': userId,
+        'property_id': propertyId,
+        'move_in_date': moveInDate.toIso8601String(),
+        'move_out_date': moveOutDate?.toIso8601String(),
+        'monthly_rent': monthlyRent,
+        'security_deposit': securityDeposit,
+        'electricity_rate': electricityRate,
+        'status': status.value,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   /// Create a copy with updated fields.
   Tenant copyWith({
@@ -142,26 +136,24 @@ class Tenant {
     TenantStatus? status,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return Tenant(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      propertyId: propertyId ?? this.propertyId,
-      moveInDate: moveInDate ?? this.moveInDate,
-      moveOutDate: moveOutDate ?? this.moveOutDate,
-      monthlyRent: monthlyRent ?? this.monthlyRent,
-      securityDeposit: securityDeposit ?? this.securityDeposit,
-      electricityRate: electricityRate ?? this.electricityRate,
-      status: status ?? this.status,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      Tenant(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        propertyId: propertyId ?? this.propertyId,
+        moveInDate: moveInDate ?? this.moveInDate,
+        moveOutDate: moveOutDate ?? this.moveOutDate,
+        monthlyRent: monthlyRent ?? this.monthlyRent,
+        securityDeposit: securityDeposit ?? this.securityDeposit,
+        electricityRate: electricityRate ?? this.electricityRate,
+        status: status ?? this.status,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   @override
-  String toString() {
-    return 'Tenant(id: $id, userId: $userId, propertyId: $propertyId, status: ${status.value})';
-  }
+  String toString() =>
+      'Tenant(id: $id, userId: $userId, propertyId: $propertyId, status: ${status.value})';
 
   @override
   bool operator ==(Object other) {

@@ -63,55 +63,53 @@ class _SyncLogScreenState extends State<SyncLogScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Sync Logs'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadLogs,
-          ),
-        ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(
-              text: 'Pending',
-              icon: Badge(
-                label: Text('${_pendingOps?.length ?? 0}'),
-                child: const Icon(Icons.schedule),
-              ),
-            ),
-            Tab(
-              text: 'Failed',
-              icon: Badge(
-                label: Text('${_failedOps?.length ?? 0}'),
-                child: const Icon(Icons.error),
-              ),
-            ),
-            Tab(
-              text: 'Completed',
-              icon: Badge(
-                label: Text('${_completedOps?.length ?? 0}'),
-                child: const Icon(Icons.check_circle),
-              ),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Sync Logs'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadLogs,
             ),
           ],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: [
+              Tab(
+                text: 'Pending',
+                icon: Badge(
+                  label: Text('${_pendingOps?.length ?? 0}'),
+                  child: const Icon(Icons.schedule),
+                ),
+              ),
+              Tab(
+                text: 'Failed',
+                icon: Badge(
+                  label: Text('${_failedOps?.length ?? 0}'),
+                  child: const Icon(Icons.error),
+                ),
+              ),
+              Tab(
+                text: 'Completed',
+                icon: Badge(
+                  label: Text('${_completedOps?.length ?? 0}'),
+                  child: const Icon(Icons.check_circle),
+                ),
+              ),
+            ],
+          ),
         ),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
-              children: [
-                _buildOperationsList(_pendingOps, 'pending'),
-                _buildOperationsList(_failedOps, 'failed'),
-                _buildOperationsList(_completedOps, 'completed'),
-              ],
-            ),
-    );
-  }
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : TabBarView(
+                controller: _tabController,
+                children: [
+                  _buildOperationsList(_pendingOps, 'pending'),
+                  _buildOperationsList(_failedOps, 'failed'),
+                  _buildOperationsList(_completedOps, 'completed'),
+                ],
+              ),
+      );
 
   Widget _buildOperationsList(List<SyncOperation>? operations, String status) {
     if (operations == null || operations.isEmpty) {
@@ -288,26 +286,24 @@ class _SyncLogScreenState extends State<SyncLogScreen>
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 120,
-            child: Text(
-              '$label:',
-              style: const TextStyle(fontWeight: FontWeight.bold),
+  Widget _buildDetailRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 120,
+              child: Text(
+                '$label:',
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
             ),
-          ),
-          Expanded(
-            child: Text(value),
-          ),
-        ],
-      ),
-    );
-  }
+            Expanded(
+              child: Text(value),
+            ),
+          ],
+        ),
+      );
 
   Future<void> _retryOperation(SyncOperation operation) async {
     final confirmed = await showDialog<bool>(

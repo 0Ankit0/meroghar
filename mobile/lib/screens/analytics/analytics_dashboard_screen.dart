@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/analytics_provider.dart';
 import '../../providers/expense_provider.dart';
+import '../../providers/property_provider.dart';
 import '../../widgets/date_range_picker.dart';
 import '../../widgets/charts/line_chart_widget.dart';
 import '../../widgets/charts/pie_chart_widget.dart';
@@ -54,193 +55,213 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Analytics Dashboard'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            tooltip: 'Export',
-            onPressed: () => _showExportDialog(),
-          ),
-        ],
-      ),
-      body: RefreshIndicator(
-        onRefresh: _loadAnalytics,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildPropertySelector(),
-              const SizedBox(height: 16),
-              DateRangePicker(
-                startDate: _startDate,
-                endDate: _endDate,
-                onDateRangeSelected: (start, end) {
-                  setState(() {
-                    _startDate = start;
-                    _endDate = end;
-                  });
-                  _loadAnalytics();
-                },
-              ),
-              const SizedBox(height: 8),
-              QuickDateRangeSelector(
-                onDateRangeSelected: (start, end) {
-                  setState(() {
-                    _startDate = start;
-                    _endDate = end;
-                  });
-                  _loadAnalytics();
-                },
-              ),
-              const SizedBox(height: 24),
-              Consumer<AnalyticsProvider>(
-                builder: (context, provider, child) {
-                  if (provider.isLoading) {
-                    return const Center(
-                      child: Padding(
-                        padding: EdgeInsets.all(32.0),
-                        child: CircularProgressIndicator(),
-                      ),
-                    );
-                  }
-
-                  if (provider.error != null) {
-                    return Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            'Error: ${provider.error}',
-                            style: const TextStyle(color: Colors.red),
-                          ),
-                          const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: _loadAnalytics,
-                            child: const Text('Retry'),
-                          ),
-                        ],
-                      ),
-                    );
-                  }
-
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildSectionHeader(
-                        'Rent Collection Trends',
-                        () => _navigateToDetail('rent-trends'),
-                      ),
-                      RentTrendsLineChart(trends: provider.rentTrends),
-                      const SizedBox(height: 32),
-                      _buildSectionHeader(
-                        'Payment Status',
-                        () => _navigateToDetail('payment-status'),
-                      ),
-                      _buildPaymentStatusCard(provider),
-                      const SizedBox(height: 32),
-                      _buildSectionHeader(
-                        'Expense Breakdown',
-                        () => _navigateToDetail('expense-breakdown'),
-                      ),
-                      ExpenseBreakdownPieChart(
-                          expenses: provider.expenseBreakdown),
-                      const SizedBox(height: 32),
-                      _buildSectionHeader(
-                        'Revenue vs Expenses',
-                        () => _navigateToDetail('revenue-expenses'),
-                      ),
-                      RevenueExpensesBarChart(
-                          comparison: provider.revenueExpenses),
-                      const SizedBox(height: 32),
-                      _buildSectionHeader(
-                        'Expense Category Breakdown',
-                        () => _navigateToDetail('expense-categories'),
-                      ),
-                      _buildExpenseCategoryBreakdown(),
-                      const SizedBox(height: 32),
-                      if (_selectedPropertyId == null) ...[
-                        _buildSectionHeader(
-                          'Property Performance',
-                          () => _navigateToDetail('property-performance'),
-                        ),
-                        _buildPropertyPerformanceList(provider),
-                      ],
-                    ],
-                  );
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildPropertySelector() {
-    // TODO: Implement property selector when PropertyProvider is available
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Property Filter',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            DropdownButtonFormField<String?>(
-              value: _selectedPropertyId,
-              decoration: const InputDecoration(
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                border: OutlineInputBorder(),
-              ),
-              hint: const Text('All Properties'),
-              items: const [
-                DropdownMenuItem<String?>(
-                  value: null,
-                  child: Text('All Properties'),
-                ),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _selectedPropertyId = value;
-                });
-                _loadAnalytics();
-              },
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Analytics Dashboard'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.download),
+              tooltip: 'Export',
+              onPressed: () => _showExportDialog(),
             ),
           ],
         ),
-      ),
+        body: RefreshIndicator(
+          onRefresh: _loadAnalytics,
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildPropertySelector(),
+                const SizedBox(height: 16),
+                DateRangePicker(
+                  startDate: _startDate,
+                  endDate: _endDate,
+                  onDateRangeSelected: (start, end) {
+                    setState(() {
+                      _startDate = start;
+                      _endDate = end;
+                    });
+                    _loadAnalytics();
+                  },
+                ),
+                const SizedBox(height: 8),
+                QuickDateRangeSelector(
+                  onDateRangeSelected: (start, end) {
+                    setState(() {
+                      _startDate = start;
+                      _endDate = end;
+                    });
+                    _loadAnalytics();
+                  },
+                ),
+                const SizedBox(height: 24),
+                Consumer<AnalyticsProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.isLoading) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      );
+                    }
+
+                    if (provider.error != null) {
+                      return Center(
+                        child: Column(
+                          children: [
+                            Text(
+                              'Error: ${provider.error}',
+                              style: const TextStyle(color: Colors.red),
+                            ),
+                            const SizedBox(height: 16),
+                            ElevatedButton(
+                              onPressed: _loadAnalytics,
+                              child: const Text('Retry'),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildSectionHeader(
+                          'Rent Collection Trends',
+                          () => _navigateToDetail('rent-trends'),
+                        ),
+                        RentTrendsLineChart(trends: provider.rentTrends),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader(
+                          'Payment Status',
+                          () => _navigateToDetail('payment-status'),
+                        ),
+                        _buildPaymentStatusCard(provider),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader(
+                          'Expense Breakdown',
+                          () => _navigateToDetail('expense-breakdown'),
+                        ),
+                        ExpenseBreakdownPieChart(
+                            expenses: provider.expenseBreakdown),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader(
+                          'Revenue vs Expenses',
+                          () => _navigateToDetail('revenue-expenses'),
+                        ),
+                        RevenueExpensesBarChart(
+                            comparison: provider.revenueExpenses),
+                        const SizedBox(height: 32),
+                        _buildSectionHeader(
+                          'Expense Category Breakdown',
+                          () => _navigateToDetail('expense-categories'),
+                        ),
+                        _buildExpenseCategoryBreakdown(),
+                        const SizedBox(height: 32),
+                        if (_selectedPropertyId == null) ...[
+                          _buildSectionHeader(
+                            'Property Performance',
+                            () => _navigateToDetail('property-performance'),
+                          ),
+                          _buildPropertyPerformanceList(provider),
+                        ],
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  Widget _buildPropertySelector() {
+    return Consumer<PropertyProvider>(
+      builder: (context, propertyProvider, child) {
+        if (propertyProvider.isLoading) {
+          return const Card(
+            child: Padding(
+              padding: EdgeInsets.all(12.0),
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        final properties = propertyProvider.properties;
+
+        return Card(
+          child: Padding(
+            padding: const EdgeInsets.all(12.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Property Filter',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                DropdownButtonFormField<String?>(
+                  value: _selectedPropertyId,
+                  decoration: const InputDecoration(
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    border: OutlineInputBorder(),
+                  ),
+                  hint: const Text('All Properties'),
+                  items: [
+                    const DropdownMenuItem<String?>(
+                      value: null,
+                      child: Text('All Properties'),
+                    ),
+                    ...properties.map((property) => DropdownMenuItem<String?>(
+                          value: property.id,
+                          child: Text(property.name),
+                        )),
+                  ],
+                  onChanged: (value) {
+                    setState(() {
+                      _selectedPropertyId = value;
+                    });
+                    if (value != null) {
+                      propertyProvider.selectProperty(
+                        propertyProvider.getPropertyById(value),
+                      );
+                    }
+                    _loadAnalytics();
+                  },
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildSectionHeader(String title, VoidCallback onViewDetails) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
+  Widget _buildSectionHeader(String title, VoidCallback onViewDetails) =>
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16.0),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-          TextButton.icon(
-            onPressed: onViewDetails,
-            icon: const Icon(Icons.arrow_forward, size: 16),
-            label: const Text('Details'),
-          ),
-        ],
-      ),
-    );
-  }
+            TextButton.icon(
+              onPressed: onViewDetails,
+              icon: const Icon(Icons.arrow_forward, size: 16),
+              label: const Text('Details'),
+            ),
+          ],
+        ),
+      );
 
   Widget _buildPaymentStatusCard(AnalyticsProvider provider) {
     final status = provider.paymentStatus;
@@ -284,49 +305,48 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     );
   }
 
-  Widget _buildStatusRow(String label, int count, double amount, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Row(
-          children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
+  Widget _buildStatusRow(String label, int count, double amount, Color color) =>
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 12,
+                height: 12,
+                decoration: BoxDecoration(
+                  color: color,
+                  shape: BoxShape.circle,
+                ),
               ),
-            ),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
-          ],
-        ),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              '\$${amount.toStringAsFixed(0)}',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: color,
+              const SizedBox(width: 8),
+              Text(
+                label,
+                style: const TextStyle(fontWeight: FontWeight.w500),
               ),
-            ),
-            Text(
-              '$count payments',
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+            ],
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '\$${amount.toStringAsFixed(0)}',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: color,
+                ),
               ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
+              Text(
+                '$count payments',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
 
   Widget _buildPropertyPerformanceList(AnalyticsProvider provider) {
     final properties = provider.propertyPerformance;
@@ -394,153 +414,150 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     );
   }
 
-  Widget _buildExpenseCategoryBreakdown() {
-    return Consumer<ExpenseProvider>(
-      builder: (context, expenseProvider, child) {
-        final summary = expenseProvider.expenseSummary;
+  Widget _buildExpenseCategoryBreakdown() => Consumer<ExpenseProvider>(
+        builder: (context, expenseProvider, child) {
+          final summary = expenseProvider.expenseSummary;
 
-        if (summary == null || summary.byCategory.isEmpty) {
+          if (summary == null || summary.byCategory.isEmpty) {
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const Icon(Icons.receipt_long,
+                        size: 48, color: Colors.grey),
+                    const SizedBox(height: 8),
+                    const Text('No expense data available'),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      icon: const Icon(Icons.refresh),
+                      label: const Text('Load Expenses'),
+                      onPressed: () {
+                        expenseProvider.fetchExpenseReport(
+                          propertyId: _selectedPropertyId,
+                          startDate: _startDate,
+                          endDate: _endDate,
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+
+          // Calculate total for percentages
+          final total = summary.totalAmount;
+
+          // Sort categories by amount (descending)
+          final sortedCategories = summary.byCategory.entries.toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
+
           return Card(
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.receipt_long, size: 48, color: Colors.grey),
-                  const SizedBox(height: 8),
-                  const Text('No expense data available'),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    icon: const Icon(Icons.refresh),
-                    label: const Text('Load Expenses'),
-                    onPressed: () {
-                      expenseProvider.fetchExpenseReport(
-                        propertyId: _selectedPropertyId,
-                        startDate: _startDate,
-                        endDate: _endDate,
-                      );
-                    },
+                  // Summary totals
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSummaryChip(
+                        'Total',
+                        summary.totalAmount,
+                        Colors.blue,
+                      ),
+                      _buildSummaryChip(
+                        'Pending',
+                        summary.pendingAmount,
+                        Colors.orange,
+                      ),
+                      _buildSummaryChip(
+                        'Outstanding',
+                        summary.outstandingAmount,
+                        Colors.red,
+                      ),
+                    ],
                   ),
+                  const Divider(height: 24),
+                  // Category breakdown
+                  ...sortedCategories.map((entry) {
+                    final percentage =
+                        total > 0 ? (entry.value / total * 100) : 0.0;
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                entry.key,
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              Text(
+                                '\$${entry.value.toStringAsFixed(2)}',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: LinearProgressIndicator(
+                                  value: percentage / 100,
+                                  backgroundColor: Colors.grey[200],
+                                  minHeight: 8,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${percentage.toStringAsFixed(1)}%',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
                 ],
               ),
             ),
           );
-        }
+        },
+      );
 
-        // Calculate total for percentages
-        final total = summary.totalAmount;
-
-        // Sort categories by amount (descending)
-        final sortedCategories = summary.byCategory.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
-
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Summary totals
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    _buildSummaryChip(
-                      'Total',
-                      summary.totalAmount,
-                      Colors.blue,
-                    ),
-                    _buildSummaryChip(
-                      'Pending',
-                      summary.pendingAmount,
-                      Colors.orange,
-                    ),
-                    _buildSummaryChip(
-                      'Outstanding',
-                      summary.outstandingAmount,
-                      Colors.red,
-                    ),
-                  ],
-                ),
-                const Divider(height: 24),
-                // Category breakdown
-                ...sortedCategories.map((entry) {
-                  final percentage =
-                      total > 0 ? (entry.value / total * 100) : 0.0;
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              entry.key,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                            Text(
-                              '\$${entry.value.toStringAsFixed(2)}',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 4),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: LinearProgressIndicator(
-                                value: percentage / 100,
-                                backgroundColor: Colors.grey[200],
-                                minHeight: 8,
-                              ),
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${percentage.toStringAsFixed(1)}%',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  );
-                }).toList(),
-              ],
+  Widget _buildSummaryChip(String label, double amount, Color color) => Column(
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey[600],
             ),
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSummaryChip(String label, double amount, Color color) {
-    return Column(
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: Colors.grey[600],
+          const SizedBox(height: 4),
+          Text(
+            '\$${amount.toStringAsFixed(0)}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 16,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          '\$${amount.toStringAsFixed(0)}',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: color,
-            fontSize: 16,
-          ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   void _showExportDialog() {
     showDialog(

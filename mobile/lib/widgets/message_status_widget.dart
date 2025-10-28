@@ -8,16 +8,15 @@ import 'package:flutter/material.dart';
 import '../models/message.dart';
 
 class MessageStatusWidget extends StatelessWidget {
-  final Message message;
-  final bool showLabel;
-  final double iconSize;
-
   const MessageStatusWidget({
     Key? key,
     required this.message,
     this.showLabel = false,
     this.iconSize = 24,
   }) : super(key: key);
+  final Message message;
+  final bool showLabel;
+  final double iconSize;
 
   @override
   Widget build(BuildContext context) {

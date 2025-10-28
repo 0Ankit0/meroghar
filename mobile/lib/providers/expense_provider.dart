@@ -15,6 +15,12 @@ import '../services/database_service.dart';
 
 /// Provider for expense-related operations and state management
 class ExpenseProvider with ChangeNotifier {
+
+  ExpenseProvider({
+    required ApiService apiService,
+    required DatabaseService databaseService,
+  })  : _apiService = apiService,
+        _databaseService = databaseService;
   final ApiService _apiService;
   final DatabaseService _databaseService;
 
@@ -22,12 +28,6 @@ class ExpenseProvider with ChangeNotifier {
   ExpenseSummary? _expenseSummary;
   bool _isLoading = false;
   String? _error;
-
-  ExpenseProvider({
-    required ApiService apiService,
-    required DatabaseService databaseService,
-  })  : _apiService = apiService,
-        _databaseService = databaseService;
 
   // Getters
   List<Expense> get expenses => _expenses;
@@ -37,21 +37,13 @@ class ExpenseProvider with ChangeNotifier {
   bool get hasError => _error != null;
 
   /// Get expenses filtered by various criteria
-  List<Expense> getExpensesByProperty(String propertyId) {
-    return _expenses.where((e) => e.propertyId == propertyId).toList();
-  }
+  List<Expense> getExpensesByProperty(String propertyId) => _expenses.where((e) => e.propertyId == propertyId).toList();
 
-  List<Expense> getExpensesByCategory(ExpenseCategory category) {
-    return _expenses.where((e) => e.category == category).toList();
-  }
+  List<Expense> getExpensesByCategory(ExpenseCategory category) => _expenses.where((e) => e.category == category).toList();
 
-  List<Expense> getExpensesByStatus(ExpenseStatus status) {
-    return _expenses.where((e) => e.status == status).toList();
-  }
+  List<Expense> getExpensesByStatus(ExpenseStatus status) => _expenses.where((e) => e.status == status).toList();
 
-  List<Expense> getPendingExpenses() {
-    return _expenses.where((e) => e.status == ExpenseStatus.pending).toList();
-  }
+  List<Expense> getPendingExpenses() => _expenses.where((e) => e.status == ExpenseStatus.pending).toList();
 
   /// Record a new expense
   Future<Expense?> recordExpense({
@@ -344,8 +336,8 @@ class ExpenseProvider with ChangeNotifier {
     try {
       final db = await _databaseService.database;
 
-      String query = 'SELECT * FROM expenses';
-      List<dynamic> arguments = [];
+      var query = 'SELECT * FROM expenses';
+      final var arguments = <dynamic>[];
 
       if (propertyId != null) {
         query += ' WHERE property_id = ?';
@@ -357,7 +349,7 @@ class ExpenseProvider with ChangeNotifier {
       final List<Map<String, dynamic>> maps =
           await db.rawQuery(query, arguments);
 
-      _expenses = maps.map((map) => Expense.fromJson(map)).toList();
+      _expenses = maps.map(Expense.fromJson).toList();
       notifyListeners();
     } catch (e) {
       _setError('Failed to load expenses from database: ${e.toString()}');

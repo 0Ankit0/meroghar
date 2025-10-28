@@ -11,14 +11,13 @@ import '../../models/bill.dart';
 import '../../providers/bill_provider.dart';
 
 class BillListScreen extends StatefulWidget {
-  final String? propertyId;
-  final String? tenantId;
-
   const BillListScreen({
     super.key,
     this.propertyId,
     this.tenantId,
   });
+  final String? propertyId;
+  final String? tenantId;
 
   @override
   State<BillListScreen> createState() => _BillListScreenState();
@@ -47,162 +46,159 @@ class _BillListScreenState extends State<BillListScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Bills'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showFilterDialog,
-          ),
-        ],
-      ),
-      body: Consumer<BillProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Bills'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: _showFilterDialog,
+            ),
+          ],
+        ),
+        body: Consumer<BillProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (provider.hasError) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(provider.error ?? 'An error occurred'),
-                  ElevatedButton(
-                    onPressed: _loadBills,
-                    child: const Text('Retry'),
-                  ),
-                ],
+            if (provider.hasError) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(provider.error ?? 'An error occurred'),
+                    ElevatedButton(
+                      onPressed: _loadBills,
+                      child: const Text('Retry'),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            // Filter bills
+            List<Bill> bills = provider.bills;
+            if (widget.propertyId != null) {
+              bills = provider.getBillsByProperty(widget.propertyId!);
+            }
+            if (widget.tenantId != null) {
+              bills = provider.getBillsForTenant(widget.tenantId!);
+            }
+            if (_filterStatus != null) {
+              bills = bills.where((b) => b.status == _filterStatus).toList();
+            }
+            if (_filterType != null) {
+              bills = bills.where((b) => b.billType == _filterType).toList();
+            }
+
+            if (bills.isEmpty) {
+              return const Center(
+                child: Text('No bills found'),
+              );
+            }
+
+            return RefreshIndicator(
+              onRefresh: _loadBills,
+              child: ListView.builder(
+                itemCount: bills.length,
+                itemBuilder: (context, index) {
+                  final bill = bills[index];
+                  return _BillCard(
+                    bill: bill,
+                    tenantId: widget.tenantId,
+                    currencyFormat: _currencyFormat,
+                    dateFormat: _dateFormat,
+                  );
+                },
               ),
             );
-          }
-
-          // Filter bills
-          List<Bill> bills = provider.bills;
-          if (widget.propertyId != null) {
-            bills = provider.getBillsByProperty(widget.propertyId!);
-          }
-          if (widget.tenantId != null) {
-            bills = provider.getBillsForTenant(widget.tenantId!);
-          }
-          if (_filterStatus != null) {
-            bills = bills.where((b) => b.status == _filterStatus).toList();
-          }
-          if (_filterType != null) {
-            bills = bills.where((b) => b.billType == _filterType).toList();
-          }
-
-          if (bills.isEmpty) {
-            return const Center(
-              child: Text('No bills found'),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: _loadBills,
-            child: ListView.builder(
-              itemCount: bills.length,
-              itemBuilder: (context, index) {
-                final bill = bills[index];
-                return _BillCard(
-                  bill: bill,
-                  tenantId: widget.tenantId,
-                  currencyFormat: _currencyFormat,
-                  dateFormat: _dateFormat,
-                );
-              },
-            ),
-          );
-        },
-      ),
-      floatingActionButton: widget.propertyId != null && widget.tenantId == null
-          ? FloatingActionButton(
-              onPressed: () {
-                // Navigate to create bill screen
-                Navigator.pushNamed(
-                  context,
-                  '/bills/create',
-                  arguments: {'propertyId': widget.propertyId},
-                );
-              },
-              child: const Icon(Icons.add),
-            )
-          : null,
-    );
-  }
+          },
+        ),
+        floatingActionButton:
+            widget.propertyId != null && widget.tenantId == null
+                ? FloatingActionButton(
+                    onPressed: () {
+                      // Navigate to create bill screen
+                      Navigator.pushNamed(
+                        context,
+                        '/bills/create',
+                        arguments: {'propertyId': widget.propertyId},
+                      );
+                    },
+                    child: const Icon(Icons.add),
+                  )
+                : null,
+      );
 
   Future<void> _showFilterDialog() async {
     await showDialog(
       context: context,
       builder: (context) {
-        BillStatus? tempStatus = _filterStatus;
-        BillType? tempType = _filterType;
+        var tempStatus = _filterStatus;
+        var tempType = _filterType;
 
         return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Filter Bills'),
-              content: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  DropdownButtonFormField<BillStatus>(
-                    value: tempStatus,
-                    decoration: const InputDecoration(labelText: 'Status'),
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('All'),
-                      ),
-                      ...BillStatus.values.map((status) {
-                        return DropdownMenuItem(
-                          value: status,
-                          child: Text(status.displayName),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) => setState(() => tempStatus = value),
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<BillType>(
-                    value: tempType,
-                    decoration: const InputDecoration(labelText: 'Type'),
-                    items: [
-                      const DropdownMenuItem(
-                        value: null,
-                        child: Text('All'),
-                      ),
-                      ...BillType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(type.displayName),
-                        );
-                      }),
-                    ],
-                    onChanged: (value) => setState(() => tempType = value),
-                  ),
-                ],
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Cancel'),
+          builder: (context, setState) => AlertDialog(
+            title: const Text('Filter Bills'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                DropdownButtonFormField<BillStatus>(
+                  value: tempStatus,
+                  decoration: const InputDecoration(labelText: 'Status'),
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('All'),
+                    ),
+                    ...BillStatus.values.map((status) {
+                      return DropdownMenuItem(
+                        value: status,
+                        child: Text(status.displayName),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) => setState(() => tempStatus = value),
                 ),
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _filterStatus = tempStatus;
-                      _filterType = tempType;
-                    });
-                    Navigator.pop(context);
-                    _loadBills();
-                  },
-                  child: const Text('Apply'),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<BillType>(
+                  value: tempType,
+                  decoration: const InputDecoration(labelText: 'Type'),
+                  items: [
+                    const DropdownMenuItem(
+                      value: null,
+                      child: Text('All'),
+                    ),
+                    ...BillType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }),
+                  ],
+                  onChanged: (value) => setState(() => tempType = value),
                 ),
               ],
-            );
-          },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _filterStatus = tempStatus;
+                    _filterType = tempType;
+                  });
+                  Navigator.pop(context);
+                  _loadBills();
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          ),
         );
       },
     );
@@ -210,17 +206,16 @@ class _BillListScreenState extends State<BillListScreen> {
 }
 
 class _BillCard extends StatelessWidget {
-  final Bill bill;
-  final String? tenantId;
-  final NumberFormat currencyFormat;
-  final DateFormat dateFormat;
-
   const _BillCard({
     required this.bill,
     this.tenantId,
     required this.currencyFormat,
     required this.dateFormat,
   });
+  final Bill bill;
+  final String? tenantId;
+  final NumberFormat currencyFormat;
+  final DateFormat dateFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -328,9 +323,8 @@ class _BillCard extends StatelessWidget {
 }
 
 class _StatusChip extends StatelessWidget {
-  final BillStatus status;
-
   const _StatusChip({required this.status});
+  final BillStatus status;
 
   @override
   Widget build(BuildContext context) {

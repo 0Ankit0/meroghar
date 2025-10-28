@@ -10,12 +10,11 @@ import '../../models/expense.dart';
 import '../../providers/expense_provider.dart';
 
 class ExpenseApprovalScreen extends StatefulWidget {
-  final String propertyId;
-
   const ExpenseApprovalScreen({
     super.key,
     required this.propertyId,
   });
+  final String propertyId;
 
   @override
   State<ExpenseApprovalScreen> createState() => _ExpenseApprovalScreenState();
@@ -233,187 +232,194 @@ class _ExpenseApprovalScreenState extends State<ExpenseApprovalScreen> {
     reasonController.dispose();
   }
 
-  Widget _buildExpenseCard(Expense expense) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Column(
-        children: [
-          // Header with category
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: _getCategoryColor(expense.category).withOpacity(0.1),
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8),
-                topRight: Radius.circular(8),
+  Widget _buildExpenseCard(Expense expense) => Card(
+        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Column(
+          children: [
+            // Header with category
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: _getCategoryColor(expense.category).withOpacity(0.1),
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(8),
+                  topRight: Radius.circular(8),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    _getCategoryIcon(expense.category),
+                    color: _getCategoryColor(expense.category),
+                    size: 32,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          expense.category.displayName,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        Text(
+                          '${expense.expenseDate.day}/${expense.expenseDate.month}/${expense.expenseDate.year}',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '\$${expense.amount.toStringAsFixed(2)}',
+                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: _getCategoryColor(expense.category),
+                        ),
+                  ),
+                ],
               ),
             ),
-            child: Row(
-              children: [
-                Icon(
-                  _getCategoryIcon(expense.category),
-                  color: _getCategoryColor(expense.category),
-                  size: 32,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        expense.category.displayName,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                      Text(
-                        '${expense.expenseDate.day}/${expense.expenseDate.month}/${expense.expenseDate.year}',
-                        style: Theme.of(context).textTheme.bodySmall,
-                      ),
-                    ],
-                  ),
-                ),
-                Text(
-                  '\$${expense.amount.toStringAsFixed(2)}',
-                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: _getCategoryColor(expense.category),
-                      ),
-                ),
-              ],
-            ),
-          ),
 
-          // Expense details
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Description
-                Text(
-                  'Description',
-                  style: Theme.of(context).textTheme.labelSmall,
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  expense.description,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 12),
-
-                // Vendor and invoice
-                if (expense.vendorName != null || expense.invoiceNumber != null)
-                  Row(
-                    children: [
-                      if (expense.vendorName != null) ...[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Vendor',
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(expense.vendorName!),
-                            ],
-                          ),
-                        ),
-                      ],
-                      if (expense.invoiceNumber != null) ...[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Invoice',
-                                style: Theme.of(context).textTheme.labelSmall,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(expense.invoiceNumber!),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-
-                if (expense.paidBy != null) ...[
-                  const SizedBox(height: 12),
+            // Expense details
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Description
                   Text(
-                    'Paid By',
+                    'Description',
                     style: Theme.of(context).textTheme.labelSmall,
                   ),
                   const SizedBox(height: 4),
-                  Text(expense.paidBy!),
-                ],
-
-                // Reimbursable badge
-                if (expense.isReimbursable) ...[
-                  const SizedBox(height: 12),
-                  Chip(
-                    avatar: const Icon(Icons.info_outline, size: 16),
-                    label: const Text('Reimbursable'),
-                    backgroundColor: Colors.orange.withOpacity(0.1),
+                  Text(
+                    expense.description,
+                    style: Theme.of(context).textTheme.bodyMedium,
                   ),
-                ],
-
-                // Receipt indicator
-                if (expense.receiptUrl != null) ...[
                   const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const Icon(Icons.attach_file, size: 16),
-                      const SizedBox(width: 4),
-                      const Text('Receipt attached'),
-                      const Spacer(),
-                      TextButton.icon(
-                        icon: const Icon(Icons.visibility),
-                        label: const Text('View'),
-                        onPressed: () {
-                          // TODO: Open receipt viewer
-                        },
+
+                  // Vendor and invoice
+                  if (expense.vendorName != null ||
+                      expense.invoiceNumber != null)
+                    Row(
+                      children: [
+                        if (expense.vendorName != null) ...[
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Vendor',
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(expense.vendorName!),
+                              ],
+                            ),
+                          ),
+                        ],
+                        if (expense.invoiceNumber != null) ...[
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Invoice',
+                                  style: Theme.of(context).textTheme.labelSmall,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(expense.invoiceNumber!),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+
+                  if (expense.paidBy != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      'Paid By',
+                      style: Theme.of(context).textTheme.labelSmall,
+                    ),
+                    const SizedBox(height: 4),
+                    Text(expense.paidBy!),
+                  ],
+
+                  // Reimbursable badge
+                  if (expense.isReimbursable) ...[
+                    const SizedBox(height: 12),
+                    Chip(
+                      avatar: const Icon(Icons.info_outline, size: 16),
+                      label: const Text('Reimbursable'),
+                      backgroundColor: Colors.orange.withOpacity(0.1),
+                    ),
+                  ],
+
+                  // Receipt indicator
+                  if (expense.receiptUrl != null) ...[
+                    const SizedBox(height: 12),
+                    Row(
+                      children: [
+                        const Icon(Icons.attach_file, size: 16),
+                        const SizedBox(width: 4),
+                        const Text('Receipt attached'),
+                        const Spacer(),
+                        TextButton.icon(
+                          icon: const Icon(Icons.visibility),
+                          label: const Text('View'),
+                          onPressed: () {
+                            // Open receipt viewer
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ReceiptViewerDialog(
+                                  receiptUrl: expense.receiptUrl ?? '',
+                                  expenseName: expense.description,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
+            ),
+
+            // Action buttons
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.close),
+                      label: const Text('Reject'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.red,
                       ),
-                    ],
+                      onPressed: () => _rejectExpense(expense),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      icon: const Icon(Icons.check),
+                      label: const Text('Approve'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                      ),
+                      onPressed: () => _approveExpense(expense),
+                    ),
                   ),
                 ],
-              ],
+              ),
             ),
-          ),
-
-          // Action buttons
-          const Divider(height: 1),
-          Padding(
-            padding: const EdgeInsets.all(8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton.icon(
-                    icon: const Icon(Icons.close),
-                    label: const Text('Reject'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: Colors.red,
-                    ),
-                    onPressed: () => _rejectExpense(expense),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Icons.check),
-                    label: const Text('Approve'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-                    onPressed: () => _approveExpense(expense),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -476,9 +482,8 @@ class _ExpenseApprovalScreenState extends State<ExpenseApprovalScreen> {
                     : ListView.builder(
                         itemCount: pendingExpenses.length,
                         padding: const EdgeInsets.symmetric(vertical: 8),
-                        itemBuilder: (context, index) {
-                          return _buildExpenseCard(pendingExpenses[index]);
-                        },
+                        itemBuilder: (context, index) =>
+                            _buildExpenseCard(pendingExpenses[index]),
                       ),
       ),
     );

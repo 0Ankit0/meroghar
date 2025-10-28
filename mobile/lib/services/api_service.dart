@@ -18,14 +18,6 @@ import 'secure_storage_service.dart';
 /// - Request/response logging
 /// - Timeout configuration
 class ApiService {
-  static final ApiService instance = ApiService._internal();
-
-  late final Dio _dio;
-  final SecureStorageService _storage = SecureStorageService.instance;
-
-  bool _isRefreshing = false;
-  final List<void Function()> _requestsWaitingForToken = [];
-
   factory ApiService() => instance;
 
   ApiService._internal() {
@@ -48,6 +40,13 @@ class ApiService {
 
     _setupInterceptors();
   }
+  static final ApiService instance = ApiService._internal();
+
+  late final Dio _dio;
+  final SecureStorageService _storage = SecureStorageService.instance;
+
+  bool _isRefreshing = false;
+  final List<void Function()> _requestsWaitingForToken = [];
 
   /// Configure request/response interceptors.
   void _setupInterceptors() {
@@ -405,12 +404,6 @@ class ApiService {
 
 /// API response wrapper.
 class ApiResponse<T> {
-  final bool success;
-  final T? data;
-  final String? message;
-  final int? statusCode;
-  final List<String>? details;
-
   const ApiResponse({
     required this.success,
     this.data,
@@ -442,6 +435,11 @@ class ApiResponse<T> {
       details: details,
     );
   }
+  final bool success;
+  final T? data;
+  final String? message;
+  final int? statusCode;
+  final List<String>? details;
 
   /// Check if response is successful.
   bool get isSuccess => success && data != null;

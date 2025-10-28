@@ -10,12 +10,11 @@ import '../../providers/export_provider.dart';
 import '../../services/file_service.dart';
 
 class ExportScreen extends StatefulWidget {
-  final int? tenantId;
-
   const ExportScreen({
     super.key,
     this.tenantId,
   });
+  final int? tenantId;
 
   @override
   State<ExportScreen> createState() => _ExportScreenState();
@@ -100,325 +99,317 @@ class _ExportScreenState extends State<ExportScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Export Payment History'),
-        bottom: TabBar(
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Export Payment History'),
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'New Export', icon: Icon(Icons.file_download)),
+              Tab(text: 'History', icon: Icon(Icons.history)),
+            ],
+          ),
+        ),
+        body: TabBarView(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'New Export', icon: Icon(Icons.file_download)),
-            Tab(text: 'History', icon: Icon(Icons.history)),
+          children: [
+            _buildExportTab(),
+            _buildHistoryTab(),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildExportTab(),
-          _buildHistoryTab(),
-        ],
-      ),
-    );
-  }
+      );
 
-  Widget _buildExportTab() {
-    return Consumer<ExportProvider>(
-      builder: (context, provider, child) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Info Card
-              Card(
-                color: Colors.blue.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.info_outline,
-                        color: Colors.blue.shade700,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(
-                          'Export your payment history to Excel or PDF for your records.',
-                          style: TextStyle(
-                            color: Colors.blue.shade900,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Date Range Section
-              Text(
-                'Date Range',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      // Start Date
-                      InkWell(
-                        onTap: provider.isExporting ? null : _selectStartDate,
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'Start Date',
-                            prefixIcon: Icon(Icons.calendar_today),
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Text(_formatDate(_startDate)),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      // End Date
-                      InkWell(
-                        onTap: provider.isExporting ? null : _selectEndDate,
-                        child: InputDecorator(
-                          decoration: const InputDecoration(
-                            labelText: 'End Date',
-                            prefixIcon: Icon(Icons.calendar_today),
-                            border: OutlineInputBorder(),
-                          ),
-                          child: Text(_formatDate(_endDate)),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      // Duration info
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.grey.shade100,
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.date_range, size: 16),
-                            const SizedBox(width: 8),
-                            Text(
-                              '${_endDate.difference(_startDate).inDays} days',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Export Format Section
-              Text(
-                'Export Format',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Column(
-                  children: [
-                    RadioListTile<ExportFormat>(
-                      title: const Text('Excel (.xlsx)'),
-                      subtitle: const Text('Best for data analysis'),
-                      value: ExportFormat.excel,
-                      groupValue: _selectedFormat,
-                      onChanged: provider.isExporting
-                          ? null
-                          : (value) {
-                              setState(() => _selectedFormat = value!);
-                            },
-                      secondary: const Icon(Icons.table_chart),
-                    ),
-                    const Divider(height: 1),
-                    RadioListTile<ExportFormat>(
-                      title: const Text('PDF (.pdf)'),
-                      subtitle: const Text('Best for printing and sharing'),
-                      value: ExportFormat.pdf,
-                      groupValue: _selectedFormat,
-                      onChanged: provider.isExporting
-                          ? null
-                          : (value) {
-                              setState(() => _selectedFormat = value!);
-                            },
-                      secondary: const Icon(Icons.picture_as_pdf),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Download Progress
-              if (provider.isExporting) ...[
+  Widget _buildExportTab() => Consumer<ExportProvider>(
+        builder: (context, provider, child) {
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Info Card
                 Card(
+                  color: Colors.blue.shade50,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Row(
                       children: [
-                        const Text(
-                          'Downloading...',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Icon(
+                          Icons.info_outline,
+                          color: Colors.blue.shade700,
                         ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: provider.downloadProgress,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          '${(provider.downloadProgress * 100).toStringAsFixed(0)}%',
-                          style: const TextStyle(fontSize: 12),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Export your payment history to Excel or PDF for your records.',
+                            style: TextStyle(
+                              color: Colors.blue.shade900,
+                              fontSize: 14,
+                            ),
+                          ),
                         ),
                       ],
                     ),
                   ),
                 ),
                 const SizedBox(height: 24),
-              ],
 
-              // Export Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: provider.isExporting ? null : _handleExport,
-                  icon: provider.isExporting
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
+                // Date Range Section
+                Text(
+                  'Date Range',
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        // Start Date
+                        InkWell(
+                          onTap: provider.isExporting ? null : _selectStartDate,
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'Start Date',
+                              prefixIcon: Icon(Icons.calendar_today),
+                              border: OutlineInputBorder(),
+                            ),
+                            child: Text(_formatDate(_startDate)),
                           ),
-                        )
-                      : const Icon(Icons.download),
-                  label: Text(
-                    provider.isExporting ? 'Exporting...' : 'Export',
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        const SizedBox(height: 16),
+                        // End Date
+                        InkWell(
+                          onTap: provider.isExporting ? null : _selectEndDate,
+                          child: InputDecorator(
+                            decoration: const InputDecoration(
+                              labelText: 'End Date',
+                              prefixIcon: Icon(Icons.calendar_today),
+                              border: OutlineInputBorder(),
+                            ),
+                            child: Text(_formatDate(_endDate)),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        // Duration info
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.shade100,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              const Icon(Icons.date_range, size: 16),
+                              const SizedBox(width: 8),
+                              Text(
+                                '${_endDate.difference(_startDate).inDays} days',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+                const SizedBox(height: 24),
 
-  Widget _buildHistoryTab() {
-    return Consumer<ExportProvider>(
-      builder: (context, provider, child) {
-        if (provider.history.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(Icons.file_download_off,
-                    size: 64, color: Colors.grey.shade300),
-                const SizedBox(height: 16),
-                const Text(
-                  'No export history',
-                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                // Export Format Section
+                Text(
+                  'Export Format',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Your exported files will appear here',
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                const SizedBox(height: 12),
+                Card(
+                  child: Column(
+                    children: [
+                      RadioListTile<ExportFormat>(
+                        title: const Text('Excel (.xlsx)'),
+                        subtitle: const Text('Best for data analysis'),
+                        value: ExportFormat.excel,
+                        groupValue: _selectedFormat,
+                        onChanged: provider.isExporting
+                            ? null
+                            : (value) {
+                                setState(() => _selectedFormat = value!);
+                              },
+                        secondary: const Icon(Icons.table_chart),
+                      ),
+                      const Divider(height: 1),
+                      RadioListTile<ExportFormat>(
+                        title: const Text('PDF (.pdf)'),
+                        subtitle: const Text('Best for printing and sharing'),
+                        value: ExportFormat.pdf,
+                        groupValue: _selectedFormat,
+                        onChanged: provider.isExporting
+                            ? null
+                            : (value) {
+                                setState(() => _selectedFormat = value!);
+                              },
+                        secondary: const Icon(Icons.picture_as_pdf),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // Download Progress
+                if (provider.isExporting) ...[
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Downloading...',
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 12),
+                          LinearProgressIndicator(
+                            value: provider.downloadProgress,
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            '${(provider.downloadProgress * 100).toStringAsFixed(0)}%',
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+
+                // Export Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: provider.isExporting ? null : _handleExport,
+                    icon: provider.isExporting
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Icon(Icons.download),
+                    label: Text(
+                      provider.isExporting ? 'Exporting...' : 'Export',
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                  ),
                 ),
               ],
             ),
           );
-        }
+        },
+      );
 
-        return Column(
-          children: [
-            // Summary Card
-            Container(
-              padding: const EdgeInsets.all(16),
-              color: Colors.grey.shade100,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+  Widget _buildHistoryTab() => Consumer<ExportProvider>(
+        builder: (context, provider, child) {
+          if (provider.history.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildSummaryItem(
-                    'Total Exports',
-                    provider.completedExportCount.toString(),
-                    Icons.file_download,
+                  Icon(Icons.file_download_off,
+                      size: 64, color: Colors.grey.shade300),
+                  const SizedBox(height: 16),
+                  const Text(
+                    'No export history',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
                   ),
-                  _buildSummaryItem(
-                    'Total Size',
-                    FileService.formatFileSize(provider.totalExportSize),
-                    Icons.storage,
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Your exported files will appear here',
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
                 ],
               ),
-            ),
-            // Clear All Button
-            if (provider.history.isNotEmpty)
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextButton.icon(
-                  onPressed: () => _confirmClearHistory(provider),
-                  icon: const Icon(Icons.delete_sweep, color: Colors.red),
-                  label: const Text(
-                    'Clear All History',
-                    style: TextStyle(color: Colors.red),
-                  ),
+            );
+          }
+
+          return Column(
+            children: [
+              // Summary Card
+              Container(
+                padding: const EdgeInsets.all(16),
+                color: Colors.grey.shade100,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    _buildSummaryItem(
+                      'Total Exports',
+                      provider.completedExportCount.toString(),
+                      Icons.file_download,
+                    ),
+                    _buildSummaryItem(
+                      'Total Size',
+                      FileService.formatFileSize(provider.totalExportSize),
+                      Icons.storage,
+                    ),
+                  ],
                 ),
               ),
-            // History List
-            Expanded(
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: provider.history.length,
-                itemBuilder: (context, index) {
-                  final entry = provider.history[index];
-                  return _buildHistoryCard(entry, provider);
-                },
+              // Clear All Button
+              if (provider.history.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: TextButton.icon(
+                    onPressed: () => _confirmClearHistory(provider),
+                    icon: const Icon(Icons.delete_sweep, color: Colors.red),
+                    label: const Text(
+                      'Clear All History',
+                      style: TextStyle(color: Colors.red),
+                    ),
+                  ),
+                ),
+              // History List
+              Expanded(
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: provider.history.length,
+                  itemBuilder: (context, index) {
+                    final entry = provider.history[index];
+                    return _buildHistoryCard(entry, provider);
+                  },
+                ),
               ),
-            ),
-          ],
-        );
-      },
-    );
-  }
+            ],
+          );
+        },
+      );
 
-  Widget _buildSummaryItem(String label, String value, IconData icon) {
-    return Column(
-      children: [
-        Icon(icon, color: Colors.blue),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+  Widget _buildSummaryItem(String label, String value, IconData icon) => Column(
+        children: [
+          Icon(icon, color: Colors.blue),
+          const SizedBox(height: 8),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            color: Colors.grey,
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 12,
+              color: Colors.grey,
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   Widget _buildHistoryCard(
     ExportHistoryEntry entry,
@@ -641,7 +632,5 @@ class _ExportScreenState extends State<ExportScreen>
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 }

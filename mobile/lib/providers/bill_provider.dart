@@ -12,6 +12,11 @@ import '../services/database_service.dart';
 
 /// Provider for bill-related operations and state management
 class BillProvider with ChangeNotifier {
+  BillProvider({
+    required ApiService apiService,
+    required DatabaseService databaseService,
+  })  : _apiService = apiService,
+        _databaseService = databaseService;
   final ApiService _apiService;
   final DatabaseService _databaseService;
 
@@ -19,12 +24,6 @@ class BillProvider with ChangeNotifier {
   List<RecurringBill> _recurringBills = [];
   bool _isLoading = false;
   String? _error;
-
-  BillProvider({
-    required ApiService apiService,
-    required DatabaseService databaseService,
-  })  : _apiService = apiService,
-        _databaseService = databaseService;
 
   // Getters
   List<Bill> get bills => _bills;
@@ -34,36 +33,27 @@ class BillProvider with ChangeNotifier {
   bool get hasError => _error != null;
 
   /// Get bills filtered by various criteria
-  List<Bill> getBillsByProperty(String propertyId) {
-    return _bills.where((b) => b.propertyId == propertyId).toList();
-  }
+  List<Bill> getBillsByProperty(String propertyId) =>
+      _bills.where((b) => b.propertyId == propertyId).toList();
 
-  List<Bill> getBillsByType(BillType type) {
-    return _bills.where((b) => b.billType == type).toList();
-  }
+  List<Bill> getBillsByType(BillType type) =>
+      _bills.where((b) => b.billType == type).toList();
 
-  List<Bill> getBillsByStatus(BillStatus status) {
-    return _bills.where((b) => b.status == status).toList();
-  }
+  List<Bill> getBillsByStatus(BillStatus status) =>
+      _bills.where((b) => b.status == status).toList();
 
-  List<Bill> getOverdueBills() {
-    return _bills.where((b) => b.isOverdue).toList();
-  }
+  List<Bill> getOverdueBills() => _bills.where((b) => b.isOverdue).toList();
 
-  List<Bill> getPendingBills() {
-    return _bills
-        .where((b) =>
-            b.status == BillStatus.pending ||
-            b.status == BillStatus.partiallyPaid)
-        .toList();
-  }
+  List<Bill> getPendingBills() => _bills
+      .where((b) =>
+          b.status == BillStatus.pending ||
+          b.status == BillStatus.partiallyPaid)
+      .toList();
 
   /// Get bills allocated to a specific tenant
-  List<Bill> getBillsForTenant(String tenantId) {
-    return _bills
-        .where((b) => b.allocations.any((alloc) => alloc.tenantId == tenantId))
-        .toList();
-  }
+  List<Bill> getBillsForTenant(String tenantId) => _bills
+      .where((b) => b.allocations.any((alloc) => alloc.tenantId == tenantId))
+      .toList();
 
   /// Get unpaid allocations for a tenant
   List<BillAllocation> getUnpaidAllocationsForTenant(String tenantId) {
@@ -79,10 +69,9 @@ class BillProvider with ChangeNotifier {
   }
 
   /// Calculate total unpaid amount for a tenant
-  double getTotalUnpaidForTenant(String tenantId) {
-    return getUnpaidAllocationsForTenant(tenantId)
-        .fold(0.0, (sum, alloc) => sum + alloc.allocatedAmount);
-  }
+  double getTotalUnpaidForTenant(String tenantId) =>
+      getUnpaidAllocationsForTenant(tenantId)
+          .fold(0.0, (sum, alloc) => sum + alloc.allocatedAmount);
 
   /// Create a new bill
   Future<Bill?> createBill({

@@ -11,14 +11,13 @@ import '../../providers/payment_provider.dart';
 import 'receipt_view_screen.dart';
 
 class PaymentHistoryScreen extends StatefulWidget {
-  final String? tenantId;
-  final String? propertyId;
-
   const PaymentHistoryScreen({
     super.key,
     this.tenantId,
     this.propertyId,
   });
+  final String? tenantId;
+  final String? propertyId;
 
   @override
   State<PaymentHistoryScreen> createState() => _PaymentHistoryScreenState();
@@ -51,139 +50,137 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
   void _showFilterDialog() {
     showDialog(
       context: context,
-      builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              title: const Text('Filter Payments'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Payment Type'),
-                    DropdownButton<PaymentType?>(
-                      value: _filterType,
-                      isExpanded: true,
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('All Types'),
-                        ),
-                        ...PaymentType.values.map((type) {
-                          return DropdownMenuItem(
-                            value: type,
-                            child: Text(type.displayName),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _filterType = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    const Text('Payment Status'),
-                    DropdownButton<PaymentStatus?>(
-                      value: _filterStatus,
-                      isExpanded: true,
-                      items: [
-                        const DropdownMenuItem(
-                          value: null,
-                          child: Text('All Statuses'),
-                        ),
-                        ...PaymentStatus.values.map((status) {
-                          return DropdownMenuItem(
-                            value: status,
-                            child: Text(status.displayName),
-                          );
-                        }),
-                      ],
-                      onChanged: (value) {
-                        setState(() {
-                          _filterStatus = value;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.date_range),
-                      label: Text(
-                        _filterDateFrom != null
-                            ? 'From: ${_filterDateFrom!.day}/${_filterDateFrom!.month}/${_filterDateFrom!.year}'
-                            : 'Select From Date',
+      builder: (context) => StatefulBuilder(
+        builder: (context, setState) {
+          return AlertDialog(
+            title: const Text('Filter Payments'),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Payment Type'),
+                  DropdownButton<PaymentType?>(
+                    value: _filterType,
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All Types'),
                       ),
-                      onPressed: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _filterDateFrom ?? DateTime.now(),
-                          firstDate: DateTime(2020),
-                          lastDate: DateTime.now(),
+                      ...PaymentType.values.map((type) {
+                        return DropdownMenuItem(
+                          value: type,
+                          child: Text(type.displayName),
                         );
-                        if (picked != null) {
-                          setState(() {
-                            _filterDateFrom = picked;
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.date_range),
-                      label: Text(
-                        _filterDateTo != null
-                            ? 'To: ${_filterDateTo!.day}/${_filterDateTo!.month}/${_filterDateTo!.year}'
-                            : 'Select To Date',
+                      }),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filterType = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  const Text('Payment Status'),
+                  DropdownButton<PaymentStatus?>(
+                    value: _filterStatus,
+                    isExpanded: true,
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('All Statuses'),
                       ),
-                      onPressed: () async {
-                        final picked = await showDatePicker(
-                          context: context,
-                          initialDate: _filterDateTo ?? DateTime.now(),
-                          firstDate: _filterDateFrom ?? DateTime(2020),
-                          lastDate: DateTime.now(),
+                      ...PaymentStatus.values.map((status) {
+                        return DropdownMenuItem(
+                          value: status,
+                          child: Text(status.displayName),
                         );
-                        if (picked != null) {
-                          setState(() {
-                            _filterDateTo = picked;
-                          });
-                        }
-                      },
+                      }),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filterStatus = value;
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.date_range),
+                    label: Text(
+                      _filterDateFrom != null
+                          ? 'From: ${_filterDateFrom!.day}/${_filterDateFrom!.month}/${_filterDateFrom!.year}'
+                          : 'Select From Date',
                     ),
-                  ],
-                ),
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _filterDateFrom ?? DateTime.now(),
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _filterDateFrom = picked;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton.icon(
+                    icon: const Icon(Icons.date_range),
+                    label: Text(
+                      _filterDateTo != null
+                          ? 'To: ${_filterDateTo!.day}/${_filterDateTo!.month}/${_filterDateTo!.year}'
+                          : 'Select To Date',
+                    ),
+                    onPressed: () async {
+                      final picked = await showDatePicker(
+                        context: context,
+                        initialDate: _filterDateTo ?? DateTime.now(),
+                        firstDate: _filterDateFrom ?? DateTime(2020),
+                        lastDate: DateTime.now(),
+                      );
+                      if (picked != null) {
+                        setState(() {
+                          _filterDateTo = picked;
+                        });
+                      }
+                    },
+                  ),
+                ],
               ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    setState(() {
-                      _filterType = null;
-                      _filterStatus = null;
-                      _filterDateFrom = null;
-                      _filterDateTo = null;
-                    });
-                  },
-                  child: const Text('Clear'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                  child: const Text('Cancel'),
-                ),
-                ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    this.setState(() {});
-                    _loadPayments();
-                  },
-                  child: const Text('Apply'),
-                ),
-              ],
-            );
-          },
-        );
-      },
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _filterType = null;
+                    _filterStatus = null;
+                    _filterDateFrom = null;
+                    _filterDateTo = null;
+                  });
+                },
+                child: const Text('Clear'),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  this.setState(() {});
+                  _loadPayments();
+                },
+                child: const Text('Apply'),
+              ),
+            ],
+          );
+        },
+      ),
     );
   }
 
@@ -280,9 +277,8 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
 }
 
 class _PaymentCard extends StatelessWidget {
-  final Payment payment;
-
   const _PaymentCard({required this.payment});
+  final Payment payment;
 
   Color _getStatusColor() {
     switch (payment.status) {
@@ -315,257 +311,253 @@ class _PaymentCard extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-      child: InkWell(
-        onTap: () {
-          _showPaymentDetails(context);
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Icon(
-                    _getPaymentMethodIcon(),
-                    color: Theme.of(context).primaryColor,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+  Widget build(BuildContext context) => Card(
+        margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+        child: InkWell(
+          onTap: () {
+            _showPaymentDetails(context);
+          },
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      _getPaymentMethodIcon(),
+                      color: Theme.of(context).primaryColor,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            payment.paymentType.displayName,
+                            style: Theme.of(context)
+                                .textTheme
+                                .titleMedium
+                                ?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                          ),
+                          Text(
+                            '${payment.paymentDate.day}/${payment.paymentDate.month}/${payment.paymentDate.year}',
+                            style: Theme.of(context).textTheme.bodySmall,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          payment.paymentType.displayName,
+                          payment.formattedAmount,
                           style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
+                              Theme.of(context).textTheme.titleLarge?.copyWith(
                                     fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).primaryColor,
                                   ),
                         ),
-                        Text(
-                          '${payment.paymentDate.day}/${payment.paymentDate.month}/${payment.paymentDate.year}',
-                          style: Theme.of(context).textTheme.bodySmall,
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: _getStatusColor().withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: _getStatusColor(),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            payment.status.displayName,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: _getStatusColor(),
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  ],
+                ),
+                if (payment.periodDisplay != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
                     children: [
+                      const Icon(Icons.calendar_today, size: 16),
+                      const SizedBox(width: 4),
                       Text(
-                        payment.formattedAmount,
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
-                        decoration: BoxDecoration(
-                          color: _getStatusColor().withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: _getStatusColor(),
-                            width: 1,
-                          ),
-                        ),
-                        child: Text(
-                          payment.status.displayName,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: _getStatusColor(),
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
+                        'Period: ${payment.periodDisplay}',
+                        style: Theme.of(context).textTheme.bodySmall,
                       ),
                     ],
                   ),
                 ],
-              ),
-              if (payment.periodDisplay != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.calendar_today, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Period: ${payment.periodDisplay}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
+                if (payment.transactionReference != null) ...[
+                  const SizedBox(height: 4),
+                  Row(
+                    children: [
+                      const Icon(Icons.receipt_long, size: 16),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Ref: ${payment.transactionReference}',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ],
               ],
-              if (payment.transactionReference != null) ...[
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    const Icon(Icons.receipt_long, size: 16),
-                    const SizedBox(width: 4),
-                    Text(
-                      'Ref: ${payment.transactionReference}',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ],
-            ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   void _showPaymentDetails(BuildContext context) {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      builder: (context) {
-        return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.4,
-          maxChildSize: 0.9,
-          expand: false,
-          builder: (context, scrollController) {
-            return SingleChildScrollView(
-              controller: scrollController,
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+      builder: (context) => DraggableScrollableSheet(
+        initialChildSize: 0.6,
+        minChildSize: 0.4,
+        maxChildSize: 0.9,
+        expand: false,
+        builder: (context, scrollController) {
+          return SingleChildScrollView(
+            controller: scrollController,
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2),
                     ),
                   ),
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Payment Details',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+                const Divider(height: 32),
+                _DetailRow(
+                  label: 'Amount',
+                  value: payment.formattedAmount,
+                  valueStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                _DetailRow(
+                  label: 'Payment Type',
+                  value: payment.paymentType.displayName,
+                ),
+                _DetailRow(
+                  label: 'Payment Method',
+                  value: payment.paymentMethod.displayName,
+                ),
+                _DetailRow(
+                  label: 'Status',
+                  value: payment.status.displayName,
+                ),
+                _DetailRow(
+                  label: 'Payment Date',
+                  value:
+                      '${payment.paymentDate.day}/${payment.paymentDate.month}/${payment.paymentDate.year}',
+                ),
+                if (payment.periodDisplay != null)
+                  _DetailRow(
+                    label: 'Payment Period',
+                    value: payment.periodDisplay!,
+                  ),
+                if (payment.transactionReference != null)
+                  _DetailRow(
+                    label: 'Transaction Reference',
+                    value: payment.transactionReference!,
+                  ),
+                if (payment.notes != null) ...[
                   const SizedBox(height: 16),
                   Text(
-                    'Payment Details',
-                    style: Theme.of(context).textTheme.headlineSmall,
+                    'Notes',
+                    style: Theme.of(context).textTheme.titleSmall,
                   ),
-                  const Divider(height: 32),
-                  _DetailRow(
-                    label: 'Amount',
-                    value: payment.formattedAmount,
-                    valueStyle: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-                  _DetailRow(
-                    label: 'Payment Type',
-                    value: payment.paymentType.displayName,
-                  ),
-                  _DetailRow(
-                    label: 'Payment Method',
-                    value: payment.paymentMethod.displayName,
-                  ),
-                  _DetailRow(
-                    label: 'Status',
-                    value: payment.status.displayName,
-                  ),
-                  _DetailRow(
-                    label: 'Payment Date',
-                    value:
-                        '${payment.paymentDate.day}/${payment.paymentDate.month}/${payment.paymentDate.year}',
-                  ),
-                  if (payment.periodDisplay != null)
-                    _DetailRow(
-                      label: 'Payment Period',
-                      value: payment.periodDisplay!,
-                    ),
-                  if (payment.transactionReference != null)
-                    _DetailRow(
-                      label: 'Transaction Reference',
-                      value: payment.transactionReference!,
-                    ),
-                  if (payment.notes != null) ...[
-                    const SizedBox(height: 16),
-                    Text(
-                      'Notes',
-                      style: Theme.of(context).textTheme.titleSmall,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(payment.notes!),
-                  ],
-                  const SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      icon: const Icon(Icons.receipt),
-                      label: const Text('View Receipt'),
-                      onPressed: () {
-                        Navigator.pop(context); // Close the bottom sheet
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ReceiptViewScreen(
-                              paymentId: payment.id,
-                              tenantName: payment.tenantId,
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                  const SizedBox(height: 8),
+                  Text(payment.notes!),
                 ],
-              ),
-            );
-          },
-        );
-      },
+                const SizedBox(height: 24),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    icon: const Icon(Icons.receipt),
+                    label: const Text('View Receipt'),
+                    onPressed: () {
+                      Navigator.pop(context); // Close the bottom sheet
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ReceiptViewScreen(
+                            paymentId: payment.id,
+                            tenantName: payment.tenantId,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
     );
   }
 }
 
 class _DetailRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final TextStyle? valueStyle;
-
   const _DetailRow({
     required this.label,
     required this.value,
     this.valueStyle,
   });
+  final String label;
+  final String value;
+  final TextStyle? valueStyle;
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 140,
-            child: Text(
-              label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Colors.grey[600],
-                  ),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 140,
+              child: Text(
+                label,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.grey[600],
+                    ),
+              ),
             ),
-          ),
-          Expanded(
-            child: Text(
-              value,
-              style: valueStyle ??
-                  Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        fontWeight: FontWeight.w500,
-                      ),
+            Expanded(
+              child: Text(
+                value,
+                style: valueStyle ??
+                    Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 }

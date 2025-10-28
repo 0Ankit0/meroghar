@@ -4,9 +4,8 @@ import 'package:flutter/services.dart';
 import '../../models/document.dart';
 
 class DocumentViewerScreen extends StatelessWidget {
-  final Document document;
-
   const DocumentViewerScreen({super.key, required this.document});
+  final Document document;
 
   @override
   Widget build(BuildContext context) {

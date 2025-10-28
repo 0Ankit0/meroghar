@@ -11,14 +11,13 @@ import '../../models/tenant.dart';
 import '../../providers/payment_provider.dart';
 
 class PaymentFormScreen extends StatefulWidget {
-  final Tenant tenant;
-  final String propertyId;
-
   const PaymentFormScreen({
     super.key,
     required this.tenant,
     required this.propertyId,
   });
+  final Tenant tenant;
+  final String propertyId;
 
   @override
   State<PaymentFormScreen> createState() => _PaymentFormScreenState();
@@ -190,12 +189,12 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                           vertical: 8,
                         ),
                       ),
-                      items: PaymentType.values.map((type) {
-                        return DropdownMenuItem(
-                          value: type,
-                          child: Text(type.displayName),
-                        );
-                      }).toList(),
+                      items: PaymentType.values
+                          .map((type) => DropdownMenuItem(
+                                value: type,
+                                child: Text(type.displayName),
+                              ))
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {
@@ -255,12 +254,12 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                           vertical: 8,
                         ),
                       ),
-                      items: PaymentMethod.values.map((method) {
-                        return DropdownMenuItem(
-                          value: method,
-                          child: Text(method.displayName),
-                        );
-                      }).toList(),
+                      items: PaymentMethod.values
+                          .map((method) => DropdownMenuItem(
+                                value: method,
+                                child: Text(method.displayName),
+                              ))
+                          .toList(),
                       onChanged: (value) {
                         if (value != null) {
                           setState(() {

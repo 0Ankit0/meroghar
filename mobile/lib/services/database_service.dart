@@ -15,12 +15,11 @@ import '../config/env.example.dart';
 /// Provides offline-first functionality with automatic schema creation
 /// and migration support.
 class DatabaseService {
-  static final DatabaseService instance = DatabaseService._internal();
-  static Database? _database;
-
   factory DatabaseService() => instance;
 
   DatabaseService._internal();
+  static final DatabaseService instance = DatabaseService._internal();
+  static Database? _database;
 
   /// Get database instance, initializing if needed.
   Future<Database> get database async {
@@ -341,7 +340,7 @@ class DatabaseService {
 
   /// Get device ID, generating one if it doesn't exist.
   Future<String> getDeviceId() async {
-    String? deviceId = await getDeviceMetadata('device_id');
+    var deviceId = await getDeviceMetadata('device_id');
 
     if (deviceId == null) {
       // Generate a new UUID for this device
@@ -353,9 +352,8 @@ class DatabaseService {
   }
 
   /// Get device name for display.
-  Future<String?> getDeviceName() async {
-    return await getDeviceMetadata('device_name');
-  }
+  Future<String?> getDeviceName() async =>
+      await getDeviceMetadata('device_name');
 
   /// Set device name for display.
   Future<void> setDeviceName(String name) async {

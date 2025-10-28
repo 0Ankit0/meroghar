@@ -13,6 +13,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 ///
 /// Language preference is persisted using SharedPreferences.
 class LanguageProvider with ChangeNotifier {
+  LanguageProvider() {
+    _loadSavedLanguage();
+  }
   static const String _languageKey = 'app_language';
   static const String _defaultLanguage = 'en';
 
@@ -42,10 +45,6 @@ class LanguageProvider with ChangeNotifier {
     'es': 'Español',
     'ar': 'العربية',
   };
-
-  LanguageProvider() {
-    _loadSavedLanguage();
-  }
 
   /// Get current locale
   Locale get currentLocale => _currentLocale;
@@ -127,37 +126,34 @@ class LanguageProvider with ChangeNotifier {
   }
 
   /// Get list of all supported languages with their display names
-  List<LanguageOption> getSupportedLanguages() {
-    return supportedLocales.map((locale) {
-      return LanguageOption(
-        code: locale.languageCode,
-        name: languageNames[locale.languageCode] ?? locale.languageCode,
-        nativeName:
-            nativeLanguageNames[locale.languageCode] ?? locale.languageCode,
-        isRTL: locale.languageCode == 'ar',
-      );
-    }).toList();
-  }
+  List<LanguageOption> getSupportedLanguages() =>
+      supportedLocales.map((locale) {
+        return LanguageOption(
+          code: locale.languageCode,
+          name: languageNames[locale.languageCode] ?? locale.languageCode,
+          nativeName:
+              nativeLanguageNames[locale.languageCode] ?? locale.languageCode,
+          isRTL: locale.languageCode == 'ar',
+        );
+      }).toList();
 
   /// Check if a language is currently selected
-  bool isLanguageSelected(String languageCode) {
-    return _currentLocale.languageCode == languageCode;
-  }
+  bool isLanguageSelected(String languageCode) =>
+      _currentLocale.languageCode == languageCode;
 }
 
 /// Represents a language option in the language picker
 class LanguageOption {
-  final String code;
-  final String name;
-  final String nativeName;
-  final bool isRTL;
-
   const LanguageOption({
     required this.code,
     required this.name,
     required this.nativeName,
     this.isRTL = false,
   });
+  final String code;
+  final String name;
+  final String nativeName;
+  final bool isRTL;
 
   Locale get locale => Locale(code);
 

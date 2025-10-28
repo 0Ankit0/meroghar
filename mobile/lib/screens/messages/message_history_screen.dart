@@ -47,76 +47,74 @@ class _MessageHistoryScreenState extends State<MessageHistoryScreen> {
       builder: (context) => AlertDialog(
         title: const Text('Filter Messages'),
         content: StatefulBuilder(
-          builder: (context, setState) {
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Channel filter
-                const Text(
-                  'Channel',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+          builder: (context, setState) => Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Channel filter
+              const Text(
+                'Channel',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<MessageChannel?>(
+                value: _channelFilter,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'All Channels',
                 ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<MessageChannel?>(
-                  value: _channelFilter,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'All Channels',
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('All Channels'),
                   ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('All Channels'),
+                  ...MessageChannel.values.map(
+                    (channel) => DropdownMenuItem(
+                      value: channel,
+                      child: Text(_getChannelName(channel)),
                     ),
-                    ...MessageChannel.values.map(
-                      (channel) => DropdownMenuItem(
-                        value: channel,
-                        child: Text(_getChannelName(channel)),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _channelFilter = value;
-                    });
-                  },
-                ),
-                const SizedBox(height: 16),
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _channelFilter = value;
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
 
-                // Status filter
-                const Text(
-                  'Status',
-                  style: TextStyle(fontWeight: FontWeight.bold),
+              // Status filter
+              const Text(
+                'Status',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              DropdownButtonFormField<MessageStatus?>(
+                value: _statusFilter,
+                decoration: const InputDecoration(
+                  border: OutlineInputBorder(),
+                  hintText: 'All Statuses',
                 ),
-                const SizedBox(height: 8),
-                DropdownButtonFormField<MessageStatus?>(
-                  value: _statusFilter,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'All Statuses',
+                items: [
+                  const DropdownMenuItem(
+                    value: null,
+                    child: Text('All Statuses'),
                   ),
-                  items: [
-                    const DropdownMenuItem(
-                      value: null,
-                      child: Text('All Statuses'),
+                  ...MessageStatus.values.map(
+                    (status) => DropdownMenuItem(
+                      value: status,
+                      child: Text(_getStatusName(status)),
                     ),
-                    ...MessageStatus.values.map(
-                      (status) => DropdownMenuItem(
-                        value: status,
-                        child: Text(_getStatusName(status)),
-                      ),
-                    ),
-                  ],
-                  onChanged: (value) {
-                    setState(() {
-                      _statusFilter = value;
-                    });
-                  },
-                ),
-              ],
-            );
-          },
+                  ),
+                ],
+                onChanged: (value) {
+                  setState(() {
+                    _statusFilter = value;
+                  });
+                },
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
@@ -172,229 +170,227 @@ class _MessageHistoryScreenState extends State<MessageHistoryScreen> {
     }
   }
 
-  String _formatDateTime(DateTime dt) {
-    return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDateTime(DateTime dt) =>
+      '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Message History'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list),
-            onPressed: _showFilterDialog,
-          ),
-        ],
-      ),
-      body: Consumer<MessageProvider>(
-        builder: (context, messageProvider, child) {
-          if (messageProvider.isLoading && messageProvider.messages.isEmpty) {
-            return const Center(child: CircularProgressIndicator());
-          }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Message History'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.filter_list),
+              onPressed: _showFilterDialog,
+            ),
+          ],
+        ),
+        body: Consumer<MessageProvider>(
+          builder: (context, messageProvider, child) {
+            if (messageProvider.isLoading && messageProvider.messages.isEmpty) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          if (messageProvider.error != null &&
-              messageProvider.messages.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    messageProvider.error!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: _loadMessages,
-                    child: const Text('Retry'),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          if (messageProvider.messages.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.message_outlined,
-                    size: 64,
-                    color: Colors.grey,
-                  ),
-                  const SizedBox(height: 16),
-                  const Text(
-                    'No messages found',
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 8),
-                  const Text(
-                    'Send your first bulk message',
-                    style: TextStyle(fontSize: 14, color: Colors.grey),
-                  ),
-                ],
-              ),
-            );
-          }
-
-          return Column(
-            children: [
-              // Statistics Card
-              if (messageProvider.statistics != null)
-                Card(
-                  margin: const EdgeInsets.all(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Statistics',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          children: [
-                            _buildStatItem(
-                              'Total',
-                              messageProvider.statistics!.totalMessages
-                                  .toString(),
-                              Colors.blue,
-                            ),
-                            _buildStatItem(
-                              'Sent',
-                              messageProvider.statistics!.sent.toString(),
-                              Colors.orange,
-                            ),
-                            _buildStatItem(
-                              'Delivered',
-                              messageProvider.statistics!.delivered.toString(),
-                              Colors.green,
-                            ),
-                            _buildStatItem(
-                              'Failed',
-                              messageProvider.statistics!.failed.toString(),
-                              Colors.red,
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        LinearProgressIndicator(
-                          value: messageProvider.statistics!.deliveryRate / 100,
-                          backgroundColor: Colors.grey[300],
-                          color: Colors.green,
-                        ),
-                        const SizedBox(height: 8),
-                        Center(
-                          child: Text(
-                            'Delivery Rate: ${messageProvider.statistics!.deliveryRate.toStringAsFixed(1)}%',
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                      ],
+            if (messageProvider.error != null &&
+                messageProvider.messages.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      messageProvider.error!,
+                      style: const TextStyle(color: Colors.red),
                     ),
-                  ),
+                    const SizedBox(height: 16),
+                    ElevatedButton(
+                      onPressed: _loadMessages,
+                      child: const Text('Retry'),
+                    ),
+                  ],
                 ),
+              );
+            }
 
-              // Messages List
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: _refreshMessages,
-                  child: ListView.builder(
-                    itemCount: messageProvider.messages.length,
-                    itemBuilder: (context, index) {
-                      final message = messageProvider.messages[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        child: ListTile(
-                          leading: MessageStatusWidget(message: message),
-                          title: Text(
-                            _getTemplateName(message.template),
-                            style: const TextStyle(fontWeight: FontWeight.bold),
+            if (messageProvider.messages.isEmpty) {
+              return Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.message_outlined,
+                      size: 64,
+                      color: Colors.grey,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'No messages found',
+                      style: TextStyle(fontSize: 16, color: Colors.grey),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Send your first bulk message',
+                      style: TextStyle(fontSize: 14, color: Colors.grey),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return Column(
+              children: [
+                // Statistics Card
+                if (messageProvider.statistics != null)
+                  Card(
+                    margin: const EdgeInsets.all(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Statistics',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              const SizedBox(height: 4),
-                              Text(
-                                message.content.length > 60
-                                    ? '${message.content.substring(0, 60)}...'
-                                    : message.content,
+                              _buildStatItem(
+                                'Total',
+                                messageProvider.statistics!.totalMessages
+                                    .toString(),
+                                Colors.blue,
                               ),
-                              const SizedBox(height: 4),
-                              Row(
-                                children: [
-                                  Icon(
-                                    _getChannelIcon(message.channel),
-                                    size: 16,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    _getChannelName(message.channel),
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  const Icon(
-                                    Icons.access_time,
-                                    size: 16,
-                                    color: Colors.grey,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    _formatDateTime(message.createdAt),
-                                    style: const TextStyle(fontSize: 12),
-                                  ),
-                                ],
+                              _buildStatItem(
+                                'Sent',
+                                messageProvider.statistics!.sent.toString(),
+                                Colors.orange,
+                              ),
+                              _buildStatItem(
+                                'Delivered',
+                                messageProvider.statistics!.delivered
+                                    .toString(),
+                                Colors.green,
+                              ),
+                              _buildStatItem(
+                                'Failed',
+                                messageProvider.statistics!.failed.toString(),
+                                Colors.red,
                               ),
                             ],
                           ),
-                          isThreeLine: true,
-                          trailing: message.bulkMessageId != null
-                              ? const Icon(Icons.group)
-                              : null,
-                          onTap: () => _showMessageDetails(message),
-                        ),
-                      );
-                    },
+                          const SizedBox(height: 12),
+                          LinearProgressIndicator(
+                            value:
+                                messageProvider.statistics!.deliveryRate / 100,
+                            backgroundColor: Colors.grey[300],
+                            color: Colors.green,
+                          ),
+                          const SizedBox(height: 8),
+                          Center(
+                            child: Text(
+                              'Delivery Rate: ${messageProvider.statistics!.deliveryRate.toStringAsFixed(1)}%',
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Messages List
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: _refreshMessages,
+                    child: ListView.builder(
+                      itemCount: messageProvider.messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messageProvider.messages[index];
+                        return Card(
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          child: ListTile(
+                            leading: MessageStatusWidget(message: message),
+                            title: Text(
+                              _getTemplateName(message.template),
+                              style:
+                                  const TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 4),
+                                Text(
+                                  message.content.length > 60
+                                      ? '${message.content.substring(0, 60)}...'
+                                      : message.content,
+                                ),
+                                const SizedBox(height: 4),
+                                Row(
+                                  children: [
+                                    Icon(
+                                      _getChannelIcon(message.channel),
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _getChannelName(message.channel),
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    const Icon(
+                                      Icons.access_time,
+                                      size: 16,
+                                      color: Colors.grey,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      _formatDateTime(message.createdAt),
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            isThreeLine: true,
+                            trailing: message.bulkMessageId != null
+                                ? const Icon(Icons.group)
+                                : null,
+                            onTap: () => _showMessageDetails(message),
+                          ),
+                        );
+                      },
+                    ),
                   ),
                 ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+              ],
+            );
+          },
+        ),
+      );
 
-  Widget _buildStatItem(String label, String value, Color color) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            color: color,
+  Widget _buildStatItem(String label, String value, Color color) => Column(
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
           ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12, color: Colors.grey),
-        ),
-      ],
-    );
-  }
+          const SizedBox(height: 4),
+          Text(
+            label,
+            style: const TextStyle(fontSize: 12, color: Colors.grey),
+          ),
+        ],
+      );
 
   String _getTemplateName(MessageTemplate template) {
     switch (template) {
@@ -513,24 +509,22 @@ class _MessageHistoryScreenState extends State<MessageHistoryScreen> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          SizedBox(
-            width: 100,
-            child: Text(
-              label,
-              style: const TextStyle(color: Colors.grey),
+  Widget _buildDetailRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(
+              width: 100,
+              child: Text(
+                label,
+                style: const TextStyle(color: Colors.grey),
+              ),
             ),
-          ),
-          Expanded(
-            child: Text(value),
-          ),
-        ],
-      ),
-    );
-  }
+            Expanded(
+              child: Text(value),
+            ),
+          ],
+        ),
+      );
 }

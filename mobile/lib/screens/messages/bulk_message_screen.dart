@@ -8,15 +8,11 @@ import 'package:provider/provider.dart';
 
 import '../../models/message.dart';
 import '../../providers/message_provider.dart';
+import '../../providers/tenant_provider.dart';
 import '../../widgets/message_template_picker.dart';
 
 /// Simplified tenant representation for selection
 class TenantInfo {
-  final int id;
-  final String fullName;
-  final String propertyName;
-  final String? unitNumber;
-
   TenantInfo({
     required this.id,
     required this.fullName,
@@ -32,6 +28,10 @@ class TenantInfo {
       unitNumber: json['unit_number'] as String?,
     );
   }
+  final int id;
+  final String fullName;
+  final String propertyName;
+  final String? unitNumber;
 }
 
 class BulkMessageScreen extends StatefulWidget {
@@ -67,8 +67,7 @@ class _BulkMessageScreenState extends State<BulkMessageScreen> {
     super.dispose();
   }
 
-  /// Load tenants using direct API call
-  /// TODO: Replace with TenantProvider once available
+  /// Load tenants using TenantProvider
   Future<void> _loadTenants() async {
     setState(() {
       _isLoadingTenants = true;
@@ -76,14 +75,11 @@ class _BulkMessageScreenState extends State<BulkMessageScreen> {
     });
 
     try {
-      // TODO: Implement proper tenant loading via TenantProvider
-      // For now, use mock data or direct API call
-      await Future.delayed(const Duration(seconds: 1));
+      final tenantProvider = context.read<TenantProvider>();
+      await tenantProvider.loadTenants();
 
       setState(() {
         _isLoadingTenants = false;
-        // Mock tenants for demonstration
-        // In production, fetch from API: /api/v1/tenants
       });
     } catch (e) {
       setState(() {
@@ -208,214 +204,212 @@ class _BulkMessageScreenState extends State<BulkMessageScreen> {
     }
   }
 
-  String _formatDateTime(DateTime dt) {
-    return '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
-  }
+  String _formatDateTime(DateTime dt) =>
+      '${dt.day}/${dt.month}/${dt.year} ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Send Bulk Messages'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.send),
-            onPressed: _sendMessages,
-          ),
-        ],
-      ),
-      body: Consumer<MessageProvider>(
-        builder: (context, messageProvider, child) {
-          return Column(
-            children: [
-              // Configuration section
-              Expanded(
-                flex: 2,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Template selector
-                      const Text(
-                        'Message Template',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      MessageTemplatePicker(
-                        selectedTemplate: _selectedTemplate,
-                        onTemplateSelected: (template) {
-                          setState(() {
-                            _selectedTemplate = template;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Custom content for custom template
-                      if (_selectedTemplate == MessageTemplate.custom) ...[
-                        TextField(
-                          controller: _customContentController,
-                          decoration: const InputDecoration(
-                            labelText: 'Custom Message Content',
-                            hintText: 'Enter your custom message...',
-                            border: OutlineInputBorder(),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Send Bulk Messages'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: _sendMessages,
+            ),
+          ],
+        ),
+        body: Consumer<MessageProvider>(
+          builder: (context, messageProvider, child) {
+            return Column(
+              children: [
+                // Configuration section
+                Expanded(
+                  flex: 2,
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Template selector
+                        const Text(
+                          'Message Template',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
-                          maxLines: 3,
-                          maxLength: 1000,
+                        ),
+                        const SizedBox(height: 8),
+                        MessageTemplatePicker(
+                          selectedTemplate: _selectedTemplate,
+                          onTemplateSelected: (template) {
+                            setState(() {
+                              _selectedTemplate = template;
+                            });
+                          },
                         ),
                         const SizedBox(height: 16),
-                      ],
 
-                      // Channel selector
-                      const Text(
-                        'Channel',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                        // Custom content for custom template
+                        if (_selectedTemplate == MessageTemplate.custom) ...[
+                          TextField(
+                            controller: _customContentController,
+                            decoration: const InputDecoration(
+                              labelText: 'Custom Message Content',
+                              hintText: 'Enter your custom message...',
+                              border: OutlineInputBorder(),
+                            ),
+                            maxLines: 3,
+                            maxLength: 1000,
+                          ),
+                          const SizedBox(height: 16),
+                        ],
+
+                        // Channel selector
+                        const Text(
+                          'Channel',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      SegmentedButton<MessageChannel>(
-                        segments: const [
-                          ButtonSegment(
-                            value: MessageChannel.sms,
-                            label: Text('SMS'),
-                            icon: Icon(Icons.sms),
-                          ),
-                          ButtonSegment(
-                            value: MessageChannel.whatsapp,
-                            label: Text('WhatsApp'),
-                            icon: Icon(Icons.chat),
-                          ),
-                          ButtonSegment(
-                            value: MessageChannel.email,
-                            label: Text('Email'),
-                            icon: Icon(Icons.email),
+                        const SizedBox(height: 8),
+                        SegmentedButton<MessageChannel>(
+                          segments: const [
+                            ButtonSegment(
+                              value: MessageChannel.sms,
+                              label: Text('SMS'),
+                              icon: Icon(Icons.sms),
+                            ),
+                            ButtonSegment(
+                              value: MessageChannel.whatsapp,
+                              label: Text('WhatsApp'),
+                              icon: Icon(Icons.chat),
+                            ),
+                            ButtonSegment(
+                              value: MessageChannel.email,
+                              label: Text('Email'),
+                              icon: Icon(Icons.email),
+                            ),
+                          ],
+                          selected: {_selectedChannel},
+                          onSelectionChanged:
+                              (Set<MessageChannel> newSelection) {
+                            setState(() {
+                              _selectedChannel = newSelection.first;
+                            });
+                          },
+                        ),
+                        const SizedBox(height: 16),
+
+                        // Schedule toggle
+                        SwitchListTile(
+                          title: const Text('Schedule for Later'),
+                          subtitle: _scheduledDateTime != null
+                              ? Text(_formatDateTime(_scheduledDateTime!))
+                              : const Text('Send immediately'),
+                          value: _isScheduled,
+                          onChanged: (value) {
+                            setState(() {
+                              _isScheduled = value;
+                              if (value && _scheduledDateTime == null) {
+                                _selectScheduleDateTime();
+                              }
+                            });
+                          },
+                        ),
+
+                        if (_isScheduled) ...[
+                          const SizedBox(height: 8),
+                          OutlinedButton.icon(
+                            onPressed: _selectScheduleDateTime,
+                            icon: const Icon(Icons.calendar_today),
+                            label: Text(
+                              _scheduledDateTime != null
+                                  ? 'Change Time: ${_formatDateTime(_scheduledDateTime!)}'
+                                  : 'Select Date & Time',
+                            ),
                           ),
                         ],
-                        selected: {_selectedChannel},
-                        onSelectionChanged: (Set<MessageChannel> newSelection) {
-                          setState(() {
-                            _selectedChannel = newSelection.first;
-                          });
-                        },
-                      ),
-                      const SizedBox(height: 16),
 
-                      // Schedule toggle
-                      SwitchListTile(
-                        title: const Text('Schedule for Later'),
-                        subtitle: _scheduledDateTime != null
-                            ? Text(_formatDateTime(_scheduledDateTime!))
-                            : const Text('Send immediately'),
-                        value: _isScheduled,
-                        onChanged: (value) {
-                          setState(() {
-                            _isScheduled = value;
-                            if (value && _scheduledDateTime == null) {
-                              _selectScheduleDateTime();
-                            }
-                          });
-                        },
-                      ),
-
-                      if (_isScheduled) ...[
+                        const SizedBox(height: 16),
+                        const Divider(),
                         const SizedBox(height: 8),
-                        OutlinedButton.icon(
-                          onPressed: _selectScheduleDateTime,
-                          icon: const Icon(Icons.calendar_today),
-                          label: Text(
-                            _scheduledDateTime != null
-                                ? 'Change Time: ${_formatDateTime(_scheduledDateTime!)}'
-                                : 'Select Date & Time',
+
+                        // Selected count
+                        Text(
+                          '${_selectedTenantIds.length} tenant(s) selected',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ],
+                    ),
+                  ),
+                ),
 
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 8),
+                const Divider(height: 1),
 
-                      // Selected count
-                      Text(
-                        '${_selectedTenantIds.length} tenant(s) selected',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                // Tenant list section
+                Expanded(
+                  flex: 3,
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Select Tenants',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            if (_tenants.isNotEmpty)
+                              TextButton(
+                                onPressed: () {
+                                  setState(() {
+                                    if (_selectedTenantIds.length ==
+                                        _tenants.length) {
+                                      _selectedTenantIds.clear();
+                                    } else {
+                                      _selectedTenantIds.addAll(
+                                        _tenants.map((t) => t.id),
+                                      );
+                                    }
+                                  });
+                                },
+                                child: Text(
+                                  _selectedTenantIds.length == _tenants.length
+                                      ? 'Deselect All'
+                                      : 'Select All',
+                                ),
+                              ),
+                          ],
                         ),
+                      ),
+                      Expanded(
+                        child: _buildTenantList(),
                       ),
                     ],
                   ),
                 ),
-              ),
 
-              const Divider(height: 1),
-
-              // Tenant list section
-              Expanded(
-                flex: 3,
-                child: Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Select Tenants',
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          if (_tenants.isNotEmpty)
-                            TextButton(
-                              onPressed: () {
-                                setState(() {
-                                  if (_selectedTenantIds.length ==
-                                      _tenants.length) {
-                                    _selectedTenantIds.clear();
-                                  } else {
-                                    _selectedTenantIds.addAll(
-                                      _tenants.map((t) => t.id),
-                                    );
-                                  }
-                                });
-                              },
-                              child: Text(
-                                _selectedTenantIds.length == _tenants.length
-                                    ? 'Deselect All'
-                                    : 'Select All',
-                              ),
-                            ),
-                        ],
-                      ),
+                // Loading overlay
+                if (messageProvider.isLoading)
+                  Container(
+                    color: Colors.black54,
+                    child: const Center(
+                      child: CircularProgressIndicator(),
                     ),
-                    Expanded(
-                      child: _buildTenantList(),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Loading overlay
-              if (messageProvider.isLoading)
-                Container(
-                  color: Colors.black54,
-                  child: const Center(
-                    child: CircularProgressIndicator(),
                   ),
-                ),
-            ],
-          );
-        },
-      ),
-    );
-  }
+              ],
+            );
+          },
+        ),
+      );
 
   Widget _buildTenantList() {
     if (_isLoadingTenants) {

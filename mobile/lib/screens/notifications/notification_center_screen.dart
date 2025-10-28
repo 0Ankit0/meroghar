@@ -42,114 +42,111 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Notifications'),
-        actions: [
-          IconButton(
-            icon: Icon(_showGrouped ? Icons.list : Icons.category),
-            onPressed: () {
-              setState(() {
-                _showGrouped = !_showGrouped;
-              });
-            },
-            tooltip: _showGrouped ? 'Show List' : 'Group by Type',
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Notifications'),
+          actions: [
+            IconButton(
+              icon: Icon(_showGrouped ? Icons.list : Icons.category),
+              onPressed: () {
+                setState(() {
+                  _showGrouped = !_showGrouped;
+                });
+              },
+              tooltip: _showGrouped ? 'Show List' : 'Group by Type',
+            ),
+            IconButton(
+              icon: const Icon(Icons.done_all),
+              onPressed: () async {
+                final provider = context.read<NotificationProvider>();
+                await provider.markAllAsRead();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('All notifications marked as read'),
+                    ),
+                  );
+                }
+              },
+              tooltip: 'Mark all as read',
+            ),
+          ],
+          bottom: TabBar(
+            controller: _tabController,
+            tabs: const [
+              Tab(text: 'All'),
+              Tab(text: 'Unread'),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.done_all),
-            onPressed: () async {
-              final provider = context.read<NotificationProvider>();
-              await provider.markAllAsRead();
-              if (mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('All notifications marked as read'),
-                  ),
-                );
-              }
-            },
-            tooltip: 'Mark all as read',
-          ),
-        ],
-        bottom: TabBar(
+        ),
+        body: TabBarView(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'All'),
-            Tab(text: 'Unread'),
+          children: [
+            _buildNotificationList(showUnreadOnly: false),
+            _buildNotificationList(showUnreadOnly: true),
           ],
         ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildNotificationList(showUnreadOnly: false),
-          _buildNotificationList(showUnreadOnly: true),
-        ],
-      ),
-    );
-  }
+      );
 
-  Widget _buildNotificationList({required bool showUnreadOnly}) {
-    return Consumer<NotificationProvider>(
-      builder: (context, provider, child) {
-        if (provider.isLoading && provider.notifications.isEmpty) {
-          return const Center(child: CircularProgressIndicator());
-        }
+  Widget _buildNotificationList({required bool showUnreadOnly}) =>
+      Consumer<NotificationProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading && provider.notifications.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-        if (provider.error != null) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                const SizedBox(height: 16),
-                Text(provider.error!),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: () => provider.refresh(),
-                  child: const Text('Retry'),
-                ),
-              ],
-            ),
+          if (provider.error != null) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(provider.error!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () => provider.refresh(),
+                    child: const Text('Retry'),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          final notifications = showUnreadOnly
+              ? provider.unreadNotifications
+              : provider.notifications;
+
+          if (notifications.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    showUnreadOnly ? Icons.notifications_none : Icons.inbox,
+                    size: 64,
+                    color: Colors.grey,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    showUnreadOnly
+                        ? 'No unread notifications'
+                        : 'No notifications yet',
+                    style: const TextStyle(fontSize: 18, color: Colors.grey),
+                  ),
+                ],
+              ),
+            );
+          }
+
+          return RefreshIndicator(
+            onRefresh: provider.refresh,
+            child: _showGrouped
+                ? _buildGroupedList(notifications)
+                : _buildFlatList(notifications),
           );
-        }
-
-        final notifications = showUnreadOnly
-            ? provider.unreadNotifications
-            : provider.notifications;
-
-        if (notifications.isEmpty) {
-          return Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  showUnreadOnly ? Icons.notifications_none : Icons.inbox,
-                  size: 64,
-                  color: Colors.grey,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  showUnreadOnly
-                      ? 'No unread notifications'
-                      : 'No notifications yet',
-                  style: const TextStyle(fontSize: 18, color: Colors.grey),
-                ),
-              ],
-            ),
-          );
-        }
-
-        return RefreshIndicator(
-          onRefresh: provider.refresh,
-          child: _showGrouped
-              ? _buildGroupedList(notifications)
-              : _buildFlatList(notifications),
-        );
-      },
-    );
-  }
+        },
+      );
 
   Widget _buildFlatList(List<AppNotification> notifications) {
     // Group by date
@@ -179,7 +176,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
                 ),
               ),
             ),
-            ...dateNotifications.map((n) => _buildNotificationTile(n)).toList(),
+            ...dateNotifications.map(_buildNotificationTile).toList(),
           ],
         );
       },
@@ -205,8 +202,7 @@ class _NotificationCenterScreenState extends State<NotificationCenterScreen>
           leading: _getTypeIcon(type),
           title: Text(type.displayName),
           subtitle: Text('${typeNotifications.length} notifications'),
-          children:
-              typeNotifications.map((n) => _buildNotificationTile(n)).toList(),
+          children: typeNotifications.map(_buildNotificationTile).toList(),
         );
       },
     );

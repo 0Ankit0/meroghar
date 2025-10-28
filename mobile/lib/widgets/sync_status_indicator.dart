@@ -15,12 +15,11 @@ import '../services/offline_queue_service.dart';
 /// - Error icon when sync failed
 /// - Pending count badge
 class SyncStatusIndicator extends StatefulWidget {
-  final VoidCallback? onTap;
-
   const SyncStatusIndicator({
     super.key,
     this.onTap,
   });
+  final VoidCallback? onTap;
 
   @override
   State<SyncStatusIndicator> createState() => _SyncStatusIndicatorState();
@@ -48,53 +47,51 @@ class _SyncStatusIndicatorState extends State<SyncStatusIndicator> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return StreamBuilder<SyncStatus>(
-      stream: _syncService.statusStream,
-      initialData: _syncService.status,
-      builder: (context, snapshot) {
-        final status = snapshot.data ?? SyncStatus.idle;
+  Widget build(BuildContext context) => StreamBuilder<SyncStatus>(
+        stream: _syncService.statusStream,
+        initialData: _syncService.status,
+        builder: (context, snapshot) {
+          final status = snapshot.data ?? SyncStatus.idle;
 
-        return InkWell(
-          onTap: widget.onTap ?? _handleTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Stack(
-              children: [
-                _buildStatusIcon(status),
-                if (_queueStats != null && _queueStats!['pending']! > 0)
-                  Positioned(
-                    right: 0,
-                    top: 0,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 16,
-                        minHeight: 16,
-                      ),
-                      child: Text(
-                        '${_queueStats!['pending']}',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
+          return InkWell(
+            onTap: widget.onTap ?? _handleTap,
+            borderRadius: BorderRadius.circular(20),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Stack(
+                children: [
+                  _buildStatusIcon(status),
+                  if (_queueStats != null && _queueStats!['pending']! > 0)
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
                         ),
-                        textAlign: TextAlign.center,
+                        constraints: const BoxConstraints(
+                          minWidth: 16,
+                          minHeight: 16,
+                        ),
+                        child: Text(
+                          '${_queueStats!['pending']}',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
-          ),
-        );
-      },
-    );
-  }
+          );
+        },
+      );
 
   Widget _buildStatusIcon(SyncStatus status) {
     switch (status) {
@@ -188,21 +185,19 @@ class _SyncStatusIndicatorState extends State<SyncStatusIndicator> {
     );
   }
 
-  Widget _buildStatusRow(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            '$label:',
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-          Text(value),
-        ],
-      ),
-    );
-  }
+  Widget _buildStatusRow(String label, String value) => Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '$label:',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(value),
+          ],
+        ),
+      );
 
   String _getStatusText(SyncStatus status) {
     switch (status) {

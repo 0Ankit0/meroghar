@@ -15,6 +15,9 @@ import '../services/sync_service.dart';
 /// - Auto-sync when connection restored
 /// - Debounce multiple rapid connection changes
 class ConnectivityService {
+  factory ConnectivityService() => instance;
+
+  ConnectivityService._internal();
   static final ConnectivityService instance = ConnectivityService._internal();
 
   final Connectivity _connectivity = Connectivity();
@@ -31,10 +34,6 @@ class ConnectivityService {
 
   // Stream controller for connectivity status
   final _connectivityController = StreamController<bool>.broadcast();
-
-  factory ConnectivityService() => instance;
-
-  ConnectivityService._internal();
 
   /// Get current connectivity status.
   bool get isConnected => _isConnected;

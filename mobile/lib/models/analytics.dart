@@ -3,12 +3,6 @@ import 'package:flutter/foundation.dart';
 /// Rent collection trend data for a specific month
 @immutable
 class RentCollectionTrend {
-  final DateTime month;
-  final double totalCollected;
-  final int paymentCount;
-  final double completedAmount;
-  final double pendingAmount;
-
   const RentCollectionTrend({
     required this.month,
     required this.totalCollected,
@@ -26,26 +20,24 @@ class RentCollectionTrend {
       pendingAmount: (json['pending_amount'] as num).toDouble(),
     );
   }
+  final DateTime month;
+  final double totalCollected;
+  final int paymentCount;
+  final double completedAmount;
+  final double pendingAmount;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'month': month.toIso8601String(),
-      'total_collected': totalCollected,
-      'payment_count': paymentCount,
-      'completed_amount': completedAmount,
-      'pending_amount': pendingAmount,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'month': month.toIso8601String(),
+        'total_collected': totalCollected,
+        'payment_count': paymentCount,
+        'completed_amount': completedAmount,
+        'pending_amount': pendingAmount,
+      };
 }
 
 /// Payment status breakdown
 @immutable
 class PaymentStatusOverview {
-  final Map<String, PaymentStatusData> statusBreakdown;
-  final int totalCount;
-  final double totalAmount;
-  final DateRange dateRange;
-
   const PaymentStatusOverview({
     required this.statusBreakdown,
     required this.totalCount,
@@ -70,16 +62,18 @@ class PaymentStatusOverview {
       dateRange: DateRange.fromJson(json['date_range'] as Map<String, dynamic>),
     );
   }
+  final Map<String, PaymentStatusData> statusBreakdown;
+  final int totalCount;
+  final double totalAmount;
+  final DateRange dateRange;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'status_breakdown':
-          statusBreakdown.map((key, value) => MapEntry(key, value.toJson())),
-      'total_count': totalCount,
-      'total_amount': totalAmount,
-      'date_range': dateRange.toJson(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'status_breakdown':
+            statusBreakdown.map((key, value) => MapEntry(key, value.toJson())),
+        'total_count': totalCount,
+        'total_amount': totalAmount,
+        'date_range': dateRange.toJson(),
+      };
 
   PaymentStatusData get completed =>
       statusBreakdown['completed'] ??
@@ -94,9 +88,6 @@ class PaymentStatusOverview {
 /// Individual payment status data
 @immutable
 class PaymentStatusData {
-  final int count;
-  final double amount;
-
   const PaymentStatusData({
     required this.count,
     required this.amount,
@@ -108,21 +99,18 @@ class PaymentStatusData {
       amount: (json['amount'] as num).toDouble(),
     );
   }
+  final int count;
+  final double amount;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'count': count,
-      'amount': amount,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'count': count,
+        'amount': amount,
+      };
 }
 
 /// Date range for analytics
 @immutable
 class DateRange {
-  final DateTime start;
-  final DateTime end;
-
   const DateRange({
     required this.start,
     required this.end,
@@ -134,24 +122,18 @@ class DateRange {
       end: DateTime.parse(json['end'] as String),
     );
   }
+  final DateTime start;
+  final DateTime end;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'start': start.toIso8601String(),
-      'end': end.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'start': start.toIso8601String(),
+        'end': end.toIso8601String(),
+      };
 }
 
 /// Expense breakdown by bill type
 @immutable
 class ExpenseBreakdown {
-  final String billType;
-  final int billCount;
-  final double totalAmount;
-  final double averageAmount;
-  final double percentage;
-
   const ExpenseBreakdown({
     required this.billType,
     required this.billCount,
@@ -169,27 +151,24 @@ class ExpenseBreakdown {
       percentage: (json['percentage'] as num).toDouble(),
     );
   }
+  final String billType;
+  final int billCount;
+  final double totalAmount;
+  final double averageAmount;
+  final double percentage;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'bill_type': billType,
-      'bill_count': billCount,
-      'total_amount': totalAmount,
-      'average_amount': averageAmount,
-      'percentage': percentage,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'bill_type': billType,
+        'bill_count': billCount,
+        'total_amount': totalAmount,
+        'average_amount': averageAmount,
+        'percentage': percentage,
+      };
 }
 
 /// Revenue vs expenses comparison
 @immutable
 class RevenueExpensesComparison {
-  final RevenueData revenue;
-  final ExpenseData expenses;
-  final double netProfit;
-  final double profitMargin;
-  final DateRange dateRange;
-
   const RevenueExpensesComparison({
     required this.revenue,
     required this.expenses,
@@ -207,24 +186,24 @@ class RevenueExpensesComparison {
       dateRange: DateRange.fromJson(json['date_range'] as Map<String, dynamic>),
     );
   }
+  final RevenueData revenue;
+  final ExpenseData expenses;
+  final double netProfit;
+  final double profitMargin;
+  final DateRange dateRange;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'revenue': revenue.toJson(),
-      'expenses': expenses.toJson(),
-      'net_profit': netProfit,
-      'profit_margin': profitMargin,
-      'date_range': dateRange.toJson(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'revenue': revenue.toJson(),
+        'expenses': expenses.toJson(),
+        'net_profit': netProfit,
+        'profit_margin': profitMargin,
+        'date_range': dateRange.toJson(),
+      };
 }
 
 /// Revenue data
 @immutable
 class RevenueData {
-  final double total;
-  final int paymentCount;
-
   const RevenueData({
     required this.total,
     required this.paymentCount,
@@ -236,21 +215,18 @@ class RevenueData {
       paymentCount: json['payment_count'] as int,
     );
   }
+  final double total;
+  final int paymentCount;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'total': total,
-      'payment_count': paymentCount,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'total': total,
+        'payment_count': paymentCount,
+      };
 }
 
 /// Expense data
 @immutable
 class ExpenseData {
-  final double total;
-  final int billCount;
-
   const ExpenseData({
     required this.total,
     required this.billCount,
@@ -262,27 +238,18 @@ class ExpenseData {
       billCount: json['bill_count'] as int,
     );
   }
+  final double total;
+  final int billCount;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'total': total,
-      'bill_count': billCount,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'total': total,
+        'bill_count': billCount,
+      };
 }
 
 /// Property performance data
 @immutable
 class PropertyPerformance {
-  final String propertyId;
-  final String propertyName;
-  final String propertyAddress;
-  final int tenantCount;
-  final double totalRevenue;
-  final double totalExpenses;
-  final double netProfit;
-  final double occupancyRate;
-
   const PropertyPerformance({
     required this.propertyId,
     required this.propertyName,
@@ -306,17 +273,23 @@ class PropertyPerformance {
       occupancyRate: (json['occupancy_rate'] as num).toDouble(),
     );
   }
+  final String propertyId;
+  final String propertyName;
+  final String propertyAddress;
+  final int tenantCount;
+  final double totalRevenue;
+  final double totalExpenses;
+  final double netProfit;
+  final double occupancyRate;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'property_id': propertyId,
-      'property_name': propertyName,
-      'property_address': propertyAddress,
-      'tenant_count': tenantCount,
-      'total_revenue': totalRevenue,
-      'total_expenses': totalExpenses,
-      'net_profit': netProfit,
-      'occupancy_rate': occupancyRate,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'property_id': propertyId,
+        'property_name': propertyName,
+        'property_address': propertyAddress,
+        'tenant_count': tenantCount,
+        'total_revenue': totalRevenue,
+        'total_expenses': totalExpenses,
+        'net_profit': netProfit,
+        'occupancy_rate': occupancyRate,
+      };
 }

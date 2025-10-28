@@ -119,6 +119,59 @@ enum ExpenseStatus {
 /// Expense model
 @immutable
 class Expense {
+  const Expense({
+    required this.id,
+    required this.propertyId,
+    required this.amount,
+    required this.category,
+    required this.expenseDate,
+    required this.description,
+    this.vendorName,
+    this.invoiceNumber,
+    this.receiptUrl,
+    this.paidBy,
+    required this.isReimbursable,
+    required this.isReimbursed,
+    this.reimbursedDate,
+    required this.status,
+    required this.recordedBy,
+    this.approvedBy,
+    this.approvedDate,
+    this.rejectionReason,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  /// Create from JSON
+  factory Expense.fromJson(Map<String, dynamic> json) {
+    return Expense(
+      id: json['id'] as String,
+      propertyId: json['property_id'] as String,
+      amount: (json['amount'] as num).toDouble(),
+      category: ExpenseCategory.fromJson(json['category'] as String),
+      expenseDate: DateTime.parse(json['expense_date'] as String),
+      description: json['description'] as String,
+      vendorName: json['vendor_name'] as String?,
+      invoiceNumber: json['invoice_number'] as String?,
+      receiptUrl: json['receipt_url'] as String?,
+      paidBy: json['paid_by'] as String?,
+      isReimbursable: json['is_reimbursable'] as bool,
+      isReimbursed: json['is_reimbursed'] as bool,
+      reimbursedDate: json['reimbursed_date'] != null
+          ? DateTime.parse(json['reimbursed_date'] as String)
+          : null,
+      status: ExpenseStatus.fromJson(json['status'] as String),
+      recordedBy: json['recorded_by'] as String,
+      approvedBy: json['approved_by'] as String?,
+      approvedDate: json['approved_date'] != null
+          ? DateTime.parse(json['approved_date'] as String)
+          : null,
+      rejectionReason: json['rejection_reason'] as String?,
+      createdAt: DateTime.parse(json['created_at'] as String),
+      updatedAt: DateTime.parse(json['updated_at'] as String),
+    );
+  }
+
   /// Unique expense identifier
   final String id;
 
@@ -179,84 +232,29 @@ class Expense {
   /// Updated timestamp
   final DateTime updatedAt;
 
-  const Expense({
-    required this.id,
-    required this.propertyId,
-    required this.amount,
-    required this.category,
-    required this.expenseDate,
-    required this.description,
-    this.vendorName,
-    this.invoiceNumber,
-    this.receiptUrl,
-    this.paidBy,
-    required this.isReimbursable,
-    required this.isReimbursed,
-    this.reimbursedDate,
-    required this.status,
-    required this.recordedBy,
-    this.approvedBy,
-    this.approvedDate,
-    this.rejectionReason,
-    required this.createdAt,
-    required this.updatedAt,
-  });
-
-  /// Create from JSON
-  factory Expense.fromJson(Map<String, dynamic> json) {
-    return Expense(
-      id: json['id'] as String,
-      propertyId: json['property_id'] as String,
-      amount: (json['amount'] as num).toDouble(),
-      category: ExpenseCategory.fromJson(json['category'] as String),
-      expenseDate: DateTime.parse(json['expense_date'] as String),
-      description: json['description'] as String,
-      vendorName: json['vendor_name'] as String?,
-      invoiceNumber: json['invoice_number'] as String?,
-      receiptUrl: json['receipt_url'] as String?,
-      paidBy: json['paid_by'] as String?,
-      isReimbursable: json['is_reimbursable'] as bool,
-      isReimbursed: json['is_reimbursed'] as bool,
-      reimbursedDate: json['reimbursed_date'] != null
-          ? DateTime.parse(json['reimbursed_date'] as String)
-          : null,
-      status: ExpenseStatus.fromJson(json['status'] as String),
-      recordedBy: json['recorded_by'] as String,
-      approvedBy: json['approved_by'] as String?,
-      approvedDate: json['approved_date'] != null
-          ? DateTime.parse(json['approved_date'] as String)
-          : null,
-      rejectionReason: json['rejection_reason'] as String?,
-      createdAt: DateTime.parse(json['created_at'] as String),
-      updatedAt: DateTime.parse(json['updated_at'] as String),
-    );
-  }
-
   /// Convert to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'property_id': propertyId,
-      'amount': amount,
-      'category': category.toJson(),
-      'expense_date': expenseDate.toIso8601String().split('T')[0],
-      'description': description,
-      'vendor_name': vendorName,
-      'invoice_number': invoiceNumber,
-      'receipt_url': receiptUrl,
-      'paid_by': paidBy,
-      'is_reimbursable': isReimbursable,
-      'is_reimbursed': isReimbursed,
-      'reimbursed_date': reimbursedDate?.toIso8601String().split('T')[0],
-      'status': status.toJson(),
-      'recorded_by': recordedBy,
-      'approved_by': approvedBy,
-      'approved_date': approvedDate?.toIso8601String(),
-      'rejection_reason': rejectionReason,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'property_id': propertyId,
+        'amount': amount,
+        'category': category.toJson(),
+        'expense_date': expenseDate.toIso8601String().split('T')[0],
+        'description': description,
+        'vendor_name': vendorName,
+        'invoice_number': invoiceNumber,
+        'receipt_url': receiptUrl,
+        'paid_by': paidBy,
+        'is_reimbursable': isReimbursable,
+        'is_reimbursed': isReimbursed,
+        'reimbursed_date': reimbursedDate?.toIso8601String().split('T')[0],
+        'status': status.toJson(),
+        'recorded_by': recordedBy,
+        'approved_by': approvedBy,
+        'approved_date': approvedDate?.toIso8601String(),
+        'rejection_reason': rejectionReason,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   /// Copy with
   Expense copyWith({
@@ -280,30 +278,29 @@ class Expense {
     String? rejectionReason,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return Expense(
-      id: id ?? this.id,
-      propertyId: propertyId ?? this.propertyId,
-      amount: amount ?? this.amount,
-      category: category ?? this.category,
-      expenseDate: expenseDate ?? this.expenseDate,
-      description: description ?? this.description,
-      vendorName: vendorName ?? this.vendorName,
-      invoiceNumber: invoiceNumber ?? this.invoiceNumber,
-      receiptUrl: receiptUrl ?? this.receiptUrl,
-      paidBy: paidBy ?? this.paidBy,
-      isReimbursable: isReimbursable ?? this.isReimbursable,
-      isReimbursed: isReimbursed ?? this.isReimbursed,
-      reimbursedDate: reimbursedDate ?? this.reimbursedDate,
-      status: status ?? this.status,
-      recordedBy: recordedBy ?? this.recordedBy,
-      approvedBy: approvedBy ?? this.approvedBy,
-      approvedDate: approvedDate ?? this.approvedDate,
-      rejectionReason: rejectionReason ?? this.rejectionReason,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      Expense(
+        id: id ?? this.id,
+        propertyId: propertyId ?? this.propertyId,
+        amount: amount ?? this.amount,
+        category: category ?? this.category,
+        expenseDate: expenseDate ?? this.expenseDate,
+        description: description ?? this.description,
+        vendorName: vendorName ?? this.vendorName,
+        invoiceNumber: invoiceNumber ?? this.invoiceNumber,
+        receiptUrl: receiptUrl ?? this.receiptUrl,
+        paidBy: paidBy ?? this.paidBy,
+        isReimbursable: isReimbursable ?? this.isReimbursable,
+        isReimbursed: isReimbursed ?? this.isReimbursed,
+        reimbursedDate: reimbursedDate ?? this.reimbursedDate,
+        status: status ?? this.status,
+        recordedBy: recordedBy ?? this.recordedBy,
+        approvedBy: approvedBy ?? this.approvedBy,
+        approvedDate: approvedDate ?? this.approvedDate,
+        rejectionReason: rejectionReason ?? this.rejectionReason,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   @override
   bool operator ==(Object other) {
@@ -315,32 +312,13 @@ class Expense {
   int get hashCode => id.hashCode;
 
   @override
-  String toString() {
-    return 'Expense(id: $id, amount: $amount, category: ${category.displayName}, status: ${status.displayName})';
-  }
+  String toString() =>
+      'Expense(id: $id, amount: $amount, category: ${category.displayName}, status: ${status.displayName})';
 }
 
 /// Expense summary model
 @immutable
 class ExpenseSummary {
-  /// Total amount
-  final double totalAmount;
-
-  /// Pending amount
-  final double pendingAmount;
-
-  /// Approved amount
-  final double approvedAmount;
-
-  /// Reimbursed amount
-  final double reimbursedAmount;
-
-  /// Outstanding amount (approved but not reimbursed)
-  final double outstandingAmount;
-
-  /// Breakdown by category
-  final Map<String, double> byCategory;
-
   const ExpenseSummary({
     required this.totalAmount,
     required this.pendingAmount,
@@ -364,15 +342,31 @@ class ExpenseSummary {
     );
   }
 
+  /// Total amount
+  final double totalAmount;
+
+  /// Pending amount
+  final double pendingAmount;
+
+  /// Approved amount
+  final double approvedAmount;
+
+  /// Reimbursed amount
+  final double reimbursedAmount;
+
+  /// Outstanding amount (approved but not reimbursed)
+  final double outstandingAmount;
+
+  /// Breakdown by category
+  final Map<String, double> byCategory;
+
   /// Convert to JSON
-  Map<String, dynamic> toJson() {
-    return {
-      'total_amount': totalAmount,
-      'pending_amount': pendingAmount,
-      'approved_amount': approvedAmount,
-      'reimbursed_amount': reimbursedAmount,
-      'outstanding_amount': outstandingAmount,
-      'by_category': byCategory,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'total_amount': totalAmount,
+        'pending_amount': pendingAmount,
+        'approved_amount': approvedAmount,
+        'reimbursed_amount': reimbursedAmount,
+        'outstanding_amount': outstandingAmount,
+        'by_category': byCategory,
+      };
 }

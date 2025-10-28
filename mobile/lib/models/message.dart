@@ -29,37 +29,6 @@ enum MessageTemplate {
 }
 
 class Message {
-  final int id;
-  final int tenantId;
-  final int? sentBy;
-  final int? propertyId;
-  final MessageTemplate template;
-  final String? subject;
-  final String content;
-  final MessageChannel channel;
-  final String? recipientPhone;
-  final String? recipientEmail;
-  final MessageStatus status;
-  final DateTime? scheduledAt;
-  final DateTime? sentAt;
-  final DateTime? deliveredAt;
-  final String? errorMessage;
-  final int retryCount;
-  final String? providerMessageId;
-  final Map<String, dynamic>? providerResponse;
-  final String? bulkMessageId;
-  final Map<String, dynamic>? metadata;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-
-  // Computed properties
-  bool get isPending => status == MessageStatus.pending;
-  bool get isScheduled => status == MessageStatus.scheduled;
-  bool get isSent => status == MessageStatus.sent;
-  bool get isDelivered => status == MessageStatus.delivered;
-  bool get hasFailed => status == MessageStatus.failed;
-  bool get canRetry => hasFailed && retryCount < 3;
-
   Message({
     required this.id,
     required this.tenantId,
@@ -119,33 +88,61 @@ class Message {
           : null,
     );
   }
+  final int id;
+  final int tenantId;
+  final int? sentBy;
+  final int? propertyId;
+  final MessageTemplate template;
+  final String? subject;
+  final String content;
+  final MessageChannel channel;
+  final String? recipientPhone;
+  final String? recipientEmail;
+  final MessageStatus status;
+  final DateTime? scheduledAt;
+  final DateTime? sentAt;
+  final DateTime? deliveredAt;
+  final String? errorMessage;
+  final int retryCount;
+  final String? providerMessageId;
+  final Map<String, dynamic>? providerResponse;
+  final String? bulkMessageId;
+  final Map<String, dynamic>? metadata;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'tenant_id': tenantId,
-      'sent_by': sentBy,
-      'property_id': propertyId,
-      'template': _templateToString(template),
-      'subject': subject,
-      'content': content,
-      'channel': _channelToString(channel),
-      'recipient_phone': recipientPhone,
-      'recipient_email': recipientEmail,
-      'status': _statusToString(status),
-      'scheduled_at': scheduledAt?.toIso8601String(),
-      'sent_at': sentAt?.toIso8601String(),
-      'delivered_at': deliveredAt?.toIso8601String(),
-      'error_message': errorMessage,
-      'retry_count': retryCount,
-      'provider_message_id': providerMessageId,
-      'provider_response': providerResponse,
-      'bulk_message_id': bulkMessageId,
-      'metadata': metadata,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-    };
-  }
+  // Computed properties
+  bool get isPending => status == MessageStatus.pending;
+  bool get isScheduled => status == MessageStatus.scheduled;
+  bool get isSent => status == MessageStatus.sent;
+  bool get isDelivered => status == MessageStatus.delivered;
+  bool get hasFailed => status == MessageStatus.failed;
+  bool get canRetry => hasFailed && retryCount < 3;
+
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'tenant_id': tenantId,
+        'sent_by': sentBy,
+        'property_id': propertyId,
+        'template': _templateToString(template),
+        'subject': subject,
+        'content': content,
+        'channel': _channelToString(channel),
+        'recipient_phone': recipientPhone,
+        'recipient_email': recipientEmail,
+        'status': _statusToString(status),
+        'scheduled_at': scheduledAt?.toIso8601String(),
+        'sent_at': sentAt?.toIso8601String(),
+        'delivered_at': deliveredAt?.toIso8601String(),
+        'error_message': errorMessage,
+        'retry_count': retryCount,
+        'provider_message_id': providerMessageId,
+        'provider_response': providerResponse,
+        'bulk_message_id': bulkMessageId,
+        'metadata': metadata,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+      };
 
   Message copyWith({
     int? id,
@@ -170,32 +167,31 @@ class Message {
     Map<String, dynamic>? metadata,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return Message(
-      id: id ?? this.id,
-      tenantId: tenantId ?? this.tenantId,
-      sentBy: sentBy ?? this.sentBy,
-      propertyId: propertyId ?? this.propertyId,
-      template: template ?? this.template,
-      subject: subject ?? this.subject,
-      content: content ?? this.content,
-      channel: channel ?? this.channel,
-      recipientPhone: recipientPhone ?? this.recipientPhone,
-      recipientEmail: recipientEmail ?? this.recipientEmail,
-      status: status ?? this.status,
-      scheduledAt: scheduledAt ?? this.scheduledAt,
-      sentAt: sentAt ?? this.sentAt,
-      deliveredAt: deliveredAt ?? this.deliveredAt,
-      errorMessage: errorMessage ?? this.errorMessage,
-      retryCount: retryCount ?? this.retryCount,
-      providerMessageId: providerMessageId ?? this.providerMessageId,
-      providerResponse: providerResponse ?? this.providerResponse,
-      bulkMessageId: bulkMessageId ?? this.bulkMessageId,
-      metadata: metadata ?? this.metadata,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      Message(
+        id: id ?? this.id,
+        tenantId: tenantId ?? this.tenantId,
+        sentBy: sentBy ?? this.sentBy,
+        propertyId: propertyId ?? this.propertyId,
+        template: template ?? this.template,
+        subject: subject ?? this.subject,
+        content: content ?? this.content,
+        channel: channel ?? this.channel,
+        recipientPhone: recipientPhone ?? this.recipientPhone,
+        recipientEmail: recipientEmail ?? this.recipientEmail,
+        status: status ?? this.status,
+        scheduledAt: scheduledAt ?? this.scheduledAt,
+        sentAt: sentAt ?? this.sentAt,
+        deliveredAt: deliveredAt ?? this.deliveredAt,
+        errorMessage: errorMessage ?? this.errorMessage,
+        retryCount: retryCount ?? this.retryCount,
+        providerMessageId: providerMessageId ?? this.providerMessageId,
+        providerResponse: providerResponse ?? this.providerResponse,
+        bulkMessageId: bulkMessageId ?? this.bulkMessageId,
+        metadata: metadata ?? this.metadata,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   // Helper methods for enum conversion
   static MessageChannel _channelFromString(String value) {
@@ -301,13 +297,6 @@ class Message {
 
 /// Statistics for message delivery
 class MessageStatistics {
-  final int totalMessages;
-  final int sent;
-  final int delivered;
-  final int failed;
-  final int pending;
-  final double deliveryRate;
-
   MessageStatistics({
     required this.totalMessages,
     required this.sent,
@@ -327,15 +316,19 @@ class MessageStatistics {
       deliveryRate: (json['delivery_rate'] as num).toDouble(),
     );
   }
+  final int totalMessages;
+  final int sent;
+  final int delivered;
+  final int failed;
+  final int pending;
+  final double deliveryRate;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'total_messages': totalMessages,
-      'sent': sent,
-      'delivered': delivered,
-      'failed': failed,
-      'pending': pending,
-      'delivery_rate': deliveryRate,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'total_messages': totalMessages,
+        'sent': sent,
+        'delivered': delivered,
+        'failed': failed,
+        'pending': pending,
+        'delivery_rate': deliveryRate,
+      };
 }

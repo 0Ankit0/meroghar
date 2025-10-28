@@ -15,14 +15,13 @@ import 'package:share_plus/share_plus.dart';
 import '../../providers/payment_provider.dart';
 
 class ReceiptViewScreen extends StatefulWidget {
-  final String paymentId;
-  final String? tenantName;
-
   const ReceiptViewScreen({
     super.key,
     required this.paymentId,
     this.tenantName,
   });
+  final String paymentId;
+  final String? tenantName;
 
   @override
   State<ReceiptViewScreen> createState() => _ReceiptViewScreenState();
@@ -48,21 +47,16 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
 
     try {
       final paymentProvider = context.read<PaymentProvider>();
-      // TODO: Update PaymentProvider.downloadReceipt to return Uint8List
-      // For now, we'll create a placeholder implementation
-      final result = await paymentProvider.downloadReceipt(widget.paymentId);
+      final pdfBytes = await paymentProvider.downloadReceipt(widget.paymentId);
 
-      if (result != null) {
-        // Convert the result to Uint8List (placeholder for actual PDF data)
-        // In production, the API should return the PDF bytes directly
+      if (pdfBytes != null) {
         setState(() {
-          _pdfData = Uint8List(0); // Empty PDF data as placeholder
-          _errorMessage = 'PDF download not yet implemented in backend';
+          _pdfData = pdfBytes;
           _isLoading = false;
         });
       } else {
         setState(() {
-          _errorMessage = 'Failed to download receipt';
+          _errorMessage = paymentProvider.error ?? 'Failed to download receipt';
           _isLoading = false;
         });
       }
@@ -87,10 +81,6 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
         directory = await getApplicationDocumentsDirectory();
       } else {
         directory = await getDownloadsDirectory();
-      }
-
-      if (directory == null) {
-        throw Exception('Could not access storage directory');
       }
 
       // Create filename with timestamp
@@ -168,33 +158,31 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Payment Receipt'),
-        actions: [
-          if (_pdfData != null) ...[
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Payment Receipt'),
+          actions: [
+            if (_pdfData != null) ...[
+              IconButton(
+                icon: const Icon(Icons.share),
+                onPressed: _shareReceipt,
+                tooltip: 'Share Receipt',
+              ),
+              IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: _saveToDevice,
+                tooltip: 'Save to Device',
+              ),
+            ],
             IconButton(
-              icon: const Icon(Icons.share),
-              onPressed: _shareReceipt,
-              tooltip: 'Share Receipt',
-            ),
-            IconButton(
-              icon: const Icon(Icons.download),
-              onPressed: _saveToDevice,
-              tooltip: 'Save to Device',
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadReceipt,
+              tooltip: 'Reload Receipt',
             ),
           ],
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadReceipt,
-            tooltip: 'Reload Receipt',
-          ),
-        ],
-      ),
-      body: _buildBody(),
-    );
-  }
+        ),
+        body: _buildBody(),
+      );
 
   Widget _buildBody() {
     if (_isLoading) {

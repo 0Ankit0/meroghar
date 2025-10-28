@@ -21,14 +21,6 @@ enum SyncStatus {
 
 /// Sync result class.
 class SyncResult {
-  final SyncStatus status;
-  final String? message;
-  final int? syncLogId;
-  final int totalRecords;
-  final int successful;
-  final int failed;
-  final int conflicts;
-
   SyncResult({
     required this.status,
     this.message,
@@ -38,6 +30,13 @@ class SyncResult {
     this.failed = 0,
     this.conflicts = 0,
   });
+  final SyncStatus status;
+  final String? message;
+  final int? syncLogId;
+  final int totalRecords;
+  final int successful;
+  final int failed;
+  final int conflicts;
 }
 
 /// Synchronization service for handling offline operations.
@@ -49,6 +48,9 @@ class SyncResult {
 /// - Bulk sync operations
 /// - Sync status tracking
 class SyncService {
+  factory SyncService() => instance;
+
+  SyncService._internal();
   static final SyncService instance = SyncService._internal();
 
   final DatabaseService _dbService = DatabaseService.instance;
@@ -68,10 +70,6 @@ class SyncService {
 
   // Stream controller for sync status updates
   final _statusController = StreamController<SyncStatus>.broadcast();
-
-  factory SyncService() => instance;
-
-  SyncService._internal();
 
   /// Get current sync status.
   SyncStatus get status => _status;
@@ -112,8 +110,6 @@ class SyncService {
         return SyncResult(
           status: SyncStatus.success,
           message: 'No operations to sync',
-          totalRecords: 0,
-          successful: 0,
         );
       }
 

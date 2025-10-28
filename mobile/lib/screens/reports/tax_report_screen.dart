@@ -9,6 +9,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/api_service.dart';
+import 'report_viewer_screen.dart';
 
 /// Tax report types available for generation
 enum TaxReportType {
@@ -189,12 +192,12 @@ class _TaxReportScreenState extends State<TaxReportScreen> {
                             ),
                             prefixIcon: const Icon(Icons.calendar_today),
                           ),
-                          items: availableYears.map((year) {
-                            return DropdownMenuItem(
-                              value: year,
-                              child: Text(year.toString()),
-                            );
-                          }).toList(),
+                          items: availableYears
+                              .map((year) => DropdownMenuItem(
+                                    value: year,
+                                    child: Text(year.toString()),
+                                  ))
+                              .toList(),
                           onChanged: (value) {
                             setState(() {
                               _selectedYear = value!;
@@ -354,31 +357,35 @@ class _TaxReportScreenState extends State<TaxReportScreen> {
     });
 
     try {
-      // TODO: Call API to generate report
-      // final apiService = context.read<ApiService>();
-      // final report = await apiService.generateTaxReport(
-      //   type: _selectedReportType,
-      //   year: _selectedYear,
-      //   quarter: _selectedQuarter,
-      // );
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Call API to generate tax report
+      final apiService = context.read<ApiService>();
+      final response = await apiService.post('/api/v1/reports/tax', data: {
+        'report_type': _selectedReportType,
+        'year': _selectedYear,
+        'quarter': _selectedQuarter,
+      });
 
       if (!mounted) return;
 
-      // Show success and navigate to report viewer
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Report generated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (response.statusCode == 200) {
+        // Show success and navigate to report viewer
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Report generated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      // TODO: Navigate to report viewer or download
-      // Navigator.of(context).push(MaterialPageRoute(
-      //   builder: (_) => ReportViewerScreen(report: report),
-      // ));
+        // Navigate to report viewer or download
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ReportViewerScreen(
+            reportData: response.data,
+            reportTitle: 'Tax Report ${_selectedYear}',
+          ),
+        ));
+      } else {
+        throw Exception('Failed to generate report: ${response.statusCode}');
+      }
     } catch (e) {
       if (!mounted) return;
 

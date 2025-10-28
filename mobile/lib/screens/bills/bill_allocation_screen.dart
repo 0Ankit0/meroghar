@@ -11,9 +11,8 @@ import '../../models/bill.dart';
 import '../../providers/bill_provider.dart';
 
 class BillAllocationScreen extends StatefulWidget {
-  final String billId;
-
   const BillAllocationScreen({super.key, required this.billId});
+  final String billId;
 
   @override
   State<BillAllocationScreen> createState() => _BillAllocationScreenState();
@@ -35,134 +34,127 @@ class _BillAllocationScreenState extends State<BillAllocationScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Bill Allocations')),
-      body: Consumer<BillProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(title: const Text('Bill Allocations')),
+        body: Consumer<BillProvider>(
+          builder: (context, provider, child) {
+            if (provider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
 
-          final bill = provider.bills
-              .cast<Bill?>()
-              .firstWhere((b) => b?.id == widget.billId, orElse: () => null);
+            final bill = provider.bills
+                .cast<Bill?>()
+                .firstWhere((b) => b?.id == widget.billId, orElse: () => null);
 
-          if (bill == null) {
-            return const Center(child: Text('Bill not found'));
-          }
+            if (bill == null) {
+              return const Center(child: Text('Bill not found'));
+            }
 
-          return RefreshIndicator(
-            onRefresh: _loadBill,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _BillSummaryCard(
-                  bill: bill,
-                  currencyFormat: _currencyFormat,
-                  dateFormat: _dateFormat,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  'Allocations',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 8),
-                ...bill.allocations.map((allocation) {
-                  return _AllocationCard(
-                    billId: widget.billId,
-                    allocation: allocation,
+            return RefreshIndicator(
+              onRefresh: _loadBill,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _BillSummaryCard(
+                    bill: bill,
                     currencyFormat: _currencyFormat,
-                  );
-                }),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+                    dateFormat: _dateFormat,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Allocations',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  const SizedBox(height: 8),
+                  ...bill.allocations.map((allocation) {
+                    return _AllocationCard(
+                      billId: widget.billId,
+                      allocation: allocation,
+                      currencyFormat: _currencyFormat,
+                    );
+                  }),
+                ],
+              ),
+            );
+          },
+        ),
+      );
 }
 
 class _BillSummaryCard extends StatelessWidget {
-  final Bill bill;
-  final NumberFormat currencyFormat;
-  final DateFormat dateFormat;
-
   const _BillSummaryCard({
     required this.bill,
     required this.currencyFormat,
     required this.dateFormat,
   });
+  final Bill bill;
+  final NumberFormat currencyFormat;
+  final DateFormat dateFormat;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              bill.billType.displayName,
-              style: Theme.of(context).textTheme.headlineSmall,
-            ),
-            const SizedBox(height: 8),
-            Text('Total: ${currencyFormat.format(bill.totalAmount)}'),
-            Text('Paid: ${currencyFormat.format(bill.totalPaid)}'),
-            Text('Method: ${bill.allocationMethod.displayName}'),
-            Text('Due: ${dateFormat.format(bill.dueDate)}'),
-            const SizedBox(height: 8),
-            LinearProgressIndicator(
-              value:
-                  bill.totalAmount > 0 ? bill.totalPaid / bill.totalAmount : 0,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '${bill.paidCount}/${bill.allocations.length} tenants paid',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+  Widget build(BuildContext context) => Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                bill.billType.displayName,
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              const SizedBox(height: 8),
+              Text('Total: ${currencyFormat.format(bill.totalAmount)}'),
+              Text('Paid: ${currencyFormat.format(bill.totalPaid)}'),
+              Text('Method: ${bill.allocationMethod.displayName}'),
+              Text('Due: ${dateFormat.format(bill.dueDate)}'),
+              const SizedBox(height: 8),
+              LinearProgressIndicator(
+                value: bill.totalAmount > 0
+                    ? bill.totalPaid / bill.totalAmount
+                    : 0,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${bill.paidCount}/${bill.allocations.length} tenants paid',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _AllocationCard extends StatelessWidget {
-  final String billId;
-  final BillAllocation allocation;
-  final NumberFormat currencyFormat;
-
   const _AllocationCard({
     required this.billId,
     required this.allocation,
     required this.currencyFormat,
   });
+  final String billId;
+  final BillAllocation allocation;
+  final NumberFormat currencyFormat;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      child: ListTile(
-        title: Text(currencyFormat.format(allocation.allocatedAmount)),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (allocation.percentage != null)
-              Text('${allocation.percentage}% of total'),
-            if (allocation.notes != null) Text(allocation.notes!),
-          ],
+  Widget build(BuildContext context) => Card(
+        margin: const EdgeInsets.symmetric(vertical: 4),
+        child: ListTile(
+          title: Text(currencyFormat.format(allocation.allocatedAmount)),
+          subtitle: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (allocation.percentage != null)
+                Text('${allocation.percentage}% of total'),
+              if (allocation.notes != null) Text(allocation.notes!),
+            ],
+          ),
+          trailing: allocation.isPaid
+              ? const Icon(Icons.check_circle, color: Colors.green)
+              : ElevatedButton(
+                  onPressed: () => _markAsPaid(context),
+                  child: const Text('Mark Paid'),
+                ),
         ),
-        trailing: allocation.isPaid
-            ? const Icon(Icons.check_circle, color: Colors.green)
-            : ElevatedButton(
-                onPressed: () => _markAsPaid(context),
-                child: const Text('Mark Paid'),
-              ),
-      ),
-    );
-  }
+      );
 
   Future<void> _markAsPaid(BuildContext context) async {
     final provider = context.read<BillProvider>();

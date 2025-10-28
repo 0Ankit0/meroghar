@@ -6,6 +6,7 @@ import '../services/api_service.dart';
 /// Provider for analytics data and chart state
 /// Implements T102 from tasks.md
 class AnalyticsProvider with ChangeNotifier {
+  AnalyticsProvider(this._apiService);
   final ApiService _apiService;
 
   List<RentCollectionTrend> _rentTrends = [];
@@ -16,8 +17,6 @@ class AnalyticsProvider with ChangeNotifier {
 
   bool _isLoading = false;
   String? _error;
-
-  AnalyticsProvider(this._apiService);
 
   // Getters
   List<RentCollectionTrend> get rentTrends => _rentTrends;
@@ -41,10 +40,12 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null)
+      }
+      if (endDate != null) {
         queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
 
       final response = await _apiService.get(
         '/analytics/rent-trends',
@@ -82,10 +83,12 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null)
+      }
+      if (endDate != null) {
         queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
 
       final response = await _apiService.get(
         '/analytics/payment-status',
@@ -120,10 +123,12 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null)
+      }
+      if (endDate != null) {
         queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
 
       final response = await _apiService.get(
         '/analytics/expense-breakdown',
@@ -162,10 +167,12 @@ class AnalyticsProvider with ChangeNotifier {
     try {
       final queryParams = <String, dynamic>{};
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null)
+      }
+      if (endDate != null) {
         queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
 
       final response = await _apiService.get(
         '/analytics/revenue-expenses',
@@ -199,10 +206,12 @@ class AnalyticsProvider with ChangeNotifier {
 
     try {
       final queryParams = <String, dynamic>{};
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null)
+      }
+      if (endDate != null) {
         queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
 
       final response = await _apiService.get(
         '/analytics/property-performance',
@@ -262,10 +271,12 @@ class AnalyticsProvider with ChangeNotifier {
         'format': format,
       };
       if (propertyId != null) queryParams['property_id'] = propertyId;
-      if (startDate != null)
+      if (startDate != null) {
         queryParams['start_date'] = startDate.toIso8601String().split('T')[0];
-      if (endDate != null)
+      }
+      if (endDate != null) {
         queryParams['end_date'] = endDate.toIso8601String().split('T')[0];
+      }
 
       final response = await _apiService.post(
         '/analytics/export',

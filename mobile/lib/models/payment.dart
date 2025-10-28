@@ -141,24 +141,6 @@ enum PaymentStatus {
 /// Payment model representing a rent or utility payment
 @immutable
 class Payment {
-  final String id;
-  final String tenantId;
-  final String propertyId;
-  final String? recordedBy;
-  final double amount;
-  final String currency;
-  final PaymentMethod paymentMethod;
-  final PaymentType paymentType;
-  final PaymentStatus status;
-  final DateTime paymentDate;
-  final DateTime? paymentPeriodStart;
-  final DateTime? paymentPeriodEnd;
-  final String? transactionReference;
-  final String? notes;
-  final String? receiptUrl;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-
   const Payment({
     required this.id,
     required this.tenantId,
@@ -206,29 +188,6 @@ class Payment {
     );
   }
 
-  /// Convert Payment to JSON (for API requests)
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'tenant_id': tenantId,
-      'property_id': propertyId,
-      'recorded_by': recordedBy,
-      'amount': amount,
-      'currency': currency,
-      'payment_method': paymentMethod.toJson(),
-      'payment_type': paymentType.toJson(),
-      'status': status.toJson(),
-      'payment_date': paymentDate.toIso8601String(),
-      'payment_period_start': paymentPeriodStart?.toIso8601String(),
-      'payment_period_end': paymentPeriodEnd?.toIso8601String(),
-      'transaction_reference': transactionReference,
-      'notes': notes,
-      'receipt_url': receiptUrl,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
-
   /// Create Payment from SQLite database row
   factory Payment.fromDatabase(Map<String, dynamic> map) {
     return Payment(
@@ -255,29 +214,65 @@ class Payment {
       updatedAt: DateTime.parse(map['updated_at'] as String),
     );
   }
+  final String id;
+  final String tenantId;
+  final String propertyId;
+  final String? recordedBy;
+  final double amount;
+  final String currency;
+  final PaymentMethod paymentMethod;
+  final PaymentType paymentType;
+  final PaymentStatus status;
+  final DateTime paymentDate;
+  final DateTime? paymentPeriodStart;
+  final DateTime? paymentPeriodEnd;
+  final String? transactionReference;
+  final String? notes;
+  final String? receiptUrl;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+
+  /// Convert Payment to JSON (for API requests)
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'tenant_id': tenantId,
+        'property_id': propertyId,
+        'recorded_by': recordedBy,
+        'amount': amount,
+        'currency': currency,
+        'payment_method': paymentMethod.toJson(),
+        'payment_type': paymentType.toJson(),
+        'status': status.toJson(),
+        'payment_date': paymentDate.toIso8601String(),
+        'payment_period_start': paymentPeriodStart?.toIso8601String(),
+        'payment_period_end': paymentPeriodEnd?.toIso8601String(),
+        'transaction_reference': transactionReference,
+        'notes': notes,
+        'receipt_url': receiptUrl,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   /// Convert Payment to SQLite database map
-  Map<String, dynamic> toDatabase() {
-    return {
-      'id': id,
-      'tenant_id': tenantId,
-      'property_id': propertyId,
-      'recorded_by': recordedBy,
-      'amount': amount,
-      'currency': currency,
-      'payment_method': paymentMethod.toJson(),
-      'payment_type': paymentType.toJson(),
-      'status': status.toJson(),
-      'payment_date': paymentDate.toIso8601String(),
-      'payment_period_start': paymentPeriodStart?.toIso8601String(),
-      'payment_period_end': paymentPeriodEnd?.toIso8601String(),
-      'transaction_reference': transactionReference,
-      'notes': notes,
-      'receipt_url': receiptUrl,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toDatabase() => {
+        'id': id,
+        'tenant_id': tenantId,
+        'property_id': propertyId,
+        'recorded_by': recordedBy,
+        'amount': amount,
+        'currency': currency,
+        'payment_method': paymentMethod.toJson(),
+        'payment_type': paymentType.toJson(),
+        'status': status.toJson(),
+        'payment_date': paymentDate.toIso8601String(),
+        'payment_period_start': paymentPeriodStart?.toIso8601String(),
+        'payment_period_end': paymentPeriodEnd?.toIso8601String(),
+        'transaction_reference': transactionReference,
+        'notes': notes,
+        'receipt_url': receiptUrl,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+      };
 
   /// Copy with method for immutable updates
   Payment copyWith({
@@ -298,27 +293,26 @@ class Payment {
     String? receiptUrl,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return Payment(
-      id: id ?? this.id,
-      tenantId: tenantId ?? this.tenantId,
-      propertyId: propertyId ?? this.propertyId,
-      recordedBy: recordedBy ?? this.recordedBy,
-      amount: amount ?? this.amount,
-      currency: currency ?? this.currency,
-      paymentMethod: paymentMethod ?? this.paymentMethod,
-      paymentType: paymentType ?? this.paymentType,
-      status: status ?? this.status,
-      paymentDate: paymentDate ?? this.paymentDate,
-      paymentPeriodStart: paymentPeriodStart ?? this.paymentPeriodStart,
-      paymentPeriodEnd: paymentPeriodEnd ?? this.paymentPeriodEnd,
-      transactionReference: transactionReference ?? this.transactionReference,
-      notes: notes ?? this.notes,
-      receiptUrl: receiptUrl ?? this.receiptUrl,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      Payment(
+        id: id ?? this.id,
+        tenantId: tenantId ?? this.tenantId,
+        propertyId: propertyId ?? this.propertyId,
+        recordedBy: recordedBy ?? this.recordedBy,
+        amount: amount ?? this.amount,
+        currency: currency ?? this.currency,
+        paymentMethod: paymentMethod ?? this.paymentMethod,
+        paymentType: paymentType ?? this.paymentType,
+        status: status ?? this.status,
+        paymentDate: paymentDate ?? this.paymentDate,
+        paymentPeriodStart: paymentPeriodStart ?? this.paymentPeriodStart,
+        paymentPeriodEnd: paymentPeriodEnd ?? this.paymentPeriodEnd,
+        transactionReference: transactionReference ?? this.transactionReference,
+        notes: notes ?? this.notes,
+        receiptUrl: receiptUrl ?? this.receiptUrl,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 
   /// Check if payment is overdue (for rent payments)
   bool get isOverdue {
@@ -329,9 +323,7 @@ class Payment {
   }
 
   /// Get formatted amount with currency
-  String get formattedAmount {
-    return '$currency ${amount.toStringAsFixed(2)}';
-  }
+  String get formattedAmount => '$currency ${amount.toStringAsFixed(2)}';
 
   /// Get payment period display string
   String? get periodDisplay {
@@ -368,46 +360,34 @@ class Payment {
   }
 
   @override
-  int get hashCode {
-    return Object.hash(
-      id,
-      tenantId,
-      propertyId,
-      recordedBy,
-      amount,
-      currency,
-      paymentMethod,
-      paymentType,
-      status,
-      paymentDate,
-      paymentPeriodStart,
-      paymentPeriodEnd,
-      transactionReference,
-      notes,
-      receiptUrl,
-      createdAt,
-      updatedAt,
-    );
-  }
+  int get hashCode => Object.hash(
+        id,
+        tenantId,
+        propertyId,
+        recordedBy,
+        amount,
+        currency,
+        paymentMethod,
+        paymentType,
+        status,
+        paymentDate,
+        paymentPeriodStart,
+        paymentPeriodEnd,
+        transactionReference,
+        notes,
+        receiptUrl,
+        createdAt,
+        updatedAt,
+      );
 
   @override
-  String toString() {
-    return 'Payment(id: $id, amount: $formattedAmount, type: ${paymentType.displayName}, status: ${status.displayName})';
-  }
+  String toString() =>
+      'Payment(id: $id, amount: $formattedAmount, type: ${paymentType.displayName}, status: ${status.displayName})';
 }
 
 /// Tenant balance response model
 @immutable
 class TenantBalance {
-  final String tenantId;
-  final String propertyId;
-  final double totalPaid;
-  final double totalDue;
-  final double outstandingBalance;
-  final DateTime? lastPaymentDate;
-  final double? lastPaymentAmount;
-  final int monthsBehind;
-
   const TenantBalance({
     required this.tenantId,
     required this.propertyId,
@@ -435,30 +415,34 @@ class TenantBalance {
       monthsBehind: json['months_behind'] as int,
     );
   }
+  final String tenantId;
+  final String propertyId;
+  final double totalPaid;
+  final double totalDue;
+  final double outstandingBalance;
+  final DateTime? lastPaymentDate;
+  final double? lastPaymentAmount;
+  final int monthsBehind;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'tenant_id': tenantId,
-      'property_id': propertyId,
-      'total_paid': totalPaid,
-      'total_due': totalDue,
-      'outstanding_balance': outstandingBalance,
-      'last_payment_date': lastPaymentDate?.toIso8601String(),
-      'last_payment_amount': lastPaymentAmount,
-      'months_behind': monthsBehind,
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'tenant_id': tenantId,
+        'property_id': propertyId,
+        'total_paid': totalPaid,
+        'total_due': totalDue,
+        'outstanding_balance': outstandingBalance,
+        'last_payment_date': lastPaymentDate?.toIso8601String(),
+        'last_payment_amount': lastPaymentAmount,
+        'months_behind': monthsBehind,
+      };
 
   /// Check if tenant is behind on payments
   bool get isBehind => monthsBehind > 0;
 
   /// Get formatted outstanding balance
-  String get formattedOutstanding {
-    return 'INR ${outstandingBalance.toStringAsFixed(2)}';
-  }
+  String get formattedOutstanding =>
+      'INR ${outstandingBalance.toStringAsFixed(2)}';
 
   @override
-  String toString() {
-    return 'TenantBalance(outstanding: $formattedOutstanding, monthsBehind: $monthsBehind)';
-  }
+  String toString() =>
+      'TenantBalance(outstanding: $formattedOutstanding, monthsBehind: $monthsBehind)';
 }

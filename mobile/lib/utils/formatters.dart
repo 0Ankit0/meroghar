@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 /// print(formatter.formatNumber(1234567)); // 12,34,567 (Indian format)
 /// ```
 class LocaleFormatter {
+  LocaleFormatter({required this.locale});
   final Locale locale;
 
   /// Currency symbols for supported locales
@@ -36,8 +37,6 @@ class LocaleFormatter {
     'es': 'EUR',
     'ar': 'AED',
   };
-
-  LocaleFormatter({required this.locale});
 
   /// Get currency symbol for current locale
   String get currencySymbol =>
@@ -290,34 +289,31 @@ class FormatHelpers {
     double amount,
     Locale locale, {
     bool showSymbol = true,
-  }) {
-    return LocaleFormatter(locale: locale).formatCurrency(
-      amount,
-      showSymbol: showSymbol,
-    );
-  }
+  }) =>
+      LocaleFormatter(locale: locale).formatCurrency(
+        amount,
+        showSymbol: showSymbol,
+      );
 
   /// Format number for a specific locale
   static String formatNumber(
     num number,
     Locale locale, {
     int? decimalDigits,
-  }) {
-    return LocaleFormatter(locale: locale).formatNumber(
-      number,
-      decimalDigits: decimalDigits,
-    );
-  }
+  }) =>
+      LocaleFormatter(locale: locale).formatNumber(
+        number,
+        decimalDigits: decimalDigits,
+      );
 
   /// Format date for a specific locale
   static String formatDate(
     DateTime date,
     Locale locale, {
     String format = 'medium',
-  }) {
-    return LocaleFormatter(locale: locale).formatDate(
-      date,
-      format: format,
-    );
-  }
+  }) =>
+      LocaleFormatter(locale: locale).formatDate(
+        date,
+        format: format,
+      );
 }

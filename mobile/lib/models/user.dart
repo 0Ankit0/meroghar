@@ -12,26 +12,14 @@ enum UserRole {
   const UserRole(this.value);
   final String value;
 
-  static UserRole fromString(String value) {
-    return UserRole.values.firstWhere(
-      (role) => role.value == value,
-      orElse: () => throw ArgumentError('Invalid user role: $value'),
-    );
-  }
+  static UserRole fromString(String value) => UserRole.values.firstWhere(
+        (role) => role.value == value,
+        orElse: () => throw ArgumentError('Invalid user role: $value'),
+      );
 }
 
 /// User model with all fields from backend.
 class User {
-  final String id;
-  final String email;
-  final String fullName;
-  final String? phone;
-  final UserRole role;
-  final bool isActive;
-  final DateTime createdAt;
-  final DateTime updatedAt;
-  final DateTime? lastLoginAt;
-
   User({
     required this.id,
     required this.email,
@@ -61,21 +49,6 @@ class User {
     );
   }
 
-  /// Convert User to JSON for API requests.
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'email': email,
-      'full_name': fullName,
-      'phone': phone,
-      'role': role.value,
-      'is_active': isActive,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'last_login_at': lastLoginAt?.toIso8601String(),
-    };
-  }
-
   /// Create User from SQLite database row.
   factory User.fromMap(Map<String, dynamic> map) {
     return User(
@@ -92,21 +65,41 @@ class User {
           : null,
     );
   }
+  final String id;
+  final String email;
+  final String fullName;
+  final String? phone;
+  final UserRole role;
+  final bool isActive;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? lastLoginAt;
+
+  /// Convert User to JSON for API requests.
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'email': email,
+        'full_name': fullName,
+        'phone': phone,
+        'role': role.value,
+        'is_active': isActive,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'last_login_at': lastLoginAt?.toIso8601String(),
+      };
 
   /// Convert User to SQLite database row.
-  Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'email': email,
-      'full_name': fullName,
-      'phone': phone,
-      'role': role.value,
-      'is_active': isActive ? 1 : 0,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt.toIso8601String(),
-      'last_login_at': lastLoginAt?.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toMap() => {
+        'id': id,
+        'email': email,
+        'full_name': fullName,
+        'phone': phone,
+        'role': role.value,
+        'is_active': isActive ? 1 : 0,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt.toIso8601String(),
+        'last_login_at': lastLoginAt?.toIso8601String(),
+      };
 
   /// Create a copy with updated fields.
   User copyWith({
@@ -119,24 +112,22 @@ class User {
     DateTime? createdAt,
     DateTime? updatedAt,
     DateTime? lastLoginAt,
-  }) {
-    return User(
-      id: id ?? this.id,
-      email: email ?? this.email,
-      fullName: fullName ?? this.fullName,
-      phone: phone ?? this.phone,
-      role: role ?? this.role,
-      isActive: isActive ?? this.isActive,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      lastLoginAt: lastLoginAt ?? this.lastLoginAt,
-    );
-  }
+  }) =>
+      User(
+        id: id ?? this.id,
+        email: email ?? this.email,
+        fullName: fullName ?? this.fullName,
+        phone: phone ?? this.phone,
+        role: role ?? this.role,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+        lastLoginAt: lastLoginAt ?? this.lastLoginAt,
+      );
 
   @override
-  String toString() {
-    return 'User(id: $id, email: $email, fullName: $fullName, role: ${role.value})';
-  }
+  String toString() =>
+      'User(id: $id, email: $email, fullName: $fullName, role: ${role.value})';
 
   @override
   bool operator ==(Object other) {

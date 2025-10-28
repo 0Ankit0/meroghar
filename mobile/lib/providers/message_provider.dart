@@ -9,6 +9,7 @@ import '../models/message.dart';
 import '../services/api_service.dart';
 
 class MessageProvider with ChangeNotifier {
+  MessageProvider(this._apiService);
   final ApiService _apiService;
 
   List<Message> _messages = [];
@@ -20,8 +21,6 @@ class MessageProvider with ChangeNotifier {
   MessageStatistics? get statistics => _statistics;
   bool get isLoading => _isLoading;
   String? get error => _error;
-
-  MessageProvider(this._apiService);
 
   /// Send bulk messages to multiple tenants
   Future<Map<String, dynamic>> sendBulkMessages({
@@ -96,15 +95,14 @@ class MessageProvider with ChangeNotifier {
     required MessageChannel channel,
     required DateTime scheduledAt,
     String? content,
-  }) async {
-    return await sendBulkMessages(
-      tenantIds: tenantIds,
-      template: template,
-      channel: channel,
-      content: content,
-      scheduledAt: scheduledAt,
-    );
-  }
+  }) async =>
+      await sendBulkMessages(
+        tenantIds: tenantIds,
+        template: template,
+        channel: channel,
+        content: content,
+        scheduledAt: scheduledAt,
+      );
 
   /// Get message history with filters
   Future<void> fetchMessages({
@@ -210,7 +208,7 @@ class MessageProvider with ChangeNotifier {
 
   /// Refresh messages (pull-to-refresh)
   Future<void> refreshMessages() async {
-    await fetchMessages(limit: 50, offset: 0);
+    await fetchMessages(offset: 0);
     await fetchStatistics();
   }
 

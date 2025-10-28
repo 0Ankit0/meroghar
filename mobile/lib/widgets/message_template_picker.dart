@@ -8,14 +8,13 @@ import 'package:flutter/material.dart';
 import '../models/message.dart';
 
 class MessageTemplatePicker extends StatelessWidget {
-  final MessageTemplate selectedTemplate;
-  final Function(MessageTemplate) onTemplateSelected;
-
   const MessageTemplatePicker({
     Key? key,
     required this.selectedTemplate,
     required this.onTemplateSelected,
   }) : super(key: key);
+  final MessageTemplate selectedTemplate;
+  final Function(MessageTemplate) onTemplateSelected;
 
   String _getTemplateTitle(MessageTemplate template) {
     switch (template) {
@@ -86,43 +85,41 @@ class MessageTemplatePicker extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 2,
-      child: ListView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        itemCount: MessageTemplate.values.length,
-        itemBuilder: (context, index) {
-          final template = MessageTemplate.values[index];
-          final isSelected = template == selectedTemplate;
+  Widget build(BuildContext context) => Card(
+        elevation: 2,
+        child: ListView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: MessageTemplate.values.length,
+          itemBuilder: (context, index) {
+            final template = MessageTemplate.values[index];
+            final isSelected = template == selectedTemplate;
 
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: _getTemplateColor(template).withOpacity(0.1),
-              child: Icon(
-                _getTemplateIcon(template),
-                color: _getTemplateColor(template),
+            return ListTile(
+              leading: CircleAvatar(
+                backgroundColor: _getTemplateColor(template).withOpacity(0.1),
+                child: Icon(
+                  _getTemplateIcon(template),
+                  color: _getTemplateColor(template),
+                ),
               ),
-            ),
-            title: Text(
-              _getTemplateTitle(template),
-              style: TextStyle(
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+              title: Text(
+                _getTemplateTitle(template),
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
               ),
-            ),
-            subtitle: Text(_getTemplateDescription(template)),
-            trailing: isSelected
-                ? Icon(
-                    Icons.check_circle,
-                    color: _getTemplateColor(template),
-                  )
-                : null,
-            selected: isSelected,
-            onTap: () => onTemplateSelected(template),
-          );
-        },
-      ),
-    );
-  }
+              subtitle: Text(_getTemplateDescription(template)),
+              trailing: isSelected
+                  ? Icon(
+                      Icons.check_circle,
+                      color: _getTemplateColor(template),
+                    )
+                  : null,
+              selected: isSelected,
+              onTap: () => onTemplateSelected(template),
+            );
+          },
+        ),
+      );
 }

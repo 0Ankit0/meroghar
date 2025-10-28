@@ -46,20 +46,18 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Resolve Conflicts'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadConflicts,
-          ),
-        ],
-      ),
-      body: _buildBody(),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Resolve Conflicts'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadConflicts,
+            ),
+          ],
+        ),
+        body: _buildBody(),
+      );
 
   Widget _buildBody() {
     if (_isLoading) {
@@ -255,26 +253,26 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: displayData.entries.map((entry) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 2),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${entry.key}: ',
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                ),
-                Expanded(
-                  child: Text(
-                    entry.value.toString(),
-                    style: const TextStyle(color: Colors.grey),
+        children: displayData.entries
+            .map((entry) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 2),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${entry.key}: ',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Expanded(
+                        child: Text(
+                          entry.value.toString(),
+                          style: const TextStyle(color: Colors.grey),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+                ))
+            .toList(),
       ),
     );
   }
@@ -310,18 +308,38 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
     );
 
     if (confirmed == true) {
-      // TODO: Implement actual conflict resolution API call
-      // This would call a backend endpoint to resolve the conflict
+      // Implement actual conflict resolution API call
+      try {
+        final apiService = context.read<ApiService>();
+        await apiService.post('/api/v1/sync/resolve-conflict', data: {
+          'conflict_id': conflict.id,
+          'resolution': resolution,
+          'selected_version': resolution == 'local'
+              ? conflict.localVersion
+              : conflict.serverVersion,
+        });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Conflict resolved using $resolution version'),
-          backgroundColor: Colors.green,
-        ),
-      );
+        if (!mounted) return;
 
-      // Reload conflicts
-      await _loadConflicts();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Conflict resolved using $resolution version'),
+            backgroundColor: Colors.green,
+          ),
+        );
+
+        // Reload conflicts
+        await _loadConflicts();
+      } catch (e) {
+        if (!mounted) return;
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to resolve conflict: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

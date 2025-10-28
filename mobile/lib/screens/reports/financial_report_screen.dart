@@ -9,6 +9,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../services/api_service.dart';
+import 'report_viewer_screen.dart';
 
 /// Financial report types available for generation
 enum FinancialReportType {
@@ -376,9 +379,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 
   String _formatMonthYear(DateTime date) {
     const months = [
@@ -455,35 +456,41 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
     });
 
     try {
+      try {
       // Calculate date range based on period
-      // TODO: Use dateRange in API call below
-      // final dateRange = _calculateDateRange();
+      final dateRange = _calculateDateRange();
 
-      // TODO: Call API to generate report
-      // final apiService = context.read<ApiService>();
-      // final report = await apiService.generateFinancialReport(
-      //   type: _selectedReportType,
-      //   startDate: dateRange.start,
-      //   endDate: dateRange.end,
-      // );
-
-      // Simulate API call
-      await Future.delayed(const Duration(seconds: 2));
+      // Call API to generate report
+      final apiService = context.read<ApiService>();
+      final response = await apiService.post('/api/v1/reports/expenses', data: {
+        'report_type': _selectedReportType,
+        'start_date': dateRange.start.toIso8601String(),
+        'end_date': dateRange.end.toIso8601String(),
+        'property_id': _selectedPropertyId,
+      });
 
       if (!mounted) return;
 
-      // Show success and navigate to report viewer
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Report generated successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
+      if (response.statusCode == 200) {
+        // Show success and navigate to report viewer
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Report generated successfully'),
+            backgroundColor: Colors.green,
+          ),
+        );
 
-      // TODO: Navigate to report viewer or download
-      // Navigator.of(context).push(MaterialPageRoute(
-      //   builder: (_) => ReportViewerScreen(report: report),
-      // ));
+        // Navigate to report viewer with the generated report data
+        Navigator.of(context).push(MaterialPageRoute(
+          builder: (_) => ReportViewerScreen(
+            reportData: response.data,
+            reportTitle: _selectedReportType.replaceAll('_', ' ').toUpperCase(),
+          ),
+        ));
+      } else {
+        throw Exception('Failed to generate report: ${response.statusCode}');
+      }
+    } catch (e) {
     } catch (e) {
       if (!mounted) return;
 
@@ -510,7 +517,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
       case ReportPeriod.month:
         // Current month
         return (
-          start: DateTime(now.year, now.month, 1),
+          start: DateTime(now.year, now.month),
           end: DateTime(now.year, now.month + 1, 0), // Last day of month
         );
 
@@ -519,14 +526,14 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
         final quarter = (now.month - 1) ~/ 3 + 1;
         final startMonth = (quarter - 1) * 3 + 1;
         return (
-          start: DateTime(now.year, startMonth, 1),
+          start: DateTime(now.year, startMonth),
           end: DateTime(now.year, startMonth + 3, 0), // Last day of quarter
         );
 
       case ReportPeriod.year:
         // Current year
         return (
-          start: DateTime(now.year, 1, 1),
+          start: DateTime(now.year, 1),
           end: DateTime(now.year, 12, 31),
         );
 

@@ -3,6 +3,9 @@
 /// Implements T066 from tasks.md.
 library;
 
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
 
@@ -12,6 +15,11 @@ import '../services/database_service.dart';
 
 /// Provider for payment-related operations and state management
 class PaymentProvider with ChangeNotifier {
+  PaymentProvider({
+    required ApiService apiService,
+    required DatabaseService databaseService,
+  })  : _apiService = apiService,
+        _databaseService = databaseService;
   final ApiService _apiService;
   final DatabaseService _databaseService;
 
@@ -19,12 +27,6 @@ class PaymentProvider with ChangeNotifier {
   TenantBalance? _currentBalance;
   bool _isLoading = false;
   String? _error;
-
-  PaymentProvider({
-    required ApiService apiService,
-    required DatabaseService databaseService,
-  })  : _apiService = apiService,
-        _databaseService = databaseService;
 
   // Getters
   List<Payment> get payments => _payments;
@@ -34,21 +36,17 @@ class PaymentProvider with ChangeNotifier {
   bool get hasError => _error != null;
 
   /// Get payments filtered by various criteria
-  List<Payment> getPaymentsByTenant(String tenantId) {
-    return _payments.where((p) => p.tenantId == tenantId).toList();
-  }
+  List<Payment> getPaymentsByTenant(String tenantId) =>
+      _payments.where((p) => p.tenantId == tenantId).toList();
 
-  List<Payment> getPaymentsByProperty(String propertyId) {
-    return _payments.where((p) => p.propertyId == propertyId).toList();
-  }
+  List<Payment> getPaymentsByProperty(String propertyId) =>
+      _payments.where((p) => p.propertyId == propertyId).toList();
 
-  List<Payment> getPaymentsByStatus(PaymentStatus status) {
-    return _payments.where((p) => p.status == status).toList();
-  }
+  List<Payment> getPaymentsByStatus(PaymentStatus status) =>
+      _payments.where((p) => p.status == status).toList();
 
-  List<Payment> getOverduePayments() {
-    return _payments.where((p) => p.isOverdue).toList();
-  }
+  List<Payment> getOverduePayments() =>
+      _payments.where((p) => p.isOverdue).toList();
 
   /// Record a new payment
   Future<Payment?> recordPayment({
@@ -198,24 +196,26 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  /// Download payment receipt
-  Future<String?> downloadReceipt(String paymentId) async {
+  /// Download payment receipt as PDF bytes
+  Future<Uint8List?> downloadReceipt(String paymentId) async {
     _setLoading(true);
     _clearError();
 
     try {
-      // Call API to get receipt URL or download
-      // Note: Receipt download will be handled by opening URL in browser
-      // or using a file download plugin
-      await _apiService.get(
+      // Call API with bytes response type to get PDF file
+      final response = await _apiService.get<Uint8List>(
         '/payments/$paymentId/receipt',
+        options: Options(responseType: ResponseType.bytes),
       );
 
-      // Handle the receipt download/URL
-      // This will be implemented based on how the app handles file downloads
-      // For now, return a success indicator
       _setLoading(false);
-      return 'Receipt downloaded successfully';
+
+      if (response.isSuccess && response.data != null) {
+        return response.data;
+      }
+
+      _setError(response.message ?? 'Failed to download receipt');
+      return null;
     } catch (e) {
       _setError('Failed to download receipt: ${e.toString()}');
       return null;
@@ -247,7 +247,7 @@ class PaymentProvider with ChangeNotifier {
         orderBy: 'payment_date DESC',
       );
 
-      _payments = maps.map((map) => Payment.fromDatabase(map)).toList();
+      _payments = maps.map(Payment.fromDatabase).toList();
       notifyListeners();
     } catch (e) {
       debugPrint('Error loading payments from database: $e');

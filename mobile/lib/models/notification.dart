@@ -22,12 +22,11 @@ enum NotificationType {
   const NotificationType(this.value);
   final String value;
 
-  static NotificationType fromString(String value) {
-    return NotificationType.values.firstWhere(
-      (e) => e.value == value,
-      orElse: () => NotificationType.systemAnnouncement,
-    );
-  }
+  static NotificationType fromString(String value) =>
+      NotificationType.values.firstWhere(
+        (e) => e.value == value,
+        orElse: () => NotificationType.systemAnnouncement,
+      );
 
   String get displayName {
     switch (this) {
@@ -71,33 +70,15 @@ enum NotificationPriority {
   const NotificationPriority(this.value);
   final String value;
 
-  static NotificationPriority fromString(String value) {
-    return NotificationPriority.values.firstWhere(
-      (e) => e.value == value,
-      orElse: () => NotificationPriority.normal,
-    );
-  }
+  static NotificationPriority fromString(String value) =>
+      NotificationPriority.values.firstWhere(
+        (e) => e.value == value,
+        orElse: () => NotificationPriority.normal,
+      );
 }
 
 /// Notification model
 class AppNotification {
-  final int id;
-  final int userId;
-  final String title;
-  final String body;
-  final NotificationType notificationType;
-  final NotificationPriority priority;
-  final String? deepLink;
-  final Map<String, dynamic>? metadata;
-  final bool isRead;
-  final DateTime? readAt;
-  final String? fcmMessageId;
-  final DateTime? sentAt;
-  final bool deliveryFailed;
-  final String? failureReason;
-  final DateTime createdAt;
-  final DateTime? updatedAt;
-
   AppNotification({
     required this.id,
     required this.userId,
@@ -140,27 +121,41 @@ class AppNotification {
           : null,
     );
   }
+  final int id;
+  final int userId;
+  final String title;
+  final String body;
+  final NotificationType notificationType;
+  final NotificationPriority priority;
+  final String? deepLink;
+  final Map<String, dynamic>? metadata;
+  final bool isRead;
+  final DateTime? readAt;
+  final String? fcmMessageId;
+  final DateTime? sentAt;
+  final bool deliveryFailed;
+  final String? failureReason;
+  final DateTime createdAt;
+  final DateTime? updatedAt;
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'user_id': userId,
-      'title': title,
-      'body': body,
-      'notification_type': notificationType.value,
-      'priority': priority.value,
-      'deep_link': deepLink,
-      'metadata': metadata,
-      'is_read': isRead,
-      'read_at': readAt?.toIso8601String(),
-      'fcm_message_id': fcmMessageId,
-      'sent_at': sentAt?.toIso8601String(),
-      'delivery_failed': deliveryFailed,
-      'failure_reason': failureReason,
-      'created_at': createdAt.toIso8601String(),
-      'updated_at': updatedAt?.toIso8601String(),
-    };
-  }
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'user_id': userId,
+        'title': title,
+        'body': body,
+        'notification_type': notificationType.value,
+        'priority': priority.value,
+        'deep_link': deepLink,
+        'metadata': metadata,
+        'is_read': isRead,
+        'read_at': readAt?.toIso8601String(),
+        'fcm_message_id': fcmMessageId,
+        'sent_at': sentAt?.toIso8601String(),
+        'delivery_failed': deliveryFailed,
+        'failure_reason': failureReason,
+        'created_at': createdAt.toIso8601String(),
+        'updated_at': updatedAt?.toIso8601String(),
+      };
 
   AppNotification copyWith({
     int? id,
@@ -179,36 +174,29 @@ class AppNotification {
     String? failureReason,
     DateTime? createdAt,
     DateTime? updatedAt,
-  }) {
-    return AppNotification(
-      id: id ?? this.id,
-      userId: userId ?? this.userId,
-      title: title ?? this.title,
-      body: body ?? this.body,
-      notificationType: notificationType ?? this.notificationType,
-      priority: priority ?? this.priority,
-      deepLink: deepLink ?? this.deepLink,
-      metadata: metadata ?? this.metadata,
-      isRead: isRead ?? this.isRead,
-      readAt: readAt ?? this.readAt,
-      fcmMessageId: fcmMessageId ?? this.fcmMessageId,
-      sentAt: sentAt ?? this.sentAt,
-      deliveryFailed: deliveryFailed ?? this.deliveryFailed,
-      failureReason: failureReason ?? this.failureReason,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-    );
-  }
+  }) =>
+      AppNotification(
+        id: id ?? this.id,
+        userId: userId ?? this.userId,
+        title: title ?? this.title,
+        body: body ?? this.body,
+        notificationType: notificationType ?? this.notificationType,
+        priority: priority ?? this.priority,
+        deepLink: deepLink ?? this.deepLink,
+        metadata: metadata ?? this.metadata,
+        isRead: isRead ?? this.isRead,
+        readAt: readAt ?? this.readAt,
+        fcmMessageId: fcmMessageId ?? this.fcmMessageId,
+        sentAt: sentAt ?? this.sentAt,
+        deliveryFailed: deliveryFailed ?? this.deliveryFailed,
+        failureReason: failureReason ?? this.failureReason,
+        createdAt: createdAt ?? this.createdAt,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
 }
 
 /// Notification list response
 class NotificationListResponse {
-  final List<AppNotification> notifications;
-  final int total;
-  final int page;
-  final int pageSize;
-  final int totalPages;
-
   NotificationListResponse({
     required this.notifications,
     required this.total,
@@ -228,14 +216,15 @@ class NotificationListResponse {
       totalPages: json['total_pages'] as int,
     );
   }
+  final List<AppNotification> notifications;
+  final int total;
+  final int page;
+  final int pageSize;
+  final int totalPages;
 }
 
 /// Unread count response
 class UnreadCountResponse {
-  final int unreadCount;
-  final Map<String, int> byType;
-  final Map<String, int> byPriority;
-
   UnreadCountResponse({
     required this.unreadCount,
     required this.byType,
@@ -249,4 +238,7 @@ class UnreadCountResponse {
       byPriority: Map<String, int>.from(json['by_priority'] as Map),
     );
   }
+  final int unreadCount;
+  final Map<String, int> byType;
+  final Map<String, int> byPriority;
 }

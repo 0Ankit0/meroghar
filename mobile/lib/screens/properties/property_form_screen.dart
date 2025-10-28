@@ -112,178 +112,177 @@ class _PropertyFormScreenState extends State<PropertyFormScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add Property'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Property Details',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _nameController,
-                      decoration: const InputDecoration(
-                        labelText: 'Property Name *',
-                        hintText: 'e.g., Sunset Apartments',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.home),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Add Property'),
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Property Details',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Name is required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _addressLine1Controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Address Line 1 *',
-                        hintText: 'Street address',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_on),
-                      ),
-                      validator: (value) =>
-                          value?.isEmpty ?? true ? 'Address is required' : null,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _addressLine2Controller,
-                      decoration: const InputDecoration(
-                        labelText: 'Address Line 2',
-                        hintText: 'Apartment, suite, etc. (optional)',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.location_on_outlined),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          flex: 2,
-                          child: TextFormField(
-                            controller: _cityController,
-                            decoration: const InputDecoration(
-                              labelText: 'City *',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value?.isEmpty ?? true
-                                ? 'City is required'
-                                : null,
-                          ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _nameController,
+                        decoration: const InputDecoration(
+                          labelText: 'Property Name *',
+                          hintText: 'e.g., Sunset Apartments',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.home),
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _stateController,
-                            decoration: const InputDecoration(
-                              labelText: 'State *',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value?.isEmpty ?? true
-                                ? 'State is required'
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: TextFormField(
-                            controller: _postalCodeController,
-                            decoration: const InputDecoration(
-                              labelText: 'Postal Code *',
-                              border: OutlineInputBorder(),
-                            ),
-                            keyboardType: TextInputType.number,
-                            validator: (value) => value?.isEmpty ?? true
-                                ? 'Postal code is required'
-                                : null,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: TextFormField(
-                            controller: _countryController,
-                            decoration: const InputDecoration(
-                              labelText: 'Country *',
-                              border: OutlineInputBorder(),
-                            ),
-                            validator: (value) => value?.isEmpty ?? true
-                                ? 'Country is required'
-                                : null,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Property Configuration',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _totalUnitsController,
-                      decoration: const InputDecoration(
-                        labelText: 'Total Units *',
-                        hintText: 'Number of rental units',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.apartment),
+                        validator: (value) =>
+                            value?.isEmpty ?? true ? 'Name is required' : null,
                       ),
-                      keyboardType: TextInputType.number,
-                      validator: (value) {
-                        if (value?.isEmpty ?? true) {
-                          return 'Total units is required';
-                        }
-                        final units = int.tryParse(value!);
-                        if (units == null || units < 1) {
-                          return 'Must be at least 1 unit';
-                        }
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    DropdownButtonFormField<String>(
-                      initialValue: _selectedCurrency,
-                      decoration: const InputDecoration(
-                        labelText: 'Base Currency *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.currency_exchange),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addressLine1Controller,
+                        decoration: const InputDecoration(
+                          labelText: 'Address Line 1 *',
+                          hintText: 'Street address',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.location_on),
+                        ),
+                        validator: (value) => value?.isEmpty ?? true
+                            ? 'Address is required'
+                            : null,
                       ),
-                      items: _currencies
-                          .map((currency) => DropdownMenuItem(
-                                value: currency,
-                                child: Text(currency),
-                              ))
-                          .toList(),
-                      onChanged: (value) {
-                        if (value != null) {
-                          setState(() => _selectedCurrency = value);
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addressLine2Controller,
+                        decoration: const InputDecoration(
+                          labelText: 'Address Line 2',
+                          hintText: 'Apartment, suite, etc. (optional)',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.location_on_outlined),
+                        ),
                       ),
-                      child: const Text('Create Property'),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            flex: 2,
+                            child: TextFormField(
+                              controller: _cityController,
+                              decoration: const InputDecoration(
+                                labelText: 'City *',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'City is required'
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _stateController,
+                              decoration: const InputDecoration(
+                                labelText: 'State *',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'State is required'
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: TextFormField(
+                              controller: _postalCodeController,
+                              decoration: const InputDecoration(
+                                labelText: 'Postal Code *',
+                                border: OutlineInputBorder(),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'Postal code is required'
+                                  : null,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: TextFormField(
+                              controller: _countryController,
+                              decoration: const InputDecoration(
+                                labelText: 'Country *',
+                                border: OutlineInputBorder(),
+                              ),
+                              validator: (value) => value?.isEmpty ?? true
+                                  ? 'Country is required'
+                                  : null,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Property Configuration',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _totalUnitsController,
+                        decoration: const InputDecoration(
+                          labelText: 'Total Units *',
+                          hintText: 'Number of rental units',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.apartment),
+                        ),
+                        keyboardType: TextInputType.number,
+                        validator: (value) {
+                          if (value?.isEmpty ?? true) {
+                            return 'Total units is required';
+                          }
+                          final units = int.tryParse(value!);
+                          if (units == null || units < 1) {
+                            return 'Must be at least 1 unit';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedCurrency,
+                        decoration: const InputDecoration(
+                          labelText: 'Base Currency *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.currency_exchange),
+                        ),
+                        items: _currencies
+                            .map((currency) => DropdownMenuItem(
+                                  value: currency,
+                                  child: Text(currency),
+                                ))
+                            .toList(),
+                        onChanged: (value) {
+                          if (value != null) {
+                            setState(() => _selectedCurrency = value);
+                          }
+                        },
+                      ),
+                      const SizedBox(height: 32),
+                      ElevatedButton(
+                        onPressed: _handleSubmit,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text('Create Property'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-    );
-  }
+      );
 }

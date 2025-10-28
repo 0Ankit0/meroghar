@@ -10,6 +10,9 @@ import '../services/api_service.dart';
 import '../services/fcm_service.dart';
 
 class NotificationProvider with ChangeNotifier {
+  NotificationProvider(this._apiService, this._fcmService) {
+    _initialize();
+  }
   final ApiService _apiService;
   final FCMService _fcmService;
 
@@ -29,10 +32,6 @@ class NotificationProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
 
-  NotificationProvider(this._apiService, this._fcmService) {
-    _initialize();
-  }
-
   /// Initialize notification provider
   void _initialize() {
     // Listen to FCM messages
@@ -42,10 +41,7 @@ class NotificationProvider with ChangeNotifier {
     });
 
     // Listen to FCM token updates
-    _fcmService.tokenStream.listen((token) {
-      // Update token on backend
-      _updateFCMToken(token);
-    });
+    _fcmService.tokenStream.listen(_updateFCMToken);
   }
 
   /// Update FCM token on backend
@@ -174,7 +170,7 @@ class NotificationProvider with ChangeNotifier {
       return true;
     }
 
-    return await markAsRead(unreadIds);
+    return markAsRead(unreadIds);
   }
 
   /// Get notifications grouped by type

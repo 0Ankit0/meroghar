@@ -48,145 +48,140 @@ class _TenantDashboardScreenState extends State<TenantDashboardScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Dashboard'),
-      ),
-      body: Consumer3<AuthProvider, BillProvider, PaymentProvider>(
-        builder: (context, authProvider, billProvider, paymentProvider, child) {
-          final user = authProvider.currentUser;
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Dashboard'),
+        ),
+        body: Consumer3<AuthProvider, BillProvider, PaymentProvider>(
+          builder:
+              (context, authProvider, billProvider, paymentProvider, child) {
+            final user = authProvider.currentUser;
 
-          if (user == null || user.role != UserRole.tenant) {
-            return const Center(
-              child: Text('This dashboard is for tenants only'),
+            if (user == null || user.role != UserRole.tenant) {
+              return const Center(
+                child: Text('This dashboard is for tenants only'),
+              );
+            }
+
+            // For tenants, user.id represents their tenant ID
+            final tenantId = user.id;
+
+            if (billProvider.isLoading || paymentProvider.isLoading) {
+              return const Center(child: CircularProgressIndicator());
+            }
+
+            // Get tenant's bills and allocations
+            final myBills = billProvider.getBillsForTenant(tenantId);
+            final unpaidAllocations =
+                billProvider.getUnpaidAllocationsForTenant(tenantId);
+            final totalUnpaid = billProvider.getTotalUnpaidForTenant(tenantId);
+
+            // Get recent payments
+            final recentPayments =
+                paymentProvider.getPaymentsByTenant(tenantId).take(5).toList();
+
+            return RefreshIndicator(
+              onRefresh: _loadData,
+              child: ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  // Balance Summary Card
+                  _BalanceSummaryCard(
+                    totalUnpaid: totalUnpaid,
+                    unpaidCount: unpaidAllocations.length,
+                    currencyFormat: _currencyFormat,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Overdue Bills Section
+                  _OverdueBillsSection(
+                    bills: myBills.where((b) => b.isOverdue).toList(),
+                    tenantId: tenantId,
+                    currencyFormat: _currencyFormat,
+                    dateFormat: _dateFormat,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Pending Bills Section
+                  _PendingBillsSection(
+                    bills: myBills
+                        .where((b) =>
+                            !b.isOverdue &&
+                            (b.status == BillStatus.pending ||
+                                b.status == BillStatus.partiallyPaid))
+                        .toList(),
+                    tenantId: tenantId,
+                    currencyFormat: _currencyFormat,
+                    dateFormat: _dateFormat,
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Recent Payments Section
+                  _RecentPaymentsSection(
+                    payments: recentPayments,
+                    currencyFormat: _currencyFormat,
+                    dateFormat: _dateFormat,
+                  ),
+                ],
+              ),
             );
-          }
-
-          // For tenants, user.id represents their tenant ID
-          final tenantId = user.id;
-
-          if (billProvider.isLoading || paymentProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          // Get tenant's bills and allocations
-          final myBills = billProvider.getBillsForTenant(tenantId);
-          final unpaidAllocations =
-              billProvider.getUnpaidAllocationsForTenant(tenantId);
-          final totalUnpaid = billProvider.getTotalUnpaidForTenant(tenantId);
-
-          // Get recent payments
-          final recentPayments =
-              paymentProvider.getPaymentsByTenant(tenantId).take(5).toList();
-
-          return RefreshIndicator(
-            onRefresh: _loadData,
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                // Balance Summary Card
-                _BalanceSummaryCard(
-                  totalUnpaid: totalUnpaid,
-                  unpaidCount: unpaidAllocations.length,
-                  currencyFormat: _currencyFormat,
-                ),
-                const SizedBox(height: 16),
-
-                // Overdue Bills Section
-                _OverdueBillsSection(
-                  bills: myBills.where((b) => b.isOverdue).toList(),
-                  tenantId: tenantId,
-                  currencyFormat: _currencyFormat,
-                  dateFormat: _dateFormat,
-                ),
-                const SizedBox(height: 16),
-
-                // Pending Bills Section
-                _PendingBillsSection(
-                  bills: myBills
-                      .where((b) =>
-                          !b.isOverdue &&
-                          (b.status == BillStatus.pending ||
-                              b.status == BillStatus.partiallyPaid))
-                      .toList(),
-                  tenantId: tenantId,
-                  currencyFormat: _currencyFormat,
-                  dateFormat: _dateFormat,
-                ),
-                const SizedBox(height: 16),
-
-                // Recent Payments Section
-                _RecentPaymentsSection(
-                  payments: recentPayments,
-                  currencyFormat: _currencyFormat,
-                  dateFormat: _dateFormat,
-                ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
-  }
+          },
+        ),
+      );
 }
 
 class _BalanceSummaryCard extends StatelessWidget {
-  final double totalUnpaid;
-  final int unpaidCount;
-  final NumberFormat currencyFormat;
-
   const _BalanceSummaryCard({
     required this.totalUnpaid,
     required this.unpaidCount,
     required this.currencyFormat,
   });
+  final double totalUnpaid;
+  final int unpaidCount;
+  final NumberFormat currencyFormat;
 
   @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 4,
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Outstanding Balance',
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              currencyFormat.format(totalUnpaid),
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: totalUnpaid > 0 ? Colors.red : Colors.green,
-                    fontWeight: FontWeight.bold,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              '$unpaidCount unpaid bill(s)',
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-          ],
+  Widget build(BuildContext context) => Card(
+        elevation: 4,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Outstanding Balance',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                currencyFormat.format(totalUnpaid),
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      color: totalUnpaid > 0 ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '$unpaidCount unpaid bill(s)',
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ],
+          ),
         ),
-      ),
-    );
-  }
+      );
 }
 
 class _OverdueBillsSection extends StatelessWidget {
-  final List<Bill> bills;
-  final String tenantId;
-  final NumberFormat currencyFormat;
-  final DateFormat dateFormat;
-
   const _OverdueBillsSection({
     required this.bills,
     required this.tenantId,
     required this.currencyFormat,
     required this.dateFormat,
   });
+  final List<Bill> bills;
+  final String tenantId;
+  final NumberFormat currencyFormat;
+  final DateFormat dateFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -247,17 +242,16 @@ class _OverdueBillsSection extends StatelessWidget {
 }
 
 class _PendingBillsSection extends StatelessWidget {
-  final List<Bill> bills;
-  final String tenantId;
-  final NumberFormat currencyFormat;
-  final DateFormat dateFormat;
-
   const _PendingBillsSection({
     required this.bills,
     required this.tenantId,
     required this.currencyFormat,
     required this.dateFormat,
   });
+  final List<Bill> bills;
+  final String tenantId;
+  final NumberFormat currencyFormat;
+  final DateFormat dateFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -324,15 +318,14 @@ class _PendingBillsSection extends StatelessWidget {
 }
 
 class _RecentPaymentsSection extends StatelessWidget {
-  final List<Payment> payments;
-  final NumberFormat currencyFormat;
-  final DateFormat dateFormat;
-
   const _RecentPaymentsSection({
     required this.payments,
     required this.currencyFormat,
     required this.dateFormat,
   });
+  final List<Payment> payments;
+  final NumberFormat currencyFormat;
+  final DateFormat dateFormat;
 
   @override
   Widget build(BuildContext context) {
@@ -346,23 +339,21 @@ class _RecentPaymentsSection extends StatelessWidget {
           style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 8),
-        ...payments.map((payment) {
-          return Card(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.payment, color: Colors.green),
-              title: Text(payment.paymentType.displayName),
-              subtitle: Text(dateFormat.format(payment.paymentDate)),
-              trailing: Text(
-                currencyFormat.format(payment.amount),
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.green,
+        ...payments.map((payment) => Card(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: ListTile(
+                leading: const Icon(Icons.payment, color: Colors.green),
+                title: Text(payment.paymentType.displayName),
+                subtitle: Text(dateFormat.format(payment.paymentDate)),
+                trailing: Text(
+                  currencyFormat.format(payment.amount),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
                 ),
               ),
-            ),
-          );
-        }),
+            )),
         TextButton(
           onPressed: () {
             Navigator.pushNamed(context, '/payments');

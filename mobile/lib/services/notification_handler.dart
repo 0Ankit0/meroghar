@@ -124,13 +124,11 @@ class NotificationHandler {
   }
 
   /// Parse notification data from FCM message
-  Map<String, dynamic> parseNotificationData(Map<String, dynamic> data) {
-    return {
-      'notification_id': data['notification_id'],
-      'type': data['type'],
-      'priority': data['priority'],
-      'deep_link': data['deep_link'],
-      'metadata': data['metadata'],
-    };
-  }
+  Map<String, dynamic> parseNotificationData(Map<String, dynamic> data) => {
+        'notification_id': data['notification_id'],
+        'type': data['type'],
+        'priority': data['priority'],
+        'deep_link': data['deep_link'],
+        'metadata': data['metadata'],
+      };
 }

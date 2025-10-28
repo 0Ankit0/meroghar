@@ -9,6 +9,7 @@ import '../models/document.dart';
 import '../services/api_service.dart';
 
 class DocumentProvider with ChangeNotifier {
+  DocumentProvider(this._apiService);
   final ApiService _apiService;
 
   List<Document> _documents = [];
@@ -18,8 +19,6 @@ class DocumentProvider with ChangeNotifier {
   List<Document> get documents => _documents;
   bool get isLoading => _isLoading;
   String? get error => _error;
-
-  DocumentProvider(this._apiService);
 
   Future<DocumentUploadResponse?> getUploadUrl({
     required DocumentUploadRequest request,
@@ -118,10 +117,12 @@ class DocumentProvider with ChangeNotifier {
 
     try {
       final query = <String, dynamic>{'page': page, 'page_size': pageSize};
-      if (type != null)
+      if (type != null) {
         query['document_type'] = Document.documentTypeToString(type);
-      if (status != null)
+      }
+      if (status != null) {
         query['status'] = Document.documentStatusToString(status);
+      }
       if (tenantId != null) query['tenant_id'] = tenantId;
 
       final response =

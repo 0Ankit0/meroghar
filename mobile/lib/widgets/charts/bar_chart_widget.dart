@@ -6,14 +6,13 @@ import '../../models/analytics.dart';
 /// Bar chart widget for displaying revenue vs expenses comparison
 /// Implements T106 from tasks.md
 class RevenueExpensesBarChart extends StatelessWidget {
-  final RevenueExpensesComparison? comparison;
-  final double height;
-
   const RevenueExpensesBarChart({
     Key? key,
     required this.comparison,
     this.height = 300,
   }) : super(key: key);
+  final RevenueExpensesComparison? comparison;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -109,15 +108,13 @@ class RevenueExpensesBarChart extends StatelessWidget {
                         showTitles: true,
                         reservedSize: 50,
                         interval: maxValue / 5,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            _formatCurrencyShort(value),
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          );
-                        },
+                        getTitlesWidget: (value, meta) => Text(
+                          _formatCurrencyShort(value),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -129,12 +126,10 @@ class RevenueExpensesBarChart extends StatelessWidget {
                     show: true,
                     drawVerticalLine: false,
                     horizontalInterval: maxValue / 5,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Colors.grey.withOpacity(0.2),
-                        strokeWidth: 1,
-                      );
-                    },
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: Colors.grey.withOpacity(0.2),
+                      strokeWidth: 1,
+                    ),
                   ),
                   barGroups: [
                     BarChartGroupData(
@@ -207,34 +202,33 @@ class RevenueExpensesBarChart extends StatelessWidget {
   }
 
   Widget _buildSummaryItem(
-      String label, String value, Color color, IconData icon) {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Icon(icon, color: color, size: 16),
-            const SizedBox(width: 4),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+          String label, String value, Color color, IconData icon) =>
+      Column(
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 4),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: color,
+            ],
           ),
-        ),
-      ],
-    );
-  }
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
+          ),
+        ],
+      );
 
   String _formatCurrency(double value) {
     final formatter = NumberFormat.currency(symbol: '\$', decimalDigits: 0);

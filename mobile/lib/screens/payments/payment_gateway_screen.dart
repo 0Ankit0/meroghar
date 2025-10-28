@@ -11,11 +11,6 @@ import 'package:webview_flutter/webview_flutter.dart';
 /// 3. Handles success/failure callbacks
 /// 4. Navigates to appropriate screens based on payment status
 class PaymentGatewayScreen extends StatefulWidget {
-  final String paymentUrl;
-  final String callbackUrl;
-  final String paymentId;
-  final Function(Map<String, dynamic>) onPaymentComplete;
-
   const PaymentGatewayScreen({
     Key? key,
     required this.paymentUrl,
@@ -23,6 +18,10 @@ class PaymentGatewayScreen extends StatefulWidget {
     required this.paymentId,
     required this.onPaymentComplete,
   }) : super(key: key);
+  final String paymentUrl;
+  final String callbackUrl;
+  final String paymentId;
+  final Function(Map<String, dynamic>) onPaymentComplete;
 
   @override
   State<PaymentGatewayScreen> createState() => _PaymentGatewayScreenState();
@@ -271,107 +270,108 @@ class _PaymentGatewayScreenState extends State<PaymentGatewayScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Complete Payment'),
-        leading: IconButton(
-          icon: Icon(Icons.close),
-          onPressed: () {
-            // Show confirmation dialog before closing
-            showDialog(
-              context: context,
-              builder: (context) => AlertDialog(
-                title: Text('Cancel Payment?'),
-                content: Text('Are you sure you want to cancel this payment?'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text('No'),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close dialog
-                      Navigator.of(context).pop(
-                          {'status': 'canceled'}); // Return to previous screen
-                    },
-                    style:
-                        ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    child: Text('Yes, Cancel'),
-                  ),
-                ],
-              ),
-            );
-          },
-        ),
-      ),
-      body: Stack(
-        children: [
-          if (!_hasError)
-            WebViewWidget(controller: _controller)
-          else
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  SizedBox(height: 16),
-                  Text(
-                    'Failed to Load Payment Page',
-                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  SizedBox(height: 8),
-                  Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 32),
-                    child: Text(
-                      _errorMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.grey[600]),
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text('Complete Payment'),
+          leading: IconButton(
+            icon: Icon(Icons.close),
+            onPressed: () {
+              // Show confirmation dialog before closing
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: Text('Cancel Payment?'),
+                  content:
+                      Text('Are you sure you want to cancel this payment?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text('No'),
                     ),
-                  ),
-                  SizedBox(height: 24),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      setState(() {
-                        _hasError = false;
-                        _errorMessage = '';
-                      });
-                      _controller.loadRequest(Uri.parse(widget.paymentUrl));
-                    },
-                    icon: Icon(Icons.refresh),
-                    label: Text('Retry'),
-                  ),
-                ],
-              ),
-            ),
-
-          // Loading indicator
-          if (_isLoading && !_hasError)
-            Container(
-              color: Colors.white,
-              child: Center(
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close dialog
+                        Navigator.of(context).pop({
+                          'status': 'canceled'
+                        }); // Return to previous screen
+                      },
+                      style:
+                          ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      child: Text('Yes, Cancel'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        ),
+        body: Stack(
+          children: [
+            if (!_hasError)
+              WebViewWidget(controller: _controller)
+            else
+              Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    CircularProgressIndicator(),
+                    Icon(Icons.error_outline, size: 64, color: Colors.red),
                     SizedBox(height: 16),
                     Text(
-                      'Loading payment page...',
-                      style: TextStyle(fontSize: 16),
+                      'Failed to Load Payment Page',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: 8),
-                    Text(
-                      'Please wait',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 32),
+                      child: Text(
+                        _errorMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey[600]),
+                      ),
+                    ),
+                    SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        setState(() {
+                          _hasError = false;
+                          _errorMessage = '';
+                        });
+                        _controller.loadRequest(Uri.parse(widget.paymentUrl));
+                      },
+                      icon: Icon(Icons.refresh),
+                      label: Text('Retry'),
                     ),
                   ],
                 ),
               ),
-            ),
-        ],
-      ),
-    );
-  }
+
+            // Loading indicator
+            if (_isLoading && !_hasError)
+              Container(
+                color: Colors.white,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      CircularProgressIndicator(),
+                      SizedBox(height: 16),
+                      Text(
+                        'Loading payment page...',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Please wait',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
 
   @override
   void dispose() {

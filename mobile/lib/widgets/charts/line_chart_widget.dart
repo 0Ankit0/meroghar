@@ -6,14 +6,13 @@ import '../../models/analytics.dart';
 /// Line chart widget for displaying rent collection trends
 /// Implements T104 from tasks.md
 class RentTrendsLineChart extends StatelessWidget {
-  final List<RentCollectionTrend> trends;
-  final double height;
-
   const RentTrendsLineChart({
     Key? key,
     required this.trends,
     this.height = 300,
   }) : super(key: key);
+  final List<RentCollectionTrend> trends;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -36,12 +35,10 @@ class RentTrendsLineChart extends StatelessWidget {
               show: true,
               drawVerticalLine: true,
               horizontalInterval: _calculateInterval(trends),
-              getDrawingHorizontalLine: (value) {
-                return FlLine(
-                  color: Colors.grey.withOpacity(0.2),
-                  strokeWidth: 1,
-                );
-              },
+              getDrawingHorizontalLine: (value) => FlLine(
+                color: Colors.grey.withOpacity(0.2),
+                strokeWidth: 1,
+              ),
             ),
             titlesData: FlTitlesData(
               show: true,
@@ -80,15 +77,13 @@ class RentTrendsLineChart extends StatelessWidget {
                   showTitles: true,
                   reservedSize: 50,
                   interval: _calculateInterval(trends),
-                  getTitlesWidget: (value, meta) {
-                    return Text(
-                      _formatCurrency(value),
-                      style: const TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  },
+                  getTitlesWidget: (value, meta) => Text(
+                    _formatCurrency(value),
+                    style: const TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -103,12 +98,14 @@ class RentTrendsLineChart extends StatelessWidget {
             lineBarsData: [
               // Total collected line
               LineChartBarData(
-                spots: trends.asMap().entries.map((entry) {
-                  return FlSpot(
-                    entry.key.toDouble(),
-                    entry.value.totalCollected,
-                  );
-                }).toList(),
+                spots: trends
+                    .asMap()
+                    .entries
+                    .map((entry) => FlSpot(
+                          entry.key.toDouble(),
+                          entry.value.totalCollected,
+                        ))
+                    .toList(),
                 isCurved: true,
                 color: Colors.blue,
                 barWidth: 3,
@@ -121,12 +118,14 @@ class RentTrendsLineChart extends StatelessWidget {
               ),
               // Completed amount line
               LineChartBarData(
-                spots: trends.asMap().entries.map((entry) {
-                  return FlSpot(
-                    entry.key.toDouble(),
-                    entry.value.completedAmount,
-                  );
-                }).toList(),
+                spots: trends
+                    .asMap()
+                    .entries
+                    .map((entry) => FlSpot(
+                          entry.key.toDouble(),
+                          entry.value.completedAmount,
+                        ))
+                    .toList(),
                 isCurved: true,
                 color: Colors.green,
                 barWidth: 2,
@@ -135,12 +134,14 @@ class RentTrendsLineChart extends StatelessWidget {
               ),
               // Pending amount line
               LineChartBarData(
-                spots: trends.asMap().entries.map((entry) {
-                  return FlSpot(
-                    entry.key.toDouble(),
-                    entry.value.pendingAmount,
-                  );
-                }).toList(),
+                spots: trends
+                    .asMap()
+                    .entries
+                    .map((entry) => FlSpot(
+                          entry.key.toDouble(),
+                          entry.value.pendingAmount,
+                        ))
+                    .toList(),
                 isCurved: true,
                 color: Colors.orange,
                 barWidth: 2,
@@ -151,37 +152,36 @@ class RentTrendsLineChart extends StatelessWidget {
             lineTouchData: LineTouchData(
               enabled: true,
               touchTooltipData: LineTouchTooltipData(
-                getTooltipItems: (touchedSpots) {
-                  return touchedSpots.map((LineBarSpot touchedSpot) {
-                    final index = touchedSpot.x.toInt();
-                    if (index < 0 || index >= trends.length) {
-                      return null;
-                    }
-                    final trend = trends[index];
-                    final month = DateFormat('MMM yyyy').format(trend.month);
+                getTooltipItems: (touchedSpots) =>
+                    touchedSpots.map((LineBarSpot touchedSpot) {
+                  final index = touchedSpot.x.toInt();
+                  if (index < 0 || index >= trends.length) {
+                    return null;
+                  }
+                  final trend = trends[index];
+                  final month = DateFormat('MMM yyyy').format(trend.month);
 
-                    String label;
-                    Color color;
-                    if (touchedSpot.barIndex == 0) {
-                      label = 'Total: ${_formatCurrency(touchedSpot.y)}';
-                      color = Colors.blue;
-                    } else if (touchedSpot.barIndex == 1) {
-                      label = 'Completed: ${_formatCurrency(touchedSpot.y)}';
-                      color = Colors.green;
-                    } else {
-                      label = 'Pending: ${_formatCurrency(touchedSpot.y)}';
-                      color = Colors.orange;
-                    }
+                  String label;
+                  Color color;
+                  if (touchedSpot.barIndex == 0) {
+                    label = 'Total: ${_formatCurrency(touchedSpot.y)}';
+                    color = Colors.blue;
+                  } else if (touchedSpot.barIndex == 1) {
+                    label = 'Completed: ${_formatCurrency(touchedSpot.y)}';
+                    color = Colors.green;
+                  } else {
+                    label = 'Pending: ${_formatCurrency(touchedSpot.y)}';
+                    color = Colors.orange;
+                  }
 
-                    return LineTooltipItem(
-                      '$month\n$label',
-                      TextStyle(
-                        color: color,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  }).toList();
-                },
+                  return LineTooltipItem(
+                    '$month\n$label',
+                    TextStyle(
+                      color: color,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ),

@@ -10,12 +10,11 @@ import '../../models/tenant.dart';
 import '../../services/api_service.dart';
 
 class RentOverrideScreen extends StatefulWidget {
-  final Tenant tenant;
-
   const RentOverrideScreen({
     super.key,
     required this.tenant,
   });
+  final Tenant tenant;
 
   @override
   State<RentOverrideScreen> createState() => _RentOverrideScreenState();
@@ -115,248 +114,246 @@ class _RentOverrideScreenState extends State<RentOverrideScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Override Rent'),
-        elevation: 0,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Warning Card
-              Card(
-                color: Colors.orange.shade50,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.warning_amber_rounded,
-                        color: Colors.orange.shade700,
-                        size: 32,
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Manual Override',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                                color: Colors.orange.shade900,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              'This will manually change the tenant\'s rent amount and override any automatic increment policy. Use this carefully.',
-                              style: TextStyle(
-                                color: Colors.orange.shade900,
-                                fontSize: 14,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Current Rent Info
-              Text(
-                'Current Information',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 12),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    children: [
-                      _buildInfoRow(
-                        'Current Monthly Rent',
-                        '\$${widget.tenant.monthlyRent.toStringAsFixed(2)}',
-                        isHighlighted: true,
-                      ),
-                      const SizedBox(height: 8),
-                      _buildInfoRow(
-                        'Move-in Date',
-                        _formatDate(widget.tenant.moveInDate),
-                      ),
-                      const SizedBox(height: 8),
-                      _buildInfoRow(
-                        'Months Stayed',
-                        '${widget.tenant.monthsStayed} months',
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // New Rent Input
-              Text(
-                'New Rent Amount',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _newRentController,
-                decoration: const InputDecoration(
-                  labelText: 'New Monthly Rent',
-                  hintText: 'Enter new rent amount',
-                  prefixText: '\$ ',
-                  border: OutlineInputBorder(),
-                  helperText: 'Enter the new monthly rent for this tenant',
-                ),
-                keyboardType:
-                    const TextInputType.numberWithOptions(decimal: true),
-                inputFormatters: [
-                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-                ],
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter new rent amount';
-                  }
-                  final numValue = double.tryParse(value);
-                  if (numValue == null || numValue <= 0) {
-                    return 'Please enter a valid positive amount';
-                  }
-                  if (numValue == widget.tenant.monthlyRent) {
-                    return 'New rent must be different from current rent';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // Reason Input
-              Text(
-                'Reason for Override',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              const SizedBox(height: 12),
-              TextFormField(
-                controller: _reasonController,
-                decoration: const InputDecoration(
-                  labelText: 'Reason',
-                  hintText:
-                      'e.g., Requested by tenant, Market adjustment, etc.',
-                  border: OutlineInputBorder(),
-                  helperText: 'Explain why the rent is being changed',
-                ),
-                maxLines: 3,
-                maxLength: 200,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Please provide a reason for the override';
-                  }
-                  if (value.trim().length < 10) {
-                    return 'Please provide a more detailed reason (at least 10 characters)';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 24),
-
-              // Comparison Preview
-              if (_newRentController.text.isNotEmpty)
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Override Rent'),
+          elevation: 0,
+        ),
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Warning Card
                 Card(
-                  color: Colors.blue.shade50,
+                  color: Colors.orange.shade50,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: Column(
+                    child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.compare_arrows,
-                              color: Colors.blue.shade700,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Comparison',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blue.shade900,
-                              ),
-                            ),
-                          ],
+                        Icon(
+                          Icons.warning_amber_rounded,
+                          color: Colors.orange.shade700,
+                          size: 32,
                         ),
-                        const SizedBox(height: 12),
-                        _buildComparisonRow(),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Manual Override',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.orange.shade900,
+                                ),
+                              ),
+                              const SizedBox(height: 4),
+                              Text(
+                                'This will manually change the tenant\'s rent amount and override any automatic increment policy. Use this carefully.',
+                                style: TextStyle(
+                                  color: Colors.orange.shade900,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 24),
 
-              // Submit Button
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: _isLoading ? null : _handleSubmit,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    backgroundColor: Colors.orange,
-                  ),
-                  child: _isLoading
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text(
-                          'Override Rent',
-                          style: TextStyle(fontSize: 16),
-                        ),
+                // Current Rent Info
+                Text(
+                  'Current Information',
+                  style: Theme.of(context).textTheme.titleLarge,
                 ),
-              ),
-            ],
+                const SizedBox(height: 12),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        _buildInfoRow(
+                          'Current Monthly Rent',
+                          '\$${widget.tenant.monthlyRent.toStringAsFixed(2)}',
+                          isHighlighted: true,
+                        ),
+                        const SizedBox(height: 8),
+                        _buildInfoRow(
+                          'Move-in Date',
+                          _formatDate(widget.tenant.moveInDate),
+                        ),
+                        const SizedBox(height: 8),
+                        _buildInfoRow(
+                          'Months Stayed',
+                          '${widget.tenant.monthsStayed} months',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                // New Rent Input
+                Text(
+                  'New Rent Amount',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _newRentController,
+                  decoration: const InputDecoration(
+                    labelText: 'New Monthly Rent',
+                    hintText: 'Enter new rent amount',
+                    prefixText: '\$ ',
+                    border: OutlineInputBorder(),
+                    helperText: 'Enter the new monthly rent for this tenant',
+                  ),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(
+                        RegExp(r'^\d+\.?\d{0,2}')),
+                  ],
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter new rent amount';
+                    }
+                    final numValue = double.tryParse(value);
+                    if (numValue == null || numValue <= 0) {
+                      return 'Please enter a valid positive amount';
+                    }
+                    if (numValue == widget.tenant.monthlyRent) {
+                      return 'New rent must be different from current rent';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Reason Input
+                Text(
+                  'Reason for Override',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _reasonController,
+                  decoration: const InputDecoration(
+                    labelText: 'Reason',
+                    hintText:
+                        'e.g., Requested by tenant, Market adjustment, etc.',
+                    border: OutlineInputBorder(),
+                    helperText: 'Explain why the rent is being changed',
+                  ),
+                  maxLines: 3,
+                  maxLength: 200,
+                  validator: (value) {
+                    if (value == null || value.trim().isEmpty) {
+                      return 'Please provide a reason for the override';
+                    }
+                    if (value.trim().length < 10) {
+                      return 'Please provide a more detailed reason (at least 10 characters)';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 24),
+
+                // Comparison Preview
+                if (_newRentController.text.isNotEmpty)
+                  Card(
+                    color: Colors.blue.shade50,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.compare_arrows,
+                                color: Colors.blue.shade700,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Comparison',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.blue.shade900,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          _buildComparisonRow(),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 24),
+
+                // Submit Button
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: _isLoading ? null : _handleSubmit,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      backgroundColor: Colors.orange,
+                    ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text(
+                            'Override Rent',
+                            style: TextStyle(fontSize: 16),
+                          ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
-      ),
-    );
-  }
+      );
 
   Widget _buildInfoRow(String label, String value,
-      {bool isHighlighted = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          label,
-          style: TextStyle(
-            color: isHighlighted ? Colors.black : Colors.grey,
-            fontSize: 14,
-            fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
+          {bool isHighlighted = false}) =>
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: TextStyle(
+              color: isHighlighted ? Colors.black : Colors.grey,
+              fontSize: 14,
+              fontWeight: isHighlighted ? FontWeight.bold : FontWeight.normal,
+            ),
           ),
-        ),
-        Text(
-          value,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: isHighlighted ? 18 : 14,
-            color: isHighlighted ? Colors.blue : Colors.black,
+          Text(
+            value,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: isHighlighted ? 18 : 14,
+              color: isHighlighted ? Colors.blue : Colors.black,
+            ),
           ),
-        ),
-      ],
-    );
-  }
+        ],
+      );
 
   Widget _buildComparisonRow() {
     final newRent = double.tryParse(_newRentController.text);
@@ -436,7 +433,5 @@ class _RentOverrideScreenState extends State<RentOverrideScreen> {
     );
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  String _formatDate(DateTime date) => '${date.day}/${date.month}/${date.year}';
 }

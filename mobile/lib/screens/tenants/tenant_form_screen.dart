@@ -9,14 +9,13 @@ import 'package:intl/intl.dart';
 import '../../services/api_service.dart';
 
 class TenantFormScreen extends StatefulWidget {
-  final String userId;
-  final String propertyId;
-
   const TenantFormScreen({
     super.key,
     required this.userId,
     required this.propertyId,
   });
+  final String userId;
+  final String propertyId;
 
   @override
   State<TenantFormScreen> createState() => _TenantFormScreenState();
@@ -118,123 +117,121 @@ class _TenantFormScreenState extends State<TenantFormScreen> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Create Tenant Record'),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Text(
-                      'Tenancy Details',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    Card(
-                      child: ListTile(
-                        leading: const Icon(Icons.calendar_today),
-                        title: const Text('Move-In Date'),
-                        subtitle: Text(
-                            DateFormat('MMM dd, yyyy').format(_moveInDate)),
-                        trailing: const Icon(Icons.edit),
-                        onTap: _selectMoveInDate,
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Create Tenant Record'),
+        ),
+        body: _isLoading
+            ? const Center(child: CircularProgressIndicator())
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Text(
+                        'Tenancy Details',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      'Financial Details',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _monthlyRentController,
-                      decoration: const InputDecoration(
-                        labelText: 'Monthly Rent *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.payments),
-                        suffixText: 'per month',
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: _validateAmount,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _securityDepositController,
-                      decoration: const InputDecoration(
-                        labelText: 'Security Deposit *',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.lock),
-                        suffixText: 'one-time',
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: _validateAmount,
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _electricityRateController,
-                      decoration: const InputDecoration(
-                        labelText: 'Electricity Rate *',
-                        hintText: 'Per unit charge',
-                        border: OutlineInputBorder(),
-                        prefixIcon: Icon(Icons.electric_bolt),
-                        suffixText: 'per unit',
-                      ),
-                      keyboardType:
-                          const TextInputType.numberWithOptions(decimal: true),
-                      validator: _validateAmount,
-                    ),
-                    const SizedBox(height: 24),
-                    Card(
-                      color: Colors.blue.shade50,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(Icons.info_outline,
-                                    color: Colors.blue.shade700),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'Note',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.blue.shade700,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 8),
-                            const Text(
-                              'Make sure the tenant user account is created before creating this tenancy record.',
-                              style: TextStyle(fontSize: 13),
-                            ),
-                          ],
+                      const SizedBox(height: 16),
+                      Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.calendar_today),
+                          title: const Text('Move-In Date'),
+                          subtitle: Text(
+                              DateFormat('MMM dd, yyyy').format(_moveInDate)),
+                          trailing: const Icon(Icons.edit),
+                          onTap: _selectMoveInDate,
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 24),
-                    ElevatedButton(
-                      onPressed: _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      const SizedBox(height: 24),
+                      Text(
+                        'Financial Details',
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
-                      child: const Text('Create Tenant Record'),
-                    ),
-                  ],
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _monthlyRentController,
+                        decoration: const InputDecoration(
+                          labelText: 'Monthly Rent *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.payments),
+                          suffixText: 'per month',
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        validator: _validateAmount,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _securityDepositController,
+                        decoration: const InputDecoration(
+                          labelText: 'Security Deposit *',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.lock),
+                          suffixText: 'one-time',
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        validator: _validateAmount,
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _electricityRateController,
+                        decoration: const InputDecoration(
+                          labelText: 'Electricity Rate *',
+                          hintText: 'Per unit charge',
+                          border: OutlineInputBorder(),
+                          prefixIcon: Icon(Icons.electric_bolt),
+                          suffixText: 'per unit',
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        validator: _validateAmount,
+                      ),
+                      const SizedBox(height: 24),
+                      Card(
+                        color: Colors.blue.shade50,
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(Icons.info_outline,
+                                      color: Colors.blue.shade700),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Note',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.blue.shade700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Make sure the tenant user account is created before creating this tenancy record.',
+                                style: TextStyle(fontSize: 13),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _handleSubmit,
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: const Text('Create Tenant Record'),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-            ),
-    );
-  }
+      );
 }

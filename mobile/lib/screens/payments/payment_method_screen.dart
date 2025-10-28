@@ -9,16 +9,15 @@ import 'package:flutter/material.dart';
 /// - eSewa (backup gateway)
 /// - IME Pay (backup gateway)
 class PaymentMethodScreen extends StatefulWidget {
-  final double amount;
-  final String tenantId;
-  final String paymentType;
-
   const PaymentMethodScreen({
     Key? key,
     required this.amount,
     required this.tenantId,
     required this.paymentType,
   }) : super(key: key);
+  final double amount;
+  final String tenantId;
+  final String paymentType;
 
   @override
   State<PaymentMethodScreen> createState() => _PaymentMethodScreenState();
@@ -56,117 +55,115 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
   ];
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select Payment Method'),
-        centerTitle: true,
-      ),
-      body: Column(
-        children: [
-          // Amount display
-          Container(
-            width: double.infinity,
-            padding: EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: Theme.of(context).primaryColor.withOpacity(0.1),
-              border: Border(
-                bottom: BorderSide(
-                  color: Colors.grey[300]!,
-                  width: 1,
+  Widget build(BuildContext context) => Scaffold(
+        appBar: AppBar(
+          title: Text('Select Payment Method'),
+          centerTitle: true,
+        ),
+        body: Column(
+          children: [
+            // Amount display
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Theme.of(context).primaryColor.withOpacity(0.1),
+                border: Border(
+                  bottom: BorderSide(
+                    color: Colors.grey[300]!,
+                    width: 1,
+                  ),
                 ),
               ),
+              child: Column(
+                children: [
+                  Text(
+                    'Amount to Pay',
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Rs. ${widget.amount.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).primaryColor,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    widget.paymentType,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[500],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              children: [
-                Text(
-                  'Amount to Pay',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.grey[600],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Text(
-                  'Rs. ${widget.amount.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).primaryColor,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  widget.paymentType,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[500],
-                  ),
-                ),
-              ],
-            ),
-          ),
 
-          // Payment methods list
-          Expanded(
-            child: ListView.builder(
+            // Payment methods list
+            Expanded(
+              child: ListView.builder(
+                padding: EdgeInsets.all(16),
+                itemCount: _paymentMethods.length,
+                itemBuilder: (context, index) {
+                  final method = _paymentMethods[index];
+                  return _buildPaymentMethodCard(method);
+                },
+              ),
+            ),
+
+            // Proceed button
+            Container(
               padding: EdgeInsets.all(16),
-              itemCount: _paymentMethods.length,
-              itemBuilder: (context, index) {
-                final method = _paymentMethods[index];
-                return _buildPaymentMethodCard(method);
-              },
-            ),
-          ),
-
-          // Proceed button
-          Container(
-            padding: EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  offset: Offset(0, -2),
-                  blurRadius: 4,
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: SizedBox(
-                width: double.infinity,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: _selectedMethod != null && !_isProcessing
-                      ? _proceedToPayment
-                      : null,
-                  child: _isProcessing
-                      ? SizedBox(
-                          height: 24,
-                          width: 24,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    offset: Offset(0, -2),
+                    blurRadius: 4,
+                  ),
+                ],
+              ),
+              child: SafeArea(
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 50,
+                  child: ElevatedButton(
+                    onPressed: _selectedMethod != null && !_isProcessing
+                        ? _proceedToPayment
+                        : null,
+                    child: _isProcessing
+                        ? SizedBox(
+                            height: 24,
+                            width: 24,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
+                          )
+                        : Text(
+                            'Proceed to Payment',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold),
                           ),
-                        )
-                      : Text(
-                          'Proceed to Payment',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
+          ],
+        ),
+      );
 
   Widget _buildPaymentMethodCard(PaymentMethodOption method) {
-    final bool isSelected = _selectedMethod == method.id;
-    final bool canSelect = method.isAvailable && !_isProcessing;
+    final isSelected = _selectedMethod == method.id;
+    final canSelect = method.isAvailable && !_isProcessing;
 
     return Card(
       margin: EdgeInsets.only(bottom: 12),
@@ -326,13 +323,6 @@ class _PaymentMethodScreenState extends State<PaymentMethodScreen> {
 
 /// Payment method option model
 class PaymentMethodOption {
-  final String id;
-  final String name;
-  final String description;
-  final String logoAsset;
-  final bool isAvailable;
-  final bool isRecommended;
-
   PaymentMethodOption({
     required this.id,
     required this.name,
@@ -341,4 +331,10 @@ class PaymentMethodOption {
     required this.isAvailable,
     required this.isRecommended,
   });
+  final String id;
+  final String name;
+  final String description;
+  final String logoAsset;
+  final bool isAvailable;
+  final bool isRecommended;
 }

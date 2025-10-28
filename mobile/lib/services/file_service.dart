@@ -19,11 +19,10 @@ import 'api_service.dart';
 /// - Track download progress
 /// - Handle different file types
 class FileService {
-  static final FileService instance = FileService._internal();
-
   factory FileService() => instance;
 
   FileService._internal();
+  static final FileService instance = FileService._internal();
 
   final ApiService _apiService = ApiService.instance;
 
@@ -323,17 +322,16 @@ class FileService {
 
 /// Information about a downloaded file.
 class FileInfo {
-  final String path;
-  final String name;
-  final int size;
-  final DateTime modifiedDate;
-
   FileInfo({
     required this.path,
     required this.name,
     required this.size,
     required this.modifiedDate,
   });
+  final String path;
+  final String name;
+  final int size;
+  final DateTime modifiedDate;
 
   String get formattedSize => FileService.formatFileSize(size);
   String get extension => FileService.getFileExtension(name);

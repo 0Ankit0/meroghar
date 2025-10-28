@@ -17,13 +17,12 @@ import '../services/database_service.dart';
 /// - Retry failed operations
 /// - Clear completed operations
 class OfflineQueueService {
-  static final OfflineQueueService instance = OfflineQueueService._internal();
-
-  final DatabaseService _dbService = DatabaseService.instance;
-
   factory OfflineQueueService() => instance;
 
   OfflineQueueService._internal();
+  static final OfflineQueueService instance = OfflineQueueService._internal();
+
+  final DatabaseService _dbService = DatabaseService.instance;
 
   /// Add operation to the queue.
   Future<int> queueOperation({
