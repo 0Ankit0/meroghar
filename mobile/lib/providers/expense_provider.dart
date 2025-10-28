@@ -15,7 +15,6 @@ import '../services/database_service.dart';
 
 /// Provider for expense-related operations and state management
 class ExpenseProvider with ChangeNotifier {
-
   ExpenseProvider({
     required ApiService apiService,
     required DatabaseService databaseService,
@@ -37,13 +36,17 @@ class ExpenseProvider with ChangeNotifier {
   bool get hasError => _error != null;
 
   /// Get expenses filtered by various criteria
-  List<Expense> getExpensesByProperty(String propertyId) => _expenses.where((e) => e.propertyId == propertyId).toList();
+  List<Expense> getExpensesByProperty(String propertyId) =>
+      _expenses.where((e) => e.propertyId == propertyId).toList();
 
-  List<Expense> getExpensesByCategory(ExpenseCategory category) => _expenses.where((e) => e.category == category).toList();
+  List<Expense> getExpensesByCategory(ExpenseCategory category) =>
+      _expenses.where((e) => e.category == category).toList();
 
-  List<Expense> getExpensesByStatus(ExpenseStatus status) => _expenses.where((e) => e.status == status).toList();
+  List<Expense> getExpensesByStatus(ExpenseStatus status) =>
+      _expenses.where((e) => e.status == status).toList();
 
-  List<Expense> getPendingExpenses() => _expenses.where((e) => e.status == ExpenseStatus.pending).toList();
+  List<Expense> getPendingExpenses() =>
+      _expenses.where((e) => e.status == ExpenseStatus.pending).toList();
 
   /// Record a new expense
   Future<Expense?> recordExpense({
@@ -337,7 +340,7 @@ class ExpenseProvider with ChangeNotifier {
       final db = await _databaseService.database;
 
       var query = 'SELECT * FROM expenses';
-      final var arguments = <dynamic>[];
+      final arguments = <dynamic>[];
 
       if (propertyId != null) {
         query += ' WHERE property_id = ?';

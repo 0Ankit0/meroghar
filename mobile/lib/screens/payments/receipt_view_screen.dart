@@ -83,6 +83,10 @@ class _ReceiptViewScreenState extends State<ReceiptViewScreen> {
         directory = await getDownloadsDirectory();
       }
 
+      if (directory == null) {
+        throw Exception('Could not access storage directory');
+      }
+
       // Create filename with timestamp
       final timestamp = DateTime.now().millisecondsSinceEpoch;
       final fileName = 'receipt_${widget.paymentId}_$timestamp.pdf';

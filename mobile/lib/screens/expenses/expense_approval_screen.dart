@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 
 import '../../models/expense.dart';
 import '../../providers/expense_provider.dart';
+import '../../widgets/receipt_viewer_dialog.dart';
 
 class ExpenseApprovalScreen extends StatefulWidget {
   const ExpenseApprovalScreen({

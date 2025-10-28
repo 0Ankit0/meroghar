@@ -3,7 +3,9 @@
 library;
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
+import '../../services/api_service.dart';
 import '../../services/sync_service.dart';
 
 /// Screen for resolving sync conflicts.
@@ -312,11 +314,11 @@ class _ConflictResolutionScreenState extends State<ConflictResolutionScreen> {
       try {
         final apiService = context.read<ApiService>();
         await apiService.post('/api/v1/sync/resolve-conflict', data: {
-          'conflict_id': conflict.id,
+          'conflict_id': conflictDetail['id'],
           'resolution': resolution,
           'selected_version': resolution == 'local'
-              ? conflict.localVersion
-              : conflict.serverVersion,
+              ? conflictDetail['local_version']
+              : conflictDetail['server_version'],
         });
 
         if (!mounted) return;

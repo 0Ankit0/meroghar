@@ -49,6 +49,7 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
   DateTime? _customStartDate;
   DateTime? _customEndDate;
   bool _isLoading = false;
+  String? _selectedPropertyId; // Optional property filter
 
   @override
   Widget build(BuildContext context) {
@@ -456,18 +457,47 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
     });
 
     try {
-      try {
       // Calculate date range based on period
       final dateRange = _calculateDateRange();
 
+      // Map report type to API endpoint
+      String? endpoint;
+      switch (_selectedReportType) {
+        case FinancialReportType.profitLoss:
+          endpoint = '/api/v1/reports/financial/pnl';
+          break;
+        case FinancialReportType.cashFlow:
+          endpoint = '/api/v1/reports/financial/cashflow';
+          break;
+        case FinancialReportType.balanceSheet:
+          // Balance sheet endpoint not yet implemented
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Balance sheet report is coming soon'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          return;
+      }
+
+      // Build query parameters
+      final queryParams = {
+        'start_date': dateRange.start.toIso8601String().split('T')[0],
+        'end_date': dateRange.end.toIso8601String().split('T')[0],
+      };
+
+      // Add property_ids filter if a property is selected
+      if (_selectedPropertyId != null) {
+        queryParams['property_ids'] = _selectedPropertyId!;
+      }
+
       // Call API to generate report
       final apiService = context.read<ApiService>();
-      final response = await apiService.post('/api/v1/reports/expenses', data: {
-        'report_type': _selectedReportType,
-        'start_date': dateRange.start.toIso8601String(),
-        'end_date': dateRange.end.toIso8601String(),
-        'property_id': _selectedPropertyId,
-      });
+      final response = await apiService.get(
+        endpoint,
+        queryParameters: queryParams,
+      );
 
       if (!mounted) return;
 
@@ -484,13 +514,12 @@ class _FinancialReportScreenState extends State<FinancialReportScreen> {
         Navigator.of(context).push(MaterialPageRoute(
           builder: (_) => ReportViewerScreen(
             reportData: response.data,
-            reportTitle: _selectedReportType.replaceAll('_', ' ').toUpperCase(),
+            reportTitle: _selectedReportType.title,
           ),
         ));
       } else {
         throw Exception('Failed to generate report: ${response.statusCode}');
       }
-    } catch (e) {
     } catch (e) {
       if (!mounted) return;
 
