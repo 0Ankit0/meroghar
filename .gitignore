@@ -22,6 +22,9 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+*.pyc
+*.pyo
+*.pyd
 *.manifest
 *.spec
 pip-log.txt
@@ -114,6 +117,7 @@ $RECYCLE.BIN/
 .pub-cache/
 .pub/
 build/
+**/build/
 flutter_*.png
 linked_*.ds
 unlinked.ds
@@ -122,6 +126,10 @@ unlinked_spec.ds
 coverage/
 *.jks
 key.properties
+.flutter-plugins-dependencies
+*.g.dart
+*.freezed.dart
+*.mocks.dart
 
 # iOS
 **/ios/**/*.mode1v3
@@ -151,6 +159,10 @@ key.properties
 **/ios/Flutter/flutter_export_environment.sh
 **/ios/ServiceDefinitions.json
 **/ios/Runner/GeneratedPluginRegistrant.*
+**/ios/build/
+*.ipa
+*.dSYM.zip
+*.dSYM
 
 # Android
 **/android/**/gradle-wrapper.jar
@@ -161,13 +173,29 @@ key.properties
 **/android/local.properties
 **/android/**/GeneratedPluginRegistrant.java
 **/android/key.properties
+**/android/**/build/
+**/android/app/build/
 *.jks
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
 
 # Web
 **/web/flutter_service_worker.js
 **/web/index.html
 **/web/main.dart.js
 **/web/main.dart.js.map
+**/web/build/
+
+# macOS
+**/macos/Flutter/ephemeral/
+**/macos/Flutter/Flutter-Generated.xcconfig
+**/macos/Flutter/GeneratedPluginRegistrant.swift
+**/macos/build/
+**/macos/**/xcuserdata/
+**/macos/**/DerivedData/
 
 # Docker
 *.env.local

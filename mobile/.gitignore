@@ -32,6 +32,9 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+*.g.dart
+*.freezed.dart
+*.mocks.dart
 
 # Symbolication related
 app.*.symbols
@@ -43,3 +46,16 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+/android/app/build
+/android/.gradle
+/android/build
+
+# macOS
+/macos/Flutter/ephemeral/
+/macos/Flutter/Flutter-Generated.xcconfig
+/macos/Flutter/GeneratedPluginRegistrant.swift
+/macos/Pods/
+/macos/build/
+/macos/**/xcuserdata/
+/macos/**/DerivedData/
+/macos/.symlinks/
