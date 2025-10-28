@@ -1,4 +1,4 @@
-version: "3.8"
+name: meroghar
 
 services:
   postgres:
@@ -7,7 +7,7 @@ services:
     environment:
       POSTGRES_USER: meroghar
       POSTGRES_PASSWORD: meroghar_dev_password
-      POSTGRES_DB: meroghar_dev
+      POSTGRES_DB: meroghar
     ports:
       - "5432:5432"
     volumes:
@@ -41,9 +41,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: meroghar_backend
     container_name: meroghar_backend
     environment:
-      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar_dev
+      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
       - ENVIRONMENT=development
@@ -66,9 +67,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: meroghar_celery_worker
     container_name: meroghar_celery_worker
     environment:
-      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar_dev
+      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
       - ENVIRONMENT=development
@@ -87,9 +89,10 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
+    image: meroghar_celery_beat
     container_name: meroghar_celery_beat
     environment:
-      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar_dev
+      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
       - ENVIRONMENT=development

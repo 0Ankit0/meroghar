@@ -6,11 +6,21 @@ FROM python:3.11-slim as builder
 
 WORKDIR /app
 
+# Set non-interactive frontend for apt
+ENV DEBIAN_FRONTEND=noninteractive
+
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     postgresql-client \
     libpq-dev \
+    libmagic-dev \
+    libjpeg-dev \
+    zlib1g-dev \
+    libfreetype6-dev \
+    liblcms2-dev \
+    libtiff-dev \
+    libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements and install Python dependencies
@@ -21,6 +31,9 @@ RUN pip install --no-cache-dir --user -r requirements.txt
 FROM python:3.11-slim
 
 WORKDIR /app
+
+# Set non-interactive frontend for apt
+ENV DEBIAN_FRONTEND=noninteractive
 
 # Install runtime dependencies only
 RUN apt-get update && apt-get install -y --no-install-recommends \

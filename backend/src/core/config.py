@@ -36,7 +36,7 @@ class Settings(BaseSettings):
 
     # Database
     database_url: str = Field(
-        default="postgresql://meroghar:meroghar_dev_password@localhost:5432/meroghar_dev",
+        default="postgresql://meroghar:meroghar_dev_password@localhost:5432/meroghar",
         alias="DATABASE_URL",
     )
     db_echo: bool = Field(default=False, alias="DB_ECHO")
