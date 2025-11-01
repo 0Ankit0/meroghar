@@ -4,8 +4,8 @@ library;
 
 import 'package:flutter/material.dart';
 
-import '../services/sync_service.dart';
 import '../services/offline_queue_service.dart';
+import '../services/sync_service.dart';
 
 /// Widget that displays the current sync status.
 ///

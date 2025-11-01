@@ -64,15 +64,12 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                   isExpanded: true,
                   items: [
                     const DropdownMenuItem(
-                      value: null,
                       child: Text('All Types'),
                     ),
-                    ...PaymentType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }),
+                    ...PaymentType.values.map((type) => DropdownMenuItem(
+                          value: type,
+                          child: Text(type.displayName),
+                        )),
                   ],
                   onChanged: (value) {
                     setState(() {
@@ -87,15 +84,12 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                   isExpanded: true,
                   items: [
                     const DropdownMenuItem(
-                      value: null,
                       child: Text('All Statuses'),
                     ),
-                    ...PaymentStatus.values.map((status) {
-                      return DropdownMenuItem(
-                        value: status,
-                        child: Text(status.displayName),
-                      );
-                    }),
+                    ...PaymentStatus.values.map((status) => DropdownMenuItem(
+                          value: status,
+                          child: Text(status.displayName),
+                        )),
                   ],
                   onChanged: (value) {
                     setState(() {

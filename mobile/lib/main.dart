@@ -9,7 +9,12 @@ import 'package:flutter_app_badge/flutter_app_badge.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'providers/auth_provider.dart';
 import 'providers/language_provider.dart';
+import 'screens/auth/login_screen.dart';
+import 'screens/home_screen.dart';
+import 'services/api_service.dart';
+import 'services/secure_storage_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +25,22 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
+        Provider(create: (_) => ApiService()),
+        Provider(create: (_) => SecureStorageService()),
         ChangeNotifierProvider(create: (_) => LanguageProvider()),
+        ChangeNotifierProxyProvider2<ApiService, SecureStorageService,
+            AuthProvider>(
+          create: (context) => AuthProvider(
+            apiService: context.read<ApiService>(),
+            storageService: context.read<SecureStorageService>(),
+          ),
+          update: (context, apiService, storageService, previous) =>
+              previous ??
+              AuthProvider(
+                apiService: apiService,
+                storageService: storageService,
+              ),
+        ),
       ],
       child: const MyApp(),
     ),
@@ -92,162 +112,12 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
           ),
 
-          home: const MyHomePage(title: 'MeroGhar - Rental Management'),
+          // Routes
+          initialRoute: '/login',
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/home': (context) => const HomeScreen(),
+          },
         ),
       );
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _unreadNotifications = 0;
-
-  void _incrementNotifications() {
-    setState(() {
-      _unreadNotifications++;
-      // Update app icon badge
-      updateNotificationBadge(_unreadNotifications);
-    });
-  }
-
-  void _clearNotifications() {
-    setState(() {
-      _unreadNotifications = 0;
-      // Clear app icon badge
-      clearNotificationBadge();
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(
-          backgroundColor: Theme.of(context).colorScheme.inversePrimary,
-          title: Text(widget.title),
-          actions: [
-            // Notification badge indicator
-            Stack(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.notifications),
-                  onPressed: _clearNotifications,
-                ),
-                if (_unreadNotifications > 0)
-                  Positioned(
-                    right: 8,
-                    top: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(2),
-                      decoration: BoxDecoration(
-                        color: Colors.red,
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      constraints: const BoxConstraints(
-                        minWidth: 18,
-                        minHeight: 18,
-                      ),
-                      child: Text(
-                        _unreadNotifications > 99
-                            ? '99+'
-                            : '$_unreadNotifications',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ],
-        ),
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(
-                Icons.notifications_active,
-                size: 80,
-                color: Colors.blue,
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Notification Badge Demo',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'Unread Notifications: $_unreadNotifications',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 32),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  ElevatedButton.icon(
-                    onPressed: _incrementNotifications,
-                    icon: const Icon(Icons.add),
-                    label: const Text('Add Notification'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  ElevatedButton.icon(
-                    onPressed: _clearNotifications,
-                    icon: const Icon(Icons.clear_all),
-                    label: const Text('Clear All'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 16,
-                      ),
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Container(
-                padding: const EdgeInsets.all(16),
-                margin: const EdgeInsets.symmetric(horizontal: 32),
-                decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: const Column(
-                  children: [
-                    Icon(Icons.info_outline, color: Colors.blue),
-                    SizedBox(height: 8),
-                    Text(
-                      'The notification count is displayed both in-app and on the app icon badge.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-
-  @override
-  void dispose() {
-    // Clear badge when app is disposed
-    clearNotificationBadge();
-    super.dispose();
-  }
 }

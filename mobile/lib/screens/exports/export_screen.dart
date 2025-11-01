@@ -121,7 +121,7 @@ class _ExportScreenState extends State<ExportScreen>
 
   Widget _buildExportTab() => Consumer<ExportProvider>(
         builder: (context, provider, child) => SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -129,7 +129,7 @@ class _ExportScreenState extends State<ExportScreen>
               Card(
                 color: Colors.blue.shade50,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
                       Icon(
@@ -160,7 +160,7 @@ class _ExportScreenState extends State<ExportScreen>
               const SizedBox(height: 12),
               Card(
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Column(
                     children: [
                       // Start Date
@@ -259,7 +259,7 @@ class _ExportScreenState extends State<ExportScreen>
               if (provider.isExporting) ...[
                 Card(
                   child: Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: const EdgeInsets.all(16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [

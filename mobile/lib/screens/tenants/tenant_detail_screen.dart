@@ -7,8 +7,8 @@ import 'package:flutter/material.dart';
 
 import '../../models/tenant.dart';
 import '../../services/api_service.dart';
-import 'rent_policy_screen.dart';
 import 'rent_override_screen.dart';
+import 'rent_policy_screen.dart';
 
 class TenantDetailScreen extends StatefulWidget {
   const TenantDetailScreen({

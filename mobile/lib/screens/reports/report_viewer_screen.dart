@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 /// Screen to view generated report data
 class ReportViewerScreen extends StatelessWidget {
   const ReportViewerScreen({
-    Key? key,
+    super.key,
     required this.reportData,
     required this.reportTitle,
-  }) : super(key: key);
+  });
   final Map<String, dynamic> reportData;
   final String reportTitle;
 
@@ -68,21 +68,21 @@ class ReportViewerScreen extends StatelessWidget {
 
   Widget _buildReportData(BuildContext context) => Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: reportData.entries.map((entry) {
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _formatKey(entry.key),
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                Text(_formatValue(entry.value)),
-              ],
-            ),
-          );
-        }).toList(),
+        children: reportData.entries
+            .map((entry) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _formatKey(entry.key),
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(_formatValue(entry.value)),
+                    ],
+                  ),
+                ))
+            .toList(),
       );
 
   String _formatKey(String key) => key

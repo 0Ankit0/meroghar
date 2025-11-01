@@ -32,7 +32,6 @@ class RentTrendsLineChart extends StatelessWidget {
         child: LineChart(
           LineChartData(
             gridData: FlGridData(
-              drawVerticalLine: true,
               horizontalInterval: _calculateInterval(trends),
               getDrawingHorizontalLine: (value) => FlLine(
                 color: Colors.grey.withOpacity(0.2),

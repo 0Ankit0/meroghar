@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 /// Dialog widget to view receipt images
 class ReceiptViewerDialog extends StatelessWidget {
   const ReceiptViewerDialog({
-    Key? key,
+    super.key,
     required this.receiptUrl,
     required this.expenseName,
-  }) : super(key: key);
+  });
   final String receiptUrl;
   final String expenseName;
 
@@ -50,17 +50,14 @@ class ReceiptViewerDialog extends StatelessWidget {
                         ),
                       );
                     },
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline,
-                              size: 64, color: Colors.red),
-                          SizedBox(height: 16),
-                          Text('Failed to load receipt'),
-                        ],
-                      );
-                    },
+                    errorBuilder: (context, error, stackTrace) => const Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, size: 64, color: Colors.red),
+                        SizedBox(height: 16),
+                        Text('Failed to load receipt'),
+                      ],
+                    ),
                   ),
                 ),
         ),

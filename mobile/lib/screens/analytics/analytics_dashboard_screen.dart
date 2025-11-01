@@ -183,7 +183,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           if (propertyProvider.isLoading) {
             return const Card(
               child: Padding(
-                padding: EdgeInsets.all(12.0),
+                padding: EdgeInsets.all(12),
                 child: Center(child: CircularProgressIndicator()),
               ),
             );
@@ -193,7 +193,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
           return Card(
             child: Padding(
-              padding: const EdgeInsets.all(12.0),
+              padding: const EdgeInsets.all(12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -212,7 +212,6 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                     hint: const Text('All Properties'),
                     items: [
                       const DropdownMenuItem<String?>(
-                        value: null,
                         child: Text('All Properties'),
                       ),
                       ...properties.map((property) => DropdownMenuItem<String?>(

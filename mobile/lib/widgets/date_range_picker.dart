@@ -160,7 +160,7 @@ class QuickDateRangeSelector extends StatelessWidget {
             label: 'This Year',
             onTap: () {
               final now = DateTime.now();
-              final start = DateTime(now.year, 1);
+              final start = DateTime(now.year);
               final end = DateTime.now();
               onDateRangeSelected(start, end);
             },
@@ -170,7 +170,7 @@ class QuickDateRangeSelector extends StatelessWidget {
             label: 'Last Year',
             onTap: () {
               final now = DateTime.now();
-              final start = DateTime(now.year - 1, 1);
+              final start = DateTime(now.year - 1);
               final end = DateTime(now.year - 1, 12, 31);
               onDateRangeSelected(start, end);
             },

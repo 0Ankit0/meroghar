@@ -105,9 +105,7 @@ class FCMService {
 
   /// Request notification permissions
   Future<NotificationSettings> _requestPermissions() async {
-    final settings = await _messaging.requestPermission(
-      announcement: false,
-    );
+    final settings = await _messaging.requestPermission();
 
     debugPrint(
         'Notification permission status: ${settings.authorizationStatus}');
@@ -118,9 +116,7 @@ class FCMService {
   Future<void> _initializeLocalNotifications() async {
     const androidSettings =
         AndroidInitializationSettings('@mipmap/ic_launcher');
-    const iosSettings = DarwinInitializationSettings(
-      requestBadgePermission: true,
-    );
+    const iosSettings = DarwinInitializationSettings();
 
     const initSettings = InitializationSettings(
       android: androidSettings,
