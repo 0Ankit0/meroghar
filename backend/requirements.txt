@@ -8,6 +8,7 @@ sqlalchemy==2.0.23
 alembic==1.12.1
 psycopg2-binary==2.9.9
 redis==5.0.1
+asyncpg==0.28.0
 
 # Authentication & Security
 pyjwt==2.8.0
@@ -49,6 +50,14 @@ firebase-admin==6.3.0
 
 # CORS & Middleware
 # Removed invalid python-cors==1.0.0; FastAPI has built-in CORS support
+
+# Nepali Payment Gateways
+esewa-sdk==1.0.0
+khalti-sdk==2.0.0
+imepay-sdk==1.0.0
+
+# Content Type Detection
+python-magic-bin==0.4.14; platform_system == 'Windows'  # Windows-specific magic lib
 
 # Environment & Configuration
 python-dotenv==1.0.0
