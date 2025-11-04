@@ -6,7 +6,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 
-import '../config/env.example.dart';
+import '../config/env.dart';
 import 'secure_storage_service.dart';
 
 /// HTTP client service with automatic JWT authentication.

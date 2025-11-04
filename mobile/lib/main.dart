@@ -9,6 +9,8 @@ import 'package:flutter_app_badge/flutter_app_badge.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 
+import 'config/app_router.dart';
+import 'config/constants.dart';
 import 'providers/auth_provider.dart';
 import 'providers/language_provider.dart';
 import 'screens/auth/login_screen.dart';
@@ -110,14 +112,22 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
             useMaterial3: true,
+            cardTheme: CardTheme(
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(UIConstants.radiusM),
+              ),
+            ),
+            inputDecorationTheme: InputDecorationTheme(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(UIConstants.radiusM),
+              ),
+            ),
           ),
 
-          // Routes
-          initialRoute: '/login',
-          routes: {
-            '/login': (context) => const LoginScreen(),
-            '/home': (context) => const HomeScreen(),
-          },
+          // Routing
+          initialRoute: AppRoutes.login,
+          onGenerateRoute: AppRouter.generateRoute,
         ),
       );
 }
