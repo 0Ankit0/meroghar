@@ -1,0 +1,33 @@
+site_name: MeroGhar Documentation
+theme:
+  name: material
+  logo: assets/logo.svg
+  favicon: assets/favicon.ico
+  palette:
+    primary: indigo
+    accent: indigo
+
+repo_url: https://github.com/ankit/meroghar
+repo_name: meroghar
+
+nav:
+  - Home: index.md
+  - Architecture: architecture.md
+  - Modules:
+    - Core: modules/core.md
+    - IAM: modules/iam.md
+    - Properties: modules/properties.md
+    - Tenants: modules/tenants.md
+    - Finance: modules/billing_payments.md
+  - Workflows:
+    - Add Property: workflows/add_property.md
+    - Register Tenant: workflows/register_tenant.md
+    - Create Lease: workflows/create_lease.md
+    - Khalti Payment: workflows/khalti_payment.md
+    - Submit Work Order: workflows/submit_work_order.md
+  - API Reference: api-reference.md
+  - Deployment: deployment.md
+
+plugins:
+  - search
+  - mermaid2

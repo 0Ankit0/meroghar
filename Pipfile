@@ -1,0 +1,35 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+djangorestframework = "*"
+psycopg2-binary = "*"
+python-dotenv = "*"
+whitenoise = "*"
+gunicorn = "*"
+redis = "*"
+celery = "*"
+django-cors-headers = "*"
+markdown = "*"
+requests = "*"
+weasyprint = "*"
+drf-spectacular = "*"
+django-tailwind = "*"
+django-browser-reload = "*"
+django-redis = "*"
+django-widget-tweaks = "*"
+
+[dev-packages]
+pytest = "*"
+pytest-django = "*"
+ipdb = "*"
+black = "*"
+mkdocs = "*"
+mkdocs-material = "*"
+mkdocs-mermaid2-plugin = "*"
+
+[requires]
+python_version = "3.14"
