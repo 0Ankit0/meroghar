@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Notifications</h1>
+</div>
+
+<div class="rounded-md border border-gray-200 bg-white">
+    <div class="relative w-full overflow-auto">
+        <table class="w-full caption-bottom text-sm text-left">
+            <thead class="[&_tr]:border-b">
+                <tr class="border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50">
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Title</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Type</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Date</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Status</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="[&_tr:last-child]:border-0">
+                {% for notification in notifications %}
+                <tr class="border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50 {% if not notification.is_read %}bg-blue-50/50{% endif %}">
+                    <td class="p-4 align-middle font-medium text-gray-900">
+                        {{ notification.title }}
+                    </td>
+                    <td class="p-4 align-middle">
+                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold
+                            {% if notification.notification_type == 'SUCCESS' %}bg-green-50 text-green-700 border-green-200
+                            {% elif notification.notification_type == 'ERROR' %}bg-red-50 text-red-700 border-red-200
+                            {% elif notification.notification_type == 'WARNING' %}bg-yellow-50 text-yellow-700 border-yellow-200
+                            {% else %}bg-blue-50 text-blue-700 border-blue-200{% endif %}">
+                            {{ notification.get_notification_type_display }}
+                        </span>
+                    </td>
+                    <td class="p-4 align-middle text-gray-500">
+                        {{ notification.created_at|timesince }} ago
+                    </td>
+                    <td class="p-4 align-middle text-gray-500">
+                        {% if notification.is_read %}Read{% else %}Unread{% endif %}
+                    </td>
+                    <td class="p-4 align-middle text-right">
+                        <a href="{% url 'operations:notification_detail' notification.id %}" class="text-indigo-600 hover:underline font-medium">View</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="p-4 text-center text-gray-500 h-24">
+                        No notifications found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

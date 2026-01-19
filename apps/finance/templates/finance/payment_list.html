@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Payments{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-foreground">Payments</h1>
+</div>
+
+<div class="rounded-lg border border-border bg-card shadow-sm">
+    <div class="relative w-full overflow-auto">
+        <table class="w-full caption-bottom text-sm text-left">
+            <thead class="[&_tr]:border-b">
+                <tr class="border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <th class="h-10 px-4 align-middle font-medium text-muted-foreground">Transaction ID</th>
+                    <th class="h-10 px-4 align-middle font-medium text-muted-foreground">Invoice</th>
+                    <th class="h-10 px-4 align-middle font-medium text-muted-foreground">Amount</th>
+                    <th class="h-10 px-4 align-middle font-medium text-muted-foreground">Provider</th>
+                    <th class="h-10 px-4 align-middle font-medium text-muted-foreground">Date</th>
+                    <th class="h-10 px-4 align-middle font-medium text-muted-foreground">Status</th>
+                </tr>
+            </thead>
+            <tbody class="[&_tr:last-child]:border-0">
+                {% for payment in payments %}
+                <tr class="border-b border-border transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                    <td class="p-4 align-middle font-medium text-foreground">{{ payment.transaction_id|default:"-" }}</td>
+                    <td class="p-4 align-middle text-foreground">
+                        {% if payment.invoice %}
+                        <a href="{% url 'finance:invoice_detail' payment.invoice.id %}" class="text-primary hover:underline">{{ payment.invoice.invoice_number }}</a>
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="p-4 align-middle font-medium text-foreground">{{ payment.currency }} {{ payment.amount }}</td>
+                    <td class="p-4 align-middle text-muted-foreground">{{ payment.get_provider_display }}</td>
+                    <td class="p-4 align-middle text-muted-foreground">{{ payment.created_at|date:"M d, Y" }}</td>
+                    <td class="p-4 align-middle">
+                        <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold
+                            {% if payment.status == 'SUCCESS' %}bg-success/10 text-success border-success/20
+                            {% elif payment.status == 'FAILED' %}bg-destructive/10 text-destructive border-destructive/20
+                            {% else %}bg-warning/10 text-warning border-warning/20{% endif %}">
+                            {{ payment.get_status_display }}
+                        </span>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="p-4 text-center text-muted-foreground h-24">
+                        No payments found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

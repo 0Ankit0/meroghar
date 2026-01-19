@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}My Organization{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <h1 class="text-3xl font-bold text-foreground">Organization Settings</h1>
+            <p class="mt-2 text-muted-foreground">Manage your organization details and preferences.</p>
+        </div>
+        <a href="{% url 'iam:organization_edit' %}" class="inline-flex items-center rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors">
+            Edit Settings
+        </a>
+    </div>
+
+    <div class="rounded-lg border border-border bg-card shadow-sm">
+        <div class="p-6 space-y-6">
+            <div class="grid gap-4 md:grid-cols-2">
+                <div class="space-y-1">
+                    <h3 class="font-medium text-foreground">Organization Name</h3>
+                    <p class="text-sm text-muted-foreground">{{ organization.name }}</p>
+                </div>
+                
+                <div class="space-y-1">
+                    <h3 class="font-medium text-foreground">System Identifier (Slug)</h3>
+                    <p class="text-sm text-muted-foreground font-mono bg-muted/30 inline-block px-2 py-0.5 rounded">{{ organization.slug }}</p>
+                </div>
+
+                <div class="col-span-2 space-y-1">
+                    <h3 class="font-medium text-foreground">Address</h3>
+                    <p class="text-sm text-muted-foreground whitespace-pre-wrap">{{ organization.address|default:"No address provided." }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

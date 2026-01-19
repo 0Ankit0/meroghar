@@ -1,0 +1,202 @@
+/**
+ * Custom Theme Configuration for MeroGhar
+ * 
+ * Defines a comprehensive design system with:
+ * - Brand colors (primary, secondary, accent)
+ * - Semantic colors (success, warning, error, info)
+ * - UI colors (background, foreground, borders, muted states)
+ * - Design tokens (spacing, shadows, typography)
+ */
+
+@theme {
+  /* ===== Color Palette ===== */
+  
+  /* Primary - Indigo (Trust, Professional) */
+  --color-primary-50: oklch(96.5% 0.015 275);
+  --color-primary-100: oklch(93% 0.034 272.788);
+  --color-primary-200: oklch(86% 0.068 274);
+  --color-primary-300: oklch(78% 0.11 275);
+  --color-primary-400: oklch(68% 0.18 276);
+  --color-primary-500: oklch(58.5% 0.233 277.117);
+  --color-primary-600: oklch(51.1% 0.262 276.966);
+  --color-primary-700: oklch(45.7% 0.24 277.023);
+  --color-primary-800: oklch(40% 0.19 277);
+  --color-primary-900: oklch(35.9% 0.144 278.697);
+  --color-primary-950: oklch(28% 0.09 278);
+  
+  /* Secondary - Blue (Information, Calm) */
+  --color-secondary-50: oklch(97% 0.014 254.604);
+  --color-secondary-100: oklch(93.2% 0.032 255.585);
+  --color-secondary-200: oklch(88.2% 0.059 254.128);
+  --color-secondary-300: oklch(80.9% 0.105 251.813);
+  --color-secondary-400: oklch(70% 0.17 255);
+  --color-secondary-500: oklch(60% 0.22 258);
+  --color-secondary-600: oklch(51% 0.24 260);
+  --color-secondary-700: oklch(48.8% 0.243 264.376);
+  --color-secondary-800: oklch(42.4% 0.199 265.638);
+  --color-secondary-900: oklch(36% 0.15 266);
+  --color-secondary-950: oklch(28% 0.1 266);
+  
+  /* Accent - Purple (Highlights, CTAs) */
+  --color-accent-50: oklch(97% 0.02 295);
+  --color-accent-100: oklch(94% 0.04 295);
+  --color-accent-200: oklch(88% 0.08 295);
+  --color-accent-300: oklch(80% 0.14 295);
+  --color-accent-400: oklch(70% 0.2 295);
+  --color-accent-500: oklch(60% 0.24 295);
+  --color-accent-600: oklch(52% 0.26 295);
+  --color-accent-700: oklch(45% 0.23 295);
+  --color-accent-800: oklch(38% 0.18 295);
+  --color-accent-900: oklch(32% 0.13 295);
+  --color-accent-950: oklch(25% 0.08 295);
+  
+  /* Semantic Colors */
+  
+  /* Success - Green */
+  --color-success-50: oklch(98.2% 0.018 155.826);
+  --color-success-100: oklch(96.2% 0.044 156.743);
+  --color-success-200: oklch(92.5% 0.084 155.995);
+  --color-success-300: oklch(86% 0.14 155);
+  --color-success-400: oklch(76% 0.19 152);
+  --color-success-500: oklch(67% 0.21 150);
+  --color-success-600: oklch(62.7% 0.194 149.214);
+  --color-success-700: oklch(52.7% 0.154 150.069);
+  --color-success-800: oklch(44.8% 0.119 151.328);
+  --color-success-900: oklch(39.3% 0.095 152.535);
+  --color-success-950: oklch(30% 0.06 152);
+  
+  /* Warning - Yellow/Amber */
+  --color-warning-50: oklch(98.7% 0.026 102.212);
+  --color-warning-100: oklch(97.3% 0.071 103.193);
+  --color-warning-200: oklch(94.5% 0.129 101.54);
+  --color-warning-300: oklch(90% 0.18 95);
+  --color-warning-400: oklch(82% 0.19 85);
+  --color-warning-500: oklch(75% 0.18 75);
+  --color-warning-600: oklch(68.1% 0.162 75.834);
+  --color-warning-700: oklch(55.4% 0.135 66.442);
+  --color-warning-800: oklch(47.6% 0.114 61.907);
+  --color-warning-900: oklch(40% 0.09 60);
+  --color-warning-950: oklch(30% 0.06 58);
+  
+  /* Error/Destructive - Red */
+  --color-destructive-50: oklch(97.1% 0.013 17.38);
+  --color-destructive-100: oklch(93.6% 0.032 17.717);
+  --color-destructive-200: oklch(88.5% 0.062 18.334);
+  --color-destructive-300: oklch(82% 0.12 20);
+  --color-destructive-400: oklch(72% 0.2 22);
+  --color-destructive-500: oklch(63.7% 0.237 25.331);
+  --color-destructive-600: oklch(57.7% 0.245 27.325);
+  --color-destructive-700: oklch(50.5% 0.213 27.518);
+  --color-destructive-800: oklch(44.4% 0.177 26.899);
+  --color-destructive-900: oklch(39.6% 0.141 25.723);
+  --color-destructive-950: oklch(30% 0.09 25);
+  
+  /* Info - Cyan/Teal */
+  --color-info-50: oklch(97.5% 0.015 195);
+  --color-info-100: oklch(94% 0.03 195);
+  --color-info-200: oklch(88% 0.06 195);
+  --color-info-300: oklch(80% 0.11 195);
+  --color-info-400: oklch(70% 0.15 195);
+  --color-info-500: oklch(62% 0.18 195);
+  --color-info-600: oklch(54% 0.19 195);
+  --color-info-700: oklch(46% 0.16 195);
+  --color-info-800: oklch(38% 0.13 195);
+  --color-info-900: oklch(32% 0.1 195);
+  --color-info-950: oklch(25% 0.06 195);
+  
+  /* ===== UI Colors ===== */
+  
+  /* Backgrounds */
+  --color-background: oklch(100% 0 0); /* Pure white */
+  --color-background-secondary: oklch(98.5% 0.002 247.839); /* Very light gray */
+  --color-background-tertiary: oklch(96.7% 0.003 264.542); /* Slightly darker gray */
+  
+  /* Foregrounds */
+  --color-foreground: oklch(21% 0.034 264.665); /* Dark gray for text */
+  --color-foreground-secondary: oklch(37.3% 0.034 259.733); /* Medium-dark gray */
+  --color-foreground-tertiary: oklch(55.1% 0.027 264.364); /* Medium gray */
+  
+  /* Borders */
+  --color-border: oklch(87.2% 0.01 258.338); /* Light gray border */
+  --color-border-secondary: oklch(92.8% 0.006 264.531); /* Very light border */
+  
+  /* Muted States */
+  --color-muted: oklch(96.7% 0.003 264.542); /* Muted background */
+  --color-muted-foreground: oklch(55.1% 0.027 264.364); /* Muted text */
+  
+  /* Cards & Popovers */
+  --color-card: oklch(100% 0 0); /* White card background */
+  --color-card-foreground: oklch(21% 0.034 264.665); /* Dark text on cards */
+  
+  /* Popover */
+  --color-popover: oklch(100% 0 0);
+  --color-popover-foreground: oklch(21% 0.034 264.665);
+  
+  /* Input */
+  --color-input: oklch(87.2% 0.01 258.338); /* Input border color */
+  --color-input-background: oklch(100% 0 0); /* Input bg */
+  
+  /* Ring (Focus indicator) */
+  --color-ring: oklch(51.1% 0.262 276.966); /* Primary-600 for focus */
+  
+  /* ===== Shadows ===== */
+  --shadow-sm: 0 1px 2px 0 oklch(0% 0 0 / 0.05);
+  --shadow: 0 1px 3px 0 oklch(0% 0 0 / 0.1), 0 1px 2px -1px oklch(0% 0 0 / 0.1);
+  --shadow-md: 0 4px 6px -1px oklch(0% 0 0 / 0.1), 0 2px 4px -2px oklch(0% 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px oklch(0% 0 0 / 0.1), 0 4px 6px -4px oklch(0% 0 0 / 0.1);
+  --shadow-xl: 0 20px 25px -5px oklch(0% 0 0 / 0.1), 0 8px 10px -6px oklch(0% 0 0 / 0.1);
+  --shadow-2xl: 0 25px 50px -12px oklch(0% 0 0 / 0.25);
+  
+  /* ===== Border Radius ===== */
+  --radius-sm: 0.25rem;
+  --radius: 0.5rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+  --radius-3xl: 2rem;
+  --radius-full: 9999px;
+}
+
+/**
+ * Utility classes for theme colors
+ * These extend the default Tailwind classes
+ */
+
+/* Primary Color Utilities */
+.bg-primary { background-color: var(--color-primary-600); }
+.hover\:bg-primary:hover { background-color: var(--color-primary-600); }
+.hover\:bg-primary\/90:hover { background-color: color-mix(in oklab, var(--color-primary-600) 90%, transparent); }
+.text-primary { color: var(--color-primary-600); }
+.border-primary { border-color: var(--color-primary-600); }
+.ring-primary { --tw-ring-color: var(--color-primary-600); }
+
+/* Secondary Color Utilities */
+.bg-secondary { background-color: var(--color-secondary-600); }
+.text-secondary { color: var(--color-secondary-600); }
+.border-secondary { border-color: var(--color-secondary-600); }
+
+/* Accent Color Utilities */
+.bg-accent { background-color: var(--color-accent-600); }
+.text-accent { color: var(--color-accent-600); }
+.border-accent { border-color: var(--color-accent-600); }
+
+/* Semantic Color Utilities */
+.bg-success { background-color: var(--color-success-600); }
+.text-success { color: var(--color-success-600); }
+.bg-warning { background-color: var(--color-warning-600); }
+.text-warning { color: var(--color-warning-600); }
+.bg-destructive { background-color: var(--color-destructive-50); }
+.text-destructive { color: var(--color-destructive-600); }
+.text-destructive-foreground { color: var(--color-destructive-700); }
+.border-destructive { border-color: var(--color-destructive-200); }
+
+/* UI Color Utilities */
+.bg-background { background-color: var(--color-background); }
+.bg-background-secondary { background-color: var(--color-background-secondary); }
+.text-foreground { color: var(--color-foreground); }
+.text-muted-foreground { color: var(--color-muted-foreground); }
+.border-border { border-color: var(--color-border); }
+.bg-muted { background-color: var(--color-muted); }
+.bg-card { background-color: var(--color-card); }
+.ring-ring { --tw-ring-color: var(--color-ring); }

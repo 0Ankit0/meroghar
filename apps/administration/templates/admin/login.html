@@ -1,0 +1,68 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<link rel="stylesheet" href="{% static 'css/dist/styles.css' %}">
+{% endblock %}
+
+{% block bodyclass %}{{ block.super }} login{% endblock %}
+
+{% block nav-global %}{% endblock %}
+{% block nav-sidebar %}{% endblock %}
+{% block content_title %}{% endblock %}
+{% block breadcrumbs %}{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[420px] mx-auto mt-20 px-4 rounded-2xl">
+  <div class="bg-card border border-border/60 rounded-2xl shadow-lg p-8 sm:p-10">
+    <div class="flex flex-col space-y-2 text-center mb-8">
+      <h1 class="text-2xl font-semibold tracking-tight text-foreground">
+        {% trans 'Administration' %}
+      </h1>
+      <p class="text-sm text-muted-foreground">
+        Login to the administrative portal
+      </p>
+    </div>
+
+    <form action="{{ app_path }}" method="post" id="login-form" class="space-y-5">{% csrf_token %}
+      
+      {% if form.errors and not form.non_field_errors %}
+        <div class="bg-destructive text-destructive-foreground text-sm p-3.5 rounded-lg border border-destructive">
+            <p>{% blocktrans count counter=form.errors.items|length %}Please correct the error below.{% plural %}Please correct the errors below.{% endblocktrans %}</p>
+        </div>
+      {% endif %}
+
+      {% if form.non_field_errors %}
+        {% for error in form.non_field_errors %}
+        <div class="bg-destructive text-destructive-foreground text-sm p-3.5 rounded-lg border border-destructive">
+          <p>{{ error }}</p>
+        </div>
+        {% endfor %}
+      {% endif %}
+
+      <div class="space-y-2">
+        <label for="id_username" class="text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {% trans 'Username' %}
+        </label>
+        <input type="text" name="username" id="id_username" required 
+            class="flex h-11 w-full rounded-lg border border-input bg-input-background px-3.5 py-2.5 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+            placeholder="Enter your username">
+      </div>
+
+      <div class="space-y-2">
+        <label for="id_password" class="text-sm font-medium leading-none text-foreground peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+          {% trans 'Password' %}
+        </label>
+        <input type="password" name="password" id="id_password" required 
+            class="flex h-11 w-full rounded-lg border border-input bg-input-background px-3.5 py-2.5 text-sm text-foreground shadow-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 transition-all duration-200"
+            placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="inline-flex items-center justify-center whitespace-nowrap rounded-lg text-sm font-semibold shadow-sm transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-white hover:bg-primary/90 active:bg-primary h-11 px-5 py-2.5 w-full mt-2">
+        {% trans 'Log in' %}
+      </button>
+    </form>
+  </div>
+</div>
+{% endblock %}

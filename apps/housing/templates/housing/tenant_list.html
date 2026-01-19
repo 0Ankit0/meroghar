@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}Tenants{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-gray-800">Tenants</h1>
+    <a href="{% url 'housing:tenant_add' %}" class="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-white transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-gray-950 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-gray-900 text-gray-50 hover:bg-gray-900/90 h-10 px-4 py-2">
+        Add Tenant
+    </a>
+</div>
+
+<div class="rounded-md border border-gray-200 bg-white">
+    <div class="relative w-full overflow-auto">
+        <table class="w-full caption-bottom text-sm text-left">
+            <thead class="[&_tr]:border-b">
+                <tr class="border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50">
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Name</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Contact</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500">Leases</th>
+                    <th class="h-10 px-4 align-middle font-medium text-gray-500 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="[&_tr:last-child]:border-0">
+                {% for tenant in tenants %}
+                <tr class="border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50">
+                    <td class="p-4 align-middle font-medium text-gray-900">
+                        <div>{{ tenant.full_name }}</div>
+                        <div class="text-xs text-gray-500">{{ tenant.email }}</div>
+                    </td>
+                    <td class="p-4 align-middle text-gray-500">{{ tenant.phone }}</td>
+                    <td class="p-4 align-middle text-gray-500">{{ tenant.leases.count }}</td>
+                    <td class="p-4 align-middle text-right">
+                        <a href="{% url 'housing:tenant_edit' tenant.id %}" class="text-indigo-600 hover:underline font-medium">Edit</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="p-4 text-center text-gray-500 h-24">
+                        No tenants found.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

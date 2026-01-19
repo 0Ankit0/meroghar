@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}Financial Report | MeroGhar{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex items-center justify-between">
+        <div>
+            <div class="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
+                <a href="{% url 'reporting:report_list' %}" class="hover:text-primary transition-colors">Reports</a>
+                <span>/</span>
+                <span>Financial</span>
+            </div>
+            <h1 class="text-3xl font-bold text-foreground">Financial Overview</h1>
+        </div>
+    </div>
+
+    <div class="grid gap-6 md:grid-cols-3">
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h3 class="text-sm font-medium text-muted-foreground">Revenue (This Month)</h3>
+            <p class="text-2xl font-bold mt-2">Rs. {{ financials.this_month }}</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h3 class="text-sm font-medium text-muted-foreground">Revenue (Last Month)</h3>
+            <p class="text-2xl font-bold mt-2">Rs. {{ financials.last_month }}</p>
+        </div>
+        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
+            <h3 class="text-sm font-medium text-muted-foreground">Net Growth</h3>
+            <div class="flex items-center mt-2">
+                <span class="text-2xl font-bold {% if financials.growth >= 0 %}text-success{% else %}text-destructive{% endif %}">
+                    {% if financials.growth >= 0 %}+{% endif %}{{ financials.growth }}
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -9,11 +9,13 @@
         <span class="text-sm text-gray-500">
             {% if request.user.is_authenticated %}
                 {{ request.user.username }} ({{ request.user.role }})
-                <a href="{% url 'logout' %}" class="ml-4 text-red-600 hover:text-red-800 text-xs font-semibold uppercase">Logout</a>
+                <form method="post" action="{% url 'logout' %}" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="ml-4 text-red-600 hover:text-red-800 text-xs font-semibold uppercase">Logout</button>
+                </form>
             {% else %}
                 <a href="{% url 'login' %}" class="text-indigo-600 hover:text-indigo-800">Login</a>
             {% endif %}
         </span>
-        <!-- Logout Placeholder -->
     </div>
 </header>

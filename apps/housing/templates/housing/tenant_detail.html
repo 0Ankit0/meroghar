@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+
+{% block title %}Tenant Details{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{{ tenant.full_name }}</h1>
+        <div class="space-x-2">
+            <a href="{% url 'housing:tenant_list' %}" class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">Back</a>
+            <a href="{% url 'housing:tenant_edit' tenant.id %}" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Edit</a>
+        </div>
+    </div>
+
+    <div class="bg-white shadow rounded-lg p-6 mb-6">
+        <h3 class="text-lg font-semibold mb-4">Contact Information</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-gray-500">Email</p>
+                <p class="font-medium">{{ tenant.email }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500">Phone</p>
+                <p class="font-medium">{{ tenant.phone }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500">ID Number</p>
+                <p class="font-medium">{{ tenant.id_number|default:"-" }}</p>
+            </div>
+        </div>
+    </div>
+
+    {% if tenant.emergency_contact_name %}
+    <div class="bg-white shadow rounded-lg p-6">
+        <h3 class="text-lg font-semibold mb-4">Emergency Contact</h3>
+        <div class="grid grid-cols-2 gap-4 text-sm">
+            <div>
+                <p class="text-gray-500">Name</p>
+                <p class="font-medium">{{ tenant.emergency_contact_name }}</p>
+            </div>
+            <div>
+                <p class="text-gray-500">Phone</p>
+                <p class="font-medium">{{ tenant.emergency_contact_phone }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
