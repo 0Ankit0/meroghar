@@ -63,49 +63,49 @@ services:
     networks:
       - meroghar_network
 
-  celery_worker:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: meroghar_celery_worker
-    container_name: meroghar_celery_worker
-    environment:
-      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
-      - ENVIRONMENT=development
-    volumes:
-      - ./backend/src:/app/src
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: celery -A src.tasks.celery_app worker --loglevel=info
-    networks:
-      - meroghar_network
+  # celery_worker:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   image: meroghar_celery_worker
+  #   container_name: meroghar_celery_worker
+  #   environment:
+  #     - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+  #     - ENVIRONMENT=development
+  #   volumes:
+  #     - ./backend/src:/app/src
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   command: celery -A src.tasks.celery_app worker --loglevel=info
+  #   networks:
+  #     - meroghar_network
 
-  celery_beat:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: meroghar_celery_beat
-    container_name: meroghar_celery_beat
-    environment:
-      - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
-      - REDIS_URL=redis://redis:6379/0
-      - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
-      - ENVIRONMENT=development
-    volumes:
-      - ./backend/src:/app/src
-    depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    command: celery -A src.tasks.celery_app beat --loglevel=info
-    networks:
-      - meroghar_network
+  # celery_beat:
+  #   build:
+  #     context: ./backend
+  #     dockerfile: Dockerfile
+  #   image: meroghar_celery_beat
+  #   container_name: meroghar_celery_beat
+  #   environment:
+  #     - DATABASE_URL=postgresql://meroghar:meroghar_dev_password@postgres:5432/meroghar
+  #     - REDIS_URL=redis://redis:6379/0
+  #     - SECRET_KEY=${SECRET_KEY:-dev_secret_key_change_in_production}
+  #     - ENVIRONMENT=development
+  #   volumes:
+  #     - ./backend/src:/app/src
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #   command: celery -A src.tasks.celery_app beat --loglevel=info
+  #   networks:
+  #     - meroghar_network
 
   pgadmin:
     image: dpage/pgadmin4:latest

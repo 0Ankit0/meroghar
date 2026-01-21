@@ -6,6 +6,13 @@ import 'package:provider/provider.dart';
 
 import '../config/constants.dart';
 import '../providers/auth_provider.dart';
+import '../providers/property_provider.dart';
+import '../providers/tenant_provider.dart';
+import '../providers/payment_provider.dart';
+import 'properties/property_list_screen.dart';
+import 'tenants/tenant_list_screen.dart';
+import 'payments/payment_list_screen.dart';
+import 'settings/profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -97,6 +104,16 @@ class DashboardTab extends StatelessWidget {
             icon: const Icon(Icons.notifications),
             onPressed: () => Navigator.pushNamed(context, AppRoutes.notifications),
           ),
+          IconButton(
+            icon: const Icon(Icons.account_circle),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (_) => const ProfileScreen()),
+              );
+            },
+            tooltip: 'Profile',
+          ),
         ],
       ),
       body: ListView(
@@ -178,28 +195,28 @@ class DashboardTab extends StatelessWidget {
             leading: const Icon(Icons.add_home),
             title: const Text('Add Property'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showComingSoon(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.propertyCreate),
           ),
           ListTile(
             leading: const Icon(Icons.person_add),
             title: const Text('Add Tenant'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showComingSoon(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.tenantCreate),
           ),
           ListTile(
             leading: const Icon(Icons.add_card),
             title: const Text('Record Payment'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => _showComingSoon(context),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.paymentCreate),
+          ),
+          ListTile(
+            leading: const Icon(Icons.build),
+            title: const Text('Maintenance Request'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.maintenance),
           ),
         ],
       ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Feature coming soon!')),
     );
   }
 }
@@ -210,20 +227,7 @@ class PropertiesTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Properties')),
-      body: const Center(child: Text('Properties List - Coming Soon')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showComingSoon(context),
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Feature coming soon!')),
-    );
+    return const PropertyListScreen();
   }
 }
 
@@ -233,20 +237,7 @@ class TenantsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Tenants')),
-      body: const Center(child: Text('Tenants List - Coming Soon')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showComingSoon(context),
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Feature coming soon!')),
-    );
+    return const TenantListScreen();
   }
 }
 
@@ -256,20 +247,7 @@ class PaymentsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Payments')),
-      body: const Center(child: Text('Payments List - Coming Soon')),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showComingSoon(context),
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Feature coming soon!')),
-    );
+    return const PaymentListScreen();
   }
 }
 
@@ -327,6 +305,12 @@ class MoreTab extends StatelessWidget {
             title: const Text('Bills'),
             trailing: const Icon(Icons.chevron_right),
             onTap: () => _showComingSoon(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.build),
+            title: const Text('Maintenance'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.maintenance),
           ),
           ListTile(
             leading: const Icon(Icons.money_off),

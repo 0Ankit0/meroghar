@@ -77,6 +77,10 @@ class ApiEndpoints {
   static String expenseUpdate(String id) => '$expenses/$id';
   static String expenseApprove(String id) => '$expenses/$id/approve';
 
+  // Maintenance endpoints
+  static const String maintenance = '/maintenance';
+  static String maintenanceDetail(String id) => '$maintenance/$id';
+
   // Document endpoints
   static const String documentList = documents;
   static const String documentUpload = documents;
@@ -135,6 +139,7 @@ class AppRoutes {
   static const String tenants = '/tenants';
   static const String tenantDetail = '/tenants/:id';
   static const String tenantCreate = '/tenants/create';
+  static const String tenantRecordCreate = '/tenants/record-create';
   static const String tenantEdit = '/tenants/:id/edit';
 
   // Payment routes
@@ -153,6 +158,11 @@ class AppRoutes {
   static const String expenses = '/expenses';
   static const String expenseDetail = '/expenses/:id';
   static const String expenseCreate = '/expenses/create';
+
+  // Maintenance routes
+  static const String maintenance = '/maintenance';
+  static const String maintenanceCreate = '/maintenance/create';
+  static const String maintenanceDetail = '/maintenance/:id';
 
   // Document routes
   static const String documents = '/documents';

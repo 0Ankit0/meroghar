@@ -13,13 +13,8 @@ import '../services/database_service.dart';
 
 /// Provider for payment-related operations and state management
 class PaymentProvider with ChangeNotifier {
-  PaymentProvider({
-    required ApiService apiService,
-    required DatabaseService databaseService,
-  })  : _apiService = apiService,
-        _databaseService = databaseService;
+  PaymentProvider(this._apiService);
   final ApiService _apiService;
-  final DatabaseService _databaseService;
 
   List<Payment> _payments = [];
   TenantBalance? _currentBalance;
@@ -109,60 +104,33 @@ class PaymentProvider with ChangeNotifier {
     }
   }
 
-  /// Fetch payments list with optional filters
-  Future<void> fetchPayments({
-    String? tenantId,
-    String? propertyId,
-    PaymentType? paymentType,
-    PaymentStatus? paymentStatus,
-    DateTime? dateFrom,
-    DateTime? dateTo,
-    int skip = 0,
-    int limit = 50,
-  }) async {
-    _setLoading(true);
-    _clearError();
+  /// Load all payments for the current user
+  Future<void>loadPayments() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
 
     try {
-      // Build query parameters
-      final queryParams = <String, dynamic>{
-        'skip': skip,
-        'limit': limit,
-        if (tenantId != null) 'tenant_id': tenantId,
-        if (propertyId != null) 'property_id': propertyId,
-        if (paymentType != null) 'payment_type': paymentType.toJson(),
-        if (paymentStatus != null) 'payment_status': paymentStatus.toJson(),
-        if (dateFrom != null)
-          'date_from': dateFrom.toIso8601String().split('T')[0],
-        if (dateTo != null) 'date_to': dateTo.toIso8601String().split('T')[0],
-      };
+      final response = await _apiService.get('/api/v1/payments');
 
-      // Call API
-      final response = await _apiService.get(
-        '/payments',
-        queryParameters: queryParams,
-      );
-
-      // Parse response
-      final data = response.data as Map<String, dynamic>;
-      final paymentsList = data['payments'] as List<dynamic>;
-
-      _payments = paymentsList
-          .map((json) => Payment.fromJson(json as Map<String, dynamic>))
-          .toList();
-
-      // Save to local database
-      for (final payment in _payments) {
-        await _savePaymentToDatabase(payment);
+      if (response.statusCode == 200) {
+        final data = response.data;
+        // Handle both array and object with 'items' key
+        final List<dynamic> paymentsList = data is List 
+            ? data 
+            : (data['items'] as List<dynamic>? ?? data['payments'] as List<dynamic>? ?? []);
+        
+        _payments = paymentsList
+            .map((json) => Payment.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
+        _error = 'Failed to load payments';
       }
-
-      notifyListeners();
     } catch (e) {
-      _setError('Failed to fetch payments: ${e.toString()}');
-      // Try loading from local database as fallback
-      await _loadPaymentsFromDatabase();
+      _error = 'Error loading payments: $e';
     } finally {
-      _setLoading(false);
+      _isLoading = false;
+      notifyListeners();
     }
   }
 

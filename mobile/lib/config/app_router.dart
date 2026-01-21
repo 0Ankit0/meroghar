@@ -8,12 +8,28 @@ import 'package:flutter/material.dart';
 import '../config/constants.dart';
 import '../screens/auth/login_screen.dart';
 import '../screens/auth/register_screen.dart';
+import '../screens/auth/splash_screen.dart';
+import '../screens/bills/bill_create_screen.dart';
+import '../screens/bills/bill_create_screen.dart';
 import '../screens/home_screen.dart';
+import '../screens/payments/payment_form_screen.dart';
+import '../screens/payments/payment_list_screen.dart';
+import '../screens/properties/property_form_screen.dart';
+import '../screens/properties/property_list_screen.dart';
+import '../screens/tenants/tenant_form_screen.dart';
+import '../screens/tenants/tenant_list_screen.dart';
+import '../screens/tenants/tenant_user_creation_screen.dart';
+import '../screens/maintenance/maintenance_list_screen.dart';
+import '../screens/maintenance/maintenance_form_screen.dart';
 
 class AppRouter {
   /// Generate routes based on route settings
   static Route<dynamic> generateRoute(RouteSettings settings) {
     switch (settings.name) {
+      // Splash screen (initial route)
+      case '/':
+        return MaterialPageRoute(builder: (_) => const SplashScreen());
+      
       // Auth routes
       case AppRoutes.login:
         return MaterialPageRoute(builder: (_) => const LoginScreen());
@@ -38,46 +54,47 @@ class AppRouter {
 
       // Property routes
       case AppRoutes.properties:
-        return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Properties'),
-        );
+        return MaterialPageRoute(builder: (_) => const PropertyListScreen());
       
       case AppRoutes.propertyCreate:
-        return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Add Property'),
-        );
+        return MaterialPageRoute(builder: (_) => const PropertyFormScreen());
 
       // Tenant routes
       case AppRoutes.tenants:
-        return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Tenants'),
-        );
+        return MaterialPageRoute(builder: (_) => const TenantListScreen());
       
       case AppRoutes.tenantCreate:
+        final propertyId = settings.arguments as String?;
         return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Add Tenant'),
+          builder: (_) => TenantUserCreationScreen(propertyId: propertyId),
+        );
+
+      case AppRoutes.tenantRecordCreate:
+        final args = settings.arguments as Map<String, dynamic>;
+        return MaterialPageRoute(
+          builder: (_) => TenantFormScreen(
+            userId: args['userId'],
+            propertyId: args['propertyId'],
+          ),
         );
 
       // Payment routes
       case AppRoutes.payments:
-        return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Payments'),
-        );
+        return MaterialPageRoute(builder: (_) => const PaymentListScreen());
       
       case AppRoutes.paymentCreate:
-        return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Record Payment'),
-        );
+        return MaterialPageRoute(builder: (_) => const PaymentFormScreen());
 
       // Bill routes
       case AppRoutes.bills:
-        return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Bills'),
-        );
+        return MaterialPageRoute(builder: (_) => const BillListScreen());
       
       case AppRoutes.billCreate:
+        final args = settings.arguments as Map<String, dynamic>;
         return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Add Bill'),
+          builder: (_) => BillCreateScreen(
+            propertyId: args['propertyId'],
+          ),
         );
 
       // Expense routes
@@ -121,7 +138,7 @@ class AppRouter {
       // Notification routes
       case AppRoutes.notifications:
         return MaterialPageRoute(
-          builder: (_) => const PlaceholderScreen(title: 'Notifications'),
+          builder: (_) => const NotificationCenterScreen(),
         );
 
       // Report routes
@@ -140,6 +157,17 @@ class AppRouter {
         return MaterialPageRoute(
           builder: (_) => const PlaceholderScreen(title: 'Analytics'),
         );
+      
+      // Maintenance routes
+      case AppRoutes.maintenance:
+        return MaterialPageRoute(builder: (_) => const MaintenanceListScreen());
+
+      case AppRoutes.maintenanceCreate:
+        return MaterialPageRoute(builder: (_) => const MaintenanceFormScreen());
+
+      case AppRoutes.maintenanceDetail:
+        // TODO: Pass arguments
+         return MaterialPageRoute(builder: (_) => const PlaceholderScreen(title: 'Maintenance Detail'));
 
       // Settings routes
       case AppRoutes.settings:
