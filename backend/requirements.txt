@@ -52,9 +52,9 @@ firebase-admin==6.3.0
 # Removed invalid python-cors==1.0.0; FastAPI has built-in CORS support
 
 # Nepali Payment Gateways
-esewa-sdk==1.0.0
-khalti-sdk==2.0.0
-imepay-sdk==1.0.0
+# esewa-sdk==1.0.0  # Removed: No such package exists. Implement eSewa integration using their REST API directly
+# khalti-sdk==2.0.0  # Removed: No such package exists. Implement Khalti integration using their REST API directly
+# imepay-sdk==1.0.0  # Removed: No such package exists. Implement IME Pay integration using their REST API directly
 
 # Content Type Detection
 python-magic-bin==0.4.14; platform_system == 'Windows'  # Windows-specific magic lib

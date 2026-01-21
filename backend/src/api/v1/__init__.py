@@ -7,6 +7,7 @@ from .auth import router as auth_router
 from .bills import router as bills_router
 from .documents import router as documents_router
 from .expenses import router as expenses_router
+from .maintenance import router as maintenance_router
 from .messages import router as messages_router
 from .notifications import router as notifications_router
 from .payments import router as payments_router
@@ -35,5 +36,6 @@ api_router.include_router(sync_router, prefix="/sync", tags=["Sync"])
 api_router.include_router(messages_router, prefix="/messages", tags=["Messages"])
 api_router.include_router(documents_router, prefix="/documents", tags=["Documents"])
 api_router.include_router(notifications_router, prefix="/notifications", tags=["Notifications"])
+api_router.include_router(maintenance_router, prefix="/maintenance", tags=["Maintenance"])
 
 __all__ = ["api_router"]

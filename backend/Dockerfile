@@ -23,7 +23,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libwebp-dev \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements and install Python dependencies
+# Create virtual environment and install Python dependencies
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -41,11 +43,11 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy Python dependencies from builder stage
-COPY --from=builder /usr/local /usr/local
+# Copy virtual environment from builder stage
+COPY --from=builder /opt/venv /opt/venv
 
-# Make sure scripts are usable (they should be in /usr/local/bin now)
-# No need to set PATH as /usr/local/bin is usually in PATH by default
+# Set PATH to include virtual environment
+ENV PATH="/opt/venv/bin:$PATH"
 
 # Copy application code
 COPY src/ ./src/

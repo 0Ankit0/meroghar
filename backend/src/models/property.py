@@ -159,6 +159,11 @@ class Property(Base):
         back_populates="property",
         cascade="all, delete-orphan",
     )
+    maintenance_requests = relationship(
+        "MaintenanceRequest",
+        back_populates="property",
+        cascade="all, delete-orphan",
+    )
 
     # Constraints
     __table_args__ = (

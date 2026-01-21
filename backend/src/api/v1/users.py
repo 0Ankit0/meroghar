@@ -28,12 +28,12 @@ router = APIRouter()
 )
 async def create_user(
     request: UserCreateRequest,
-    current_user: Annotated[User, Depends(require_role(UserRole.INTERMEDIARY))],
+    current_user: Annotated[User, Depends(require_role(UserRole.INTERMEDIARY, UserRole.OWNER))],
     session: Annotated[AsyncSession, Depends(get_async_db)],
 ) -> SuccessResponse[UserResponse]:
     """Create a new user (tenant).
 
-    Only intermediaries can create tenant users for properties they manage.
+    Owners and intermediaries can create tenant users.
 
     Args:
         request: User creation request

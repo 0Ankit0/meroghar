@@ -19,6 +19,7 @@ from .property import Property, PropertyAssignment
 from .sync import SyncLog, SyncOperation, SyncStatus
 from .tenant import Tenant, TenantStatus
 from .user import User, UserRole
+from .maintenance import MaintenancePriority, MaintenanceRequest, MaintenanceStatus
 
 __all__ = [
     # User
@@ -35,6 +36,10 @@ __all__ = [
     "PaymentMethod",
     "PaymentType",
     "PaymentStatus",
+    # Maintenance
+    "MaintenanceRequest",
+    "MaintenanceStatus",
+    "MaintenancePriority",
     # Bill
     "Bill",
     "BillAllocation",

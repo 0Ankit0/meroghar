@@ -34,27 +34,28 @@ router = APIRouter()
     response_model=SuccessResponse[TenantResponse],
     status_code=status.HTTP_201_CREATED,
     summary="Create a new tenant",
-    description="Create a new tenant record. Requires intermediary role and property assignment.",
+    description="Create a new tenant record. Requires owner or intermediary role.",
 )
 async def create_tenant(
     request: TenantCreateRequest,
-    current_user: Annotated[User, Depends(require_role(UserRole.INTERMEDIARY))],
+    current_user: Annotated[User, Depends(require_role(UserRole.INTERMEDIARY, UserRole.OWNER))],
     session: Annotated[AsyncSession, Depends(get_async_db)],
 ) -> SuccessResponse[TenantResponse]:
     """Create a new tenant.
 
-    Only intermediaries can create tenant records for properties they manage.
+    Owners can create tenants for their properties.
+    Intermediaries can create tenant records for properties they manage.
 
     Args:
         request: Tenant creation request
-        current_user: Authenticated intermediary user
+        current_user: Authenticated intermediary or owner user
         session: Database session
 
     Returns:
         Created tenant details
 
     Raises:
-        403: If intermediary is not assigned to the property
+        403: If user is not authorized for this property
         404: If user or property not found
         400: If user is not a tenant or already has active tenancy
         500: If database error occurs
@@ -110,21 +111,29 @@ async def create_tenant(
                 detail=f"Property {request.property_id} not found",
             )
 
-        # Verify intermediary is assigned to this property
-        result = await session.execute(
-            select(PropertyAssignment).where(
-                PropertyAssignment.property_id == request.property_id,
-                PropertyAssignment.intermediary_id == current_user.id,
-                PropertyAssignment.is_active,
+        # Verify authorization
+        if current_user.role == UserRole.OWNER:
+            if property_obj.owner_id != current_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You do not own this property",
+                )
+        else:
+            # Verify intermediary is assigned to this property
+            result = await session.execute(
+                select(PropertyAssignment).where(
+                    PropertyAssignment.property_id == request.property_id,
+                    PropertyAssignment.intermediary_id == current_user.id,
+                    PropertyAssignment.is_active,
+                )
             )
-        )
-        assignment = result.scalar_one_or_none()
+            assignment = result.scalar_one_or_none()
 
-        if not assignment:
-            raise HTTPException(
-                status_code=status.HTTP_403_FORBIDDEN,
-                detail="You are not assigned to manage this property",
-            )
+            if not assignment:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="You are not assigned to manage this property",
+                )
 
         # Verify user exists and is a tenant
         result = await session.execute(select(User).where(User.id == request.user_id))
