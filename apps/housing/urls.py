@@ -2,6 +2,7 @@ from django.urls import path
 from .views import property as property_views
 from .views import tenant as tenant_views
 from .views import lease as lease_views
+from .views import unit as unit_views
 
 app_name = "housing"
 
@@ -12,6 +13,13 @@ urlpatterns = [
     path("properties/<uuid:pk>/", property_views.PropertyDetailView.as_view(), name="property_detail"),
     path("properties/<uuid:pk>/edit/", property_views.PropertyUpdateView.as_view(), name="property_edit"),
     path("properties/<uuid:pk>/delete/", property_views.PropertyDeleteView.as_view(), name="property_delete"),
+    
+    # Units
+    path("units/", unit_views.UnitListView.as_view(), name="unit_list"),
+    path("units/add/", unit_views.UnitCreateView.as_view(), name="unit_add"),
+    path("units/<uuid:pk>/", unit_views.UnitDetailView.as_view(), name="unit_detail"),
+    path("units/<uuid:pk>/edit/", unit_views.UnitUpdateView.as_view(), name="unit_edit"),
+    path("units/<uuid:pk>/delete/", unit_views.UnitDeleteView.as_view(), name="unit_delete"),
     
     # Tenants
     path("tenants/", tenant_views.TenantListView.as_view(), name="tenant_list"),

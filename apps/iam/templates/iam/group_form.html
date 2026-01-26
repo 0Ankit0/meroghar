@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load widget_tweaks %}
+
+{% block title %}{% if form.instance.pk %}Edit{% else %}Create{% endif %} Group{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-800">{% if form.instance.pk %}Edit{% else %}Create{% endif %} Group</h1>
+    </div>
+
+    <form method="post" class="bg-white shadow rounded-lg p-6 space-y-6">
+        {% csrf_token %}
+        
+        {% if form.non_field_errors %}
+        <div class="bg-red-50 text-red-700 p-4 rounded mb-4">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 gap-6">
+            <!-- Name -->
+            <div>
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">Group Name</label>
+                {% render_field form.name class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" %}
+                {% if form.name.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Description -->
+            <div>
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">Description</label>
+                {% render_field form.description class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm" rows="3" %}
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Organizations -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Associated Organizations</label>
+                    <div class="h-48 overflow-y-auto border border-gray-300 rounded-md p-2 bg-gray-50">
+                        {{ form.organizations }}
+                    </div>
+                    <p class="mt-1 text-xs text-gray-500 help-text">Hold Ctrl/Cmd to select multiple.</p>
+                </div>
+
+                <!-- Members -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Members</label>
+                    <div class="h-48 overflow-y-auto border border-gray-300 rounded-md p-2 bg-gray-50">
+                        {{ form.members }}
+                    </div>
+                </div>
+            </div>
+            
+             <!-- Permissions -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Permissions</label>
+                <div class="h-60 overflow-y-auto border border-gray-300 rounded-md p-2 bg-gray-50">
+                    {{ form.permissions }}
+                </div>
+            </div>
+        </div>
+
+        <div class="pt-4 flex justify-end space-x-3">
+            <a href="{% url 'iam:group_list' %}" class="px-4 py-2 border border-gray-300 rounded text-gray-700 hover:bg-gray-50">Cancel</a>
+            <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700">Save Group</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

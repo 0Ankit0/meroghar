@@ -8,23 +8,35 @@ class LeaseListView(LoginRequiredMixin, ListView):
     model = Lease
     template_name = "housing/lease_list.html"
     context_object_name = "leases"
+    
+    def get_queryset(self):
+        if self.request.active_organization:
+            return Lease.objects.filter(organization=self.request.active_organization)
+        return Lease.objects.none()
 
 class LeaseCreateView(LoginRequiredMixin, CreateView):
     model = Lease
-    fields = ['tenant', 'unit', 'start_date', 'end_date', 'rent_amount', 'deposit_amount', 'status']
+    fields = ['tenant', 'units', 'start_date', 'end_date', 'rent_amount', 'deposit_amount', 'status']
     template_name = "housing/lease_form.html"
     success_url = reverse_lazy('housing:lease_list')
 
     def form_valid(self, form):
         user = self.request.user
-        if not user.organization:
-            # Create default org if missing
+        
+        # Ensure user has an organization context
+        if not self.request.active_organization:
+            # Create a default organization for the user
             org_name = f"{user.get_full_name() or user.username}'s Properties"
             org = Organization.objects.create(name=org_name)
-            user.organization = org
-            user.save()
-        
-        form.instance.organization = user.organization
+            
+            # Add to M2M
+            user.organizations.add(org)
+            
+            # Set as Active
+            self.request.active_organization = org
+            self.request.session['active_org_id'] = str(org.id)
+            
+        form.instance.organization = self.request.active_organization
         return super().form_valid(form)
 
 class LeaseDetailView(LoginRequiredMixin, DetailView):
@@ -33,21 +45,19 @@ class LeaseDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "lease"
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Lease.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Lease.objects.filter(organization=self.request.active_organization)
         return Lease.objects.none()
 
 class LeaseUpdateView(LoginRequiredMixin, UpdateView):
     model = Lease
-    fields = ['tenant', 'unit', 'start_date', 'end_date', 'rent_amount', 'deposit_amount', 'status']
+    fields = ['tenant', 'units', 'start_date', 'end_date', 'rent_amount', 'deposit_amount', 'status']
     template_name = "housing/lease_form.html"
     success_url = reverse_lazy('housing:lease_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Lease.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Lease.objects.filter(organization=self.request.active_organization)
         return Lease.objects.none()
 
 class LeaseDeleteView(LoginRequiredMixin, DeleteView):
@@ -56,7 +66,6 @@ class LeaseDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('housing:lease_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Lease.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Lease.objects.filter(organization=self.request.active_organization)
         return Lease.objects.none()

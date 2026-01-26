@@ -10,12 +10,9 @@ class PropertyListView(LoginRequiredMixin, ListView):
     context_object_name = "properties"
     
     def get_queryset(self):
-        # Filter by user's organization
-        # For MVP/Demo if no login, return all or empty
-        # user = self.request.user
-        # if user.is_authenticated and user.organization:
-        #     return Property.objects.filter(organization=user.organization)
-        return Property.objects.all()
+        if self.request.active_organization:
+            return Property.objects.filter(organization=self.request.active_organization)
+        return Property.objects.none()
 
 class PropertyCreateView(LoginRequiredMixin, CreateView):
     model = Property
@@ -26,18 +23,21 @@ class PropertyCreateView(LoginRequiredMixin, CreateView):
     def form_valid(self, form):
         user = self.request.user
         
-        # Ensure user has an organization
-        if not user.organization:
-            # Create a default organization for the user (Personal Owner logic)
+        # Ensure user has an organization context
+        if not self.request.active_organization:
+            # Create a default organization for the user
             org_name = f"{user.get_full_name() or user.username}'s Properties"
             org = Organization.objects.create(name=org_name)
             
-            # Assign to user
-            user.organization = org
-            user.save()
+            # Add to M2M
+            user.organizations.add(org)
+            
+            # Set as Active
+            self.request.active_organization = org
+            self.request.session['active_org_id'] = str(org.id)
             
         # Assign org to property
-        form.instance.organization = user.organization
+        form.instance.organization = self.request.active_organization
             
         return super().form_valid(form)
 
@@ -47,9 +47,8 @@ class PropertyDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "property"
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Property.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+             return Property.objects.filter(organization=self.request.active_organization)
         return Property.objects.none()
 
 class PropertyUpdateView(LoginRequiredMixin, UpdateView):
@@ -59,9 +58,8 @@ class PropertyUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('housing:property_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Property.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+             return Property.objects.filter(organization=self.request.active_organization)
         return Property.objects.none()
 
 class PropertyDeleteView(LoginRequiredMixin, DeleteView):
@@ -70,7 +68,6 @@ class PropertyDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('housing:property_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Property.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+             return Property.objects.filter(organization=self.request.active_organization)
         return Property.objects.none()

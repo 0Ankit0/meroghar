@@ -21,12 +21,11 @@ class User(AbstractUser, BaseModel):
         VENDOR = 'VENDOR', 'Vendor'
 
     role = models.CharField(max_length=20, choices=Role.choices, default=Role.TENANT)
-    organization = models.ForeignKey(
-        'iam.Organization', 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        related_name='users'
+   
+    organizations = models.ManyToManyField(
+        'iam.Organization',
+        related_name='members',
+        blank=True
     )
     
     def __str__(self):

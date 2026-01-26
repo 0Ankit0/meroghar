@@ -19,9 +19,8 @@ class Lease(BaseModel):
         on_delete=models.CASCADE,
         related_name='leases'
     )
-    unit = models.ForeignKey(
-        'housing.Unit',  # Updated to housing app
-        on_delete=models.CASCADE,
+    units = models.ManyToManyField(
+        'housing.Unit',
         related_name='leases'
     )
     
@@ -43,7 +42,7 @@ class Lease(BaseModel):
     signed_lease_doc = models.FileField(upload_to='leases/', blank=True, null=True)
 
     def __str__(self):
-        return f"Lease: {self.tenant} - {self.unit}"
+        return f"Lease: {self.tenant} - {self.units.count()} Units"
 
     def clean(self):
         # Validate that unit belongs to same org as tenant (optional sanity check)

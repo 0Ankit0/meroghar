@@ -8,6 +8,11 @@ class InvoiceListView(LoginRequiredMixin, ListView):
     model = Invoice
     template_name = "finance/invoice_list.html"
     context_object_name = "invoices"
+    
+    def get_queryset(self):
+        if self.request.active_organization:
+             return Invoice.objects.filter(organization=self.request.active_organization)
+        return Invoice.objects.none()
 
 class InvoiceDetailView(LoginRequiredMixin, DetailView):
     model = Invoice
@@ -15,9 +20,8 @@ class InvoiceDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "invoice"
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Invoice.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Invoice.objects.filter(organization=self.request.active_organization)
         return Invoice.objects.none()
 
 class InvoiceCreateView(LoginRequiredMixin, CreateView):
@@ -28,13 +32,17 @@ class InvoiceCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         user = self.request.user
-        if not user.organization:
-            org_name = f"{user.get_full_name() or user.username}'s Properties"
-            org = Organization.objects.create(name=org_name)
-            user.organization = org
-            user.save()
         
-        form.instance.organization = user.organization
+        # Ensure active org
+        if not self.request.active_organization:
+             # Create default
+             org_name = f"{user.get_full_name() or user.username}'s Properties"
+             org = Organization.objects.create(name=org_name)
+             user.organizations.add(org)
+             self.request.active_organization = org
+             self.request.session['active_org_id'] = str(org.id)
+        
+        form.instance.organization = self.request.active_organization
         return super().form_valid(form)
 
 class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
@@ -44,9 +52,8 @@ class InvoiceUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('finance:invoice_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Invoice.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Invoice.objects.filter(organization=self.request.active_organization)
         return Invoice.objects.none()
 
 class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
@@ -55,7 +62,6 @@ class InvoiceDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('finance:invoice_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Invoice.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Invoice.objects.filter(organization=self.request.active_organization)
         return Invoice.objects.none()

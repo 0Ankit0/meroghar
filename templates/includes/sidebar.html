@@ -1,7 +1,55 @@
 <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform -translate-x-full transition-transform duration-300 md:relative md:translate-x-0 flex flex-col h-full shadow-lg md:shadow-none">
     <!-- Logo/Brand -->
-    <div class="h-16 flex items-center justify-center border-b border-border bg-card">
-        <span class="text-xl font-bold text-primary">MeroGhar</span>
+    <!-- Organization Switcher -->
+    <div class="h-16 flex items-center px-4 border-b border-border bg-card relative">
+        <button onclick="document.getElementById('org-dropdown').classList.toggle('hidden')" class="w-full flex items-center justify-between px-2 py-2 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors focus:outline-none">
+            <div class="flex items-center overflow-hidden">
+                <div class="w-8 h-8 rounded bg-primary text-white flex items-center justify-center font-bold mr-3 shrink-0">
+                    {{ request.active_organization.name|slice:":1"|upper|default:"?" }}
+                </div>
+                <div class="text-left truncate">
+                    <p class="text-sm font-semibold text-foreground truncate">{{ request.active_organization.name|default:"Select Org" }}</p>
+                    <p class="text-xs text-muted-foreground">Switch organization</p>
+                </div>
+            </div>
+            <svg class="w-4 h-4 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        </button>
+
+        <!-- Dropdown Menu -->
+        <div id="org-dropdown" class="absolute top-16 left-0 w-full bg-card border-b border-r border-l border-border shadow-lg z-50 hidden">
+            <div class="p-2 space-y-1">
+                <p class="px-3 py-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Organizations</p>
+                {% for org in request.user.organizations.all %}
+                <form action="{% url 'iam:organization_switch' org.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="w-full flex items-center px-3 py-2 text-sm rounded-md {% if org == request.active_organization %}bg-primary/10 text-primary{% else %}text-foreground hover:bg-gray-100 dark:hover:bg-gray-800{% endif %}">
+                        <span class="truncate">{{ org.name }}</span>
+                        {% if org == request.active_organization %}
+                        <svg class="w-4 h-4 ml-auto text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                        </svg>
+                        {% endif %}
+                    </button>
+                </form>
+                {% endfor %}
+                <div class="border-t border-border my-1"></div>
+                <a href="{% url 'iam:organization_add' %}" class="flex items-center px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-md">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                    </svg>
+                    New Organization
+                </a>
+                <a href="{% url 'iam:organization_list' %}" class="flex items-center px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-gray-100 rounded-md">
+                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    </svg>
+                    Manage Organizations
+                </a>
+            </div>
+        </div>
     </div>
     
     <!-- Navigation -->
@@ -32,6 +80,13 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
             </svg>
             <span>Properties</span>
+        </a>
+        
+        <a href="{% url 'housing:unit_list' %}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors {% if app_name == 'housing' and 'unit' in url_name %}bg-primary/10 text-primary font-medium{% else %}text-muted-foreground hover:bg-primary/10 hover:text-primary{% endif %}">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+            </svg>
+            <span>Units</span>
         </a>
         
         <a href="{% url 'housing:tenant_list' %}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors {% if app_name == 'housing' and 'tenant' in url_name %}bg-primary/10 text-primary font-medium{% else %}text-muted-foreground hover:bg-primary/10 hover:text-primary{% endif %}">
@@ -104,13 +159,22 @@
             <p class="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Configuration</p>
         </div>
 
-        <a href="{% url 'iam:organization_detail' %}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors {% if url_name == 'organization_detail' or url_name == 'organization_edit' %}bg-primary/10 text-primary font-medium{% else %}text-muted-foreground hover:bg-primary/10 hover:text-primary{% endif %}">
+        <a href="{% url 'iam:organization_list' %}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors {% if 'organization' in url_name %}bg-primary/10 text-primary font-medium{% else %}text-muted-foreground hover:bg-primary/10 hover:text-primary{% endif %}">
             <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
             </svg>
             <span>Organization</span>
         </a>
+
+        {% if request.user.is_staff or request.user.is_superuser %}
+        <a href="{% url 'iam:group_list' %}" class="flex items-center px-4 py-2.5 rounded-lg transition-colors {% if 'group' in url_name %}bg-primary/10 text-primary font-medium{% else %}text-muted-foreground hover:bg-primary/10 hover:text-primary{% endif %}">
+            <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+            <span>Groups</span>
+        </a>
+        {% endif %}
         
         {% endwith %}
     </nav>

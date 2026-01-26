@@ -20,8 +20,8 @@ class DocumentListView(LoginRequiredMixin, ListView):
     paginate_by = 20
 
     def get_queryset(self):
-        if self.request.user.organization:
-            return Document.objects.filter(organization=self.request.user.organization).order_by('-created_at')
+        if self.request.active_organization:
+            return Document.objects.filter(organization=self.request.active_organization).order_by('-created_at')
         return Document.objects.none()
 
 class DocumentCreateView(LoginRequiredMixin, CreateView):
@@ -31,7 +31,11 @@ class DocumentCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('operations:document_list')
 
     def form_valid(self, form):
-        form.instance.organization = self.request.user.organization
+        if not self.request.active_organization:
+             from django.http import Http404
+             raise Http404("No active organization selected.")
+             
+        form.instance.organization = self.request.active_organization
         form.instance.uploaded_by = self.request.user
         return super().form_valid(form)
 
@@ -41,8 +45,8 @@ class DocumentDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'document'
 
     def get_queryset(self):
-        if self.request.user.organization:
-            return Document.objects.filter(organization=self.request.user.organization)
+        if self.request.active_organization:
+            return Document.objects.filter(organization=self.request.active_organization)
         return Document.objects.none()
 
 class DocumentDeleteView(LoginRequiredMixin, DeleteView):
@@ -51,6 +55,6 @@ class DocumentDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('operations:document_list')
 
     def get_queryset(self):
-         if self.request.user.organization:
-            return Document.objects.filter(organization=self.request.user.organization)
+         if self.request.active_organization:
+            return Document.objects.filter(organization=self.request.active_organization)
          return Document.objects.none()

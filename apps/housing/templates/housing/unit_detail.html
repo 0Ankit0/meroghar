@@ -1,0 +1,129 @@
+{% extends "base.html" %}
+
+{% block title %}Unit Details - {{ unit.unit_number }}{% endblock %}
+
+{% block page_title %}Unit {{ unit.unit_number }}{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+        <a href="{% url 'housing:unit_list' %}" class="text-indigo-600 hover:text-indigo-800 flex items-center">
+            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+            </svg>
+            Back to Units
+        </a>
+        <div class="space-x-3">
+             <a href="{% url 'housing:unit_delete' unit.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Delete
+            </a>
+            <a href="{% url 'housing:unit_edit' unit.id %}" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Edit Unit
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Info Card -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 flex justify-between items-start">
+            <div>
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Unit Information</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Details and amenity information.</p>
+            </div>
+             <span class="inline-flex items-center px-3 py-0.5 rounded-full text-sm font-medium
+                {% if unit.status == 'VACANT' %}bg-green-100 text-green-800
+                {% elif unit.status == 'OCCUPIED' %}bg-blue-100 text-blue-800
+                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                {{ unit.get_status_display }}
+            </span>
+        </div>
+        <div class="border-t border-gray-200 px-4 py-5 sm:px-6">
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-8 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Property</dt>
+                    <dd class="mt-1 text-sm text-gray-900">
+                         <a href="{% url 'housing:property_detail' unit.property.id %}" class="text-indigo-600 hover:underline">
+                            {{ unit.property.name }}
+                        </a>
+                    </dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Unit Number</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ unit.unit_number }}</dd>
+                </div>
+                 <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Location</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ unit.property.address }}, {{ unit.property.city }}</dd>
+                </div>
+                 <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Floor</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ unit.floor|default:"-" }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Current Rent</dt>
+                    <dd class="mt-1 text-sm text-gray-900">${{ unit.rent_amount }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Market Rent</dt>
+                    <dd class="mt-1 text-sm text-gray-900">${{ unit.market_rent }}</dd>
+                </div>
+                 <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Layout</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ unit.bedrooms }} Beds / {{ unit.bathrooms }} Baths</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Area</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ unit.area_sqft|default:"-" }} sq ft</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+    
+    <!-- Lease History (Placeholder or Active Lease) -->
+    <!-- TODO: Show active lease details dynamically -->
+    {% if unit.leases.exists %}
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <h3 class="text-lg leading-6 font-medium text-gray-900">Lease History</h3>
+        </div>
+        <div class="border-t border-gray-200">
+             <ul role="list" class="divide-y divide-gray-200">
+                {% for lease in unit.leases.all %}
+                <li class="px-4 py-4 sm:px-6 hover:bg-gray-50">
+                    <a href="{% url 'housing:lease_detail' lease.id %}" class="block">
+                         <div class="flex items-center justify-between">
+                            <div class="text-sm font-medium text-indigo-600 truncate">
+                               {{ lease.tenant }}
+                            </div>
+                            <div class="ml-2 flex-shrink-0 flex">
+                                <p class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if lease.status == 'ACTIVE' %}bg-green-100 text-green-800
+                                {% elif lease.status == 'EXPIRED' %}bg-gray-100 text-gray-800
+                                {% else %}bg-yellow-100 text-yellow-800{% endif %}">
+                                    {{ lease.get_status_display }}
+                                </p>
+                            </div>
+                        </div>
+                        <div class="mt-2 sm:flex sm:justify-between">
+                            <div class="sm:flex">
+                                <p class="flex items-center text-sm text-gray-500">
+                                    {{ lease.start_date }} - {{ lease.end_date }}
+                                </p>
+                            </div>
+                             <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                <p>
+                                    ${{ lease.rent_amount }}/mo
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -10,9 +10,8 @@ class WorkOrderListView(LoginRequiredMixin, ListView):
     context_object_name = "work_orders"
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return WorkOrder.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+             return WorkOrder.objects.filter(organization=self.request.active_organization)
         return WorkOrder.objects.none()
 
 class WorkOrderCreateView(LoginRequiredMixin, CreateView):
@@ -23,13 +22,17 @@ class WorkOrderCreateView(LoginRequiredMixin, CreateView):
 
     def form_valid(self, form):
         user = self.request.user
-        if not user.organization:
-            org_name = f"{user.get_full_name() or user.username}'s Properties"
-            org = Organization.objects.create(name=org_name)
-            user.organization = org
-            user.save()
         
-        form.instance.organization = user.organization
+        # Ensure active org
+        if not self.request.active_organization:
+             # Create default
+             org_name = f"{user.get_full_name() or user.username}'s Properties"
+             org = Organization.objects.create(name=org_name)
+             user.organizations.add(org)
+             self.request.active_organization = org
+             self.request.session['active_org_id'] = str(org.id)
+        
+        form.instance.organization = self.request.active_organization
         return super().form_valid(form)
 
 class WorkOrderDetailView(LoginRequiredMixin, DetailView):
@@ -38,9 +41,8 @@ class WorkOrderDetailView(LoginRequiredMixin, DetailView):
     context_object_name = "work_order"
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return WorkOrder.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return WorkOrder.objects.filter(organization=self.request.active_organization)
         return WorkOrder.objects.none()
 
 class WorkOrderUpdateView(LoginRequiredMixin, UpdateView):
@@ -50,9 +52,8 @@ class WorkOrderUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('operations:work_order_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return WorkOrder.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return WorkOrder.objects.filter(organization=self.request.active_organization)
         return WorkOrder.objects.none()
 
 class WorkOrderDeleteView(LoginRequiredMixin, DeleteView):
@@ -61,7 +62,6 @@ class WorkOrderDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('operations:work_order_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return WorkOrder.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return WorkOrder.objects.filter(organization=self.request.active_organization)
         return WorkOrder.objects.none()

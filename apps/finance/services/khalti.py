@@ -39,9 +39,9 @@ class KhaltiService:
             "purchase_order_id": str(payment_obj.id),
             "purchase_order_name": f"Invoice Payment {payment_obj.invoice.invoice_number if payment_obj.invoice else ''}",
             "customer_info": {
-               "name": payment_obj.invoice.tenant.full_name if payment_obj.invoice and payment_obj.invoice.tenant else "Guest",
-               "email": payment_obj.invoice.tenant.email if payment_obj.invoice and payment_obj.invoice.tenant else "guest@example.com",
-               "phone": payment_obj.invoice.tenant.phone if payment_obj.invoice and payment_obj.invoice.tenant else "",
+               "name": payment_obj.invoice.lease.tenant.full_name if payment_obj.invoice and payment_obj.invoice.lease and payment_obj.invoice.lease.tenant else "Guest",
+               "email": payment_obj.invoice.lease.tenant.email if payment_obj.invoice and payment_obj.invoice.lease and payment_obj.invoice.lease.tenant else "guest@example.com",
+               "phone": payment_obj.invoice.lease.tenant.phone if payment_obj.invoice and payment_obj.invoice.lease and payment_obj.invoice.lease.tenant else "",
             }
         }
         

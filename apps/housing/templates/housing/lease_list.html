@@ -26,7 +26,11 @@
                 {% for lease in leases %}
                 <tr class="border-b transition-colors hover:bg-gray-50/50 data-[state=selected]:bg-gray-50">
                     <td class="p-4 align-middle font-medium text-gray-900">{{ lease.tenant }}</td>
-                    <td class="p-4 align-middle text-gray-500">{{ lease.unit }}</td>
+                    <td class="p-4 align-middle text-gray-500">
+                        {% for unit in lease.units.all %}
+                            {{ unit }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </td>
                     <td class="p-4 align-middle text-gray-500">{{ lease.start_date }} - {{ lease.end_date }}</td>
                     <td class="p-4 align-middle text-gray-500">
                         <span class="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold bg-green-50 text-green-700 border-green-200">

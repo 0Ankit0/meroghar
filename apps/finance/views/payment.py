@@ -104,8 +104,10 @@ class PaymentListView(LoginRequiredMixin, ListView):
 
     def get_queryset(self):
         qs = super().get_queryset()
-        if hasattr(self.request.user, 'organization') and self.request.user.organization:
-             qs = qs.filter(organization=self.request.user.organization)
+        if self.request.active_organization:
+             qs = qs.filter(organization=self.request.active_organization)
+        else:
+             qs = qs.none()
         return qs
 
 class PaymentDetailView(LoginRequiredMixin, DetailView):
@@ -114,9 +116,8 @@ class PaymentDetailView(LoginRequiredMixin, DetailView):
     context_object_name = 'payment'
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Payment.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Payment.objects.filter(organization=self.request.active_organization)
         return Payment.objects.none()
 
 class PaymentUpdateView(LoginRequiredMixin, UpdateView):
@@ -126,9 +127,8 @@ class PaymentUpdateView(LoginRequiredMixin, UpdateView):
     success_url = reverse_lazy('finance:payment_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Payment.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Payment.objects.filter(organization=self.request.active_organization)
         return Payment.objects.none()
 
 class PaymentDeleteView(LoginRequiredMixin, DeleteView):
@@ -137,7 +137,6 @@ class PaymentDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('finance:payment_list')
     
     def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.organization:
-            return Payment.objects.filter(organization=user.organization)
+        if self.request.active_organization:
+            return Payment.objects.filter(organization=self.request.active_organization)
         return Payment.objects.none()
