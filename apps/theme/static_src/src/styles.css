@@ -1,4 +1,4 @@
-@import "./theme.css";
+@config "../tailwind.config.js";
 @import "tailwindcss";
 
 /**
@@ -9,3 +9,5 @@
   * the scope of this path.
   */
 @source "../../../**/*.{html,py,js}";
+@source "../../**/*.{html,py,js}";
+@source "../../../templates/**/*.html";

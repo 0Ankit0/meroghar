@@ -34,6 +34,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    *DISCOVERED_APPS,
     # Administration (Renamed from Management)
     'apps.administration',
     
@@ -56,7 +57,7 @@ INSTALLED_APPS = [
     # For now, we will add 'theme' if we create it.
     
     # Local Apps (Auto-discovered)
-] + DISCOVERED_APPS
+]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
