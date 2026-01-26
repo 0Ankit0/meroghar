@@ -20,6 +20,17 @@ graph TB
     khalti -->|Callback/Verification| system
     system -->|Sends Notifications| email
 ```
+```
+
+## Multi-tenancy Strategy
+
+MeroGhar uses a **Shared Database, Shared Schema** multi-tenancy model, where data is logically isolated by `Organization`.
+
+- **Organization Context**: Users can belong to multiple organizations. The current context is maintained in the user session (`active_org_id`) and exposed via `request.active_organization` by middleware.
+- **Data Isolation**: All domain models (Property, Tenant, Invoice, etc.) have a `ForeignKey` to `Organization`. Views explicitly filter querysets by the active organization.
+- **Access Control**: Users are assigned to `OrganizationGroup` which grants permissions across linked organizations.
+
+For detailed implementation, see [IAM Module](modules/iam.md).
 
 ## Tech Stack
 

@@ -8,6 +8,7 @@ MeroGhar is an enterprise-grade rental property management system designed for t
 - **Tenant & Lease Management**: Full lifecycle management of tenants and lease agreements.
 - **Billing & Payments**: Automated invoicing and integrated **Khalti** online payments.
 - **Maintenance**: Digital work order tracking for property upkeep.
+- **Multi-tenancy**: Support for multiple organizations and organization-groups.
 
 ## Getting Started
 
