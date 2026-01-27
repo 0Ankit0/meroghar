@@ -13,10 +13,14 @@ urlpatterns = [
     path('housing/', include('apps.housing.urls')),  # Properties, Tenants, Leases
     path('finance/', include('apps.finance.urls')),  # Billing, Payments
     path('operations/', include('apps.operations.urls')),  # Maintenance, Documents, Notifications
+    path('crm/', include('apps.crm.urls')), # Leads, Showings
     
-    # Separate Apps (unchanged)
-    path('administration/', include('apps.administration.urls')),
+    # Identity & Access Management
     path('iam/', include('apps.iam.urls')),
+    
+    # Removed administration app as it is merged into IAM
+    # path('administration/', include('apps.administration.urls')),
+    
     path('reporting/', include('apps.reporting.urls')),
     path('api/', include('config.api_urls')),
 ]

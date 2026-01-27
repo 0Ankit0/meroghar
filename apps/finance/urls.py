@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import invoice as invoice_views
 from .views import payment as payment_views
+from .views import expense as expense_views
 
 app_name = "finance"
 
@@ -19,4 +20,11 @@ urlpatterns = [
     path("payments/<uuid:pk>/", payment_views.PaymentDetailView.as_view(), name="payment_detail"),
     path("payments/<uuid:pk>/edit/", payment_views.PaymentUpdateView.as_view(), name="payment_edit"),
     path("payments/<uuid:pk>/delete/", payment_views.PaymentDeleteView.as_view(), name="payment_delete"),
+
+    # Expenses
+    path('expenses/', expense_views.ExpenseListView.as_view(), name='expense_list'),
+    path('expenses/add/', expense_views.ExpenseCreateView.as_view(), name='expense_add'),
+    path('expenses/<uuid:pk>/', expense_views.ExpenseDetailView.as_view(), name='expense_detail'),
+    path('expenses/<uuid:pk>/edit/', expense_views.ExpenseUpdateView.as_view(), name='expense_edit'),
+    path('expenses/<uuid:pk>/delete/', expense_views.ExpenseDeleteView.as_view(), name='expense_delete'),
 ]

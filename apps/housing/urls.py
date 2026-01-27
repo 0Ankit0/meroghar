@@ -3,6 +3,8 @@ from .views import property as property_views
 from .views import tenant as tenant_views
 from .views import lease as lease_views
 from .views import unit as unit_views
+from .views import inspection as inspection_views
+from .views import inventory as inventory_views
 
 app_name = "housing"
 
@@ -29,9 +31,20 @@ urlpatterns = [
     path("tenants/<uuid:pk>/delete/", tenant_views.TenantDeleteView.as_view(), name="tenant_delete"),
     
     # Leases
-    path("leases/", lease_views.LeaseListView.as_view(), name="lease_list"),
-    path("leases/add/", lease_views.LeaseCreateView.as_view(), name="lease_add"),
-    path("leases/<uuid:pk>/", lease_views.LeaseDetailView.as_view(), name="lease_detail"),
-    path("leases/<uuid:pk>/edit/", lease_views.LeaseUpdateView.as_view(), name="lease_edit"),
+    # Leases
+    path('leases/', lease_views.LeaseListView.as_view(), name='lease_list'),
+    path('leases/add/', lease_views.LeaseCreateView.as_view(), name='lease_add'),
+    path('leases/<uuid:pk>/', lease_views.LeaseDetailView.as_view(), name='lease_detail'),
+    path('leases/<uuid:pk>/edit/', lease_views.LeaseUpdateView.as_view(), name='lease_edit'),
     path("leases/<uuid:pk>/delete/", lease_views.LeaseDeleteView.as_view(), name="lease_delete"),
+
+    # Inspections
+    path('inspections/', inspection_views.InspectionListView.as_view(), name='inspection_list'),
+    path('inspections/add/', inspection_views.InspectionCreateView.as_view(), name='inspection_add'),
+    path('inspections/<uuid:pk>/edit/', inspection_views.InspectionUpdateView.as_view(), name='inspection_edit'),
+    
+    # Inventory
+    path('inventory/', inventory_views.InventoryListView.as_view(), name='inventory_list'),
+    path('inventory/add/', inventory_views.InventoryCreateView.as_view(), name='inventory_add'),
+    path('inventory/<uuid:pk>/edit/', inventory_views.InventoryUpdateView.as_view(), name='inventory_edit'),
 ]

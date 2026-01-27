@@ -1,0 +1,140 @@
+{% extends "base.html" %}
+
+{% block title %}Maintenance Report | MeroGhar{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div>
+            <h1 class="text-3xl font-bold text-foreground">Maintenance Report</h1>
+            <p class="text-muted-foreground">Work order status and priority analysis.</p>
+        </div>
+        
+        <!-- Filter Form -->
+        <form method="get" class="flex items-center gap-2 bg-card p-2 rounded-lg border border-border shadow-sm">
+            <select name="property" class="h-9 rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
+                <option value="">All Properties</option>
+                {% for prop in properties %}
+                <option value="{{ prop.id }}" {% if request.GET.property == prop.id|stringformat:"s" %}selected{% endif %}>{{ prop.name }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" class="h-9 px-4 py-2 bg-primary text-primary-foreground hover:bg-primary/90 inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50">
+                Filter
+            </button>
+        </form>
+    </div>
+
+    <!-- Stats Grid -->
+    <div class="grid gap-4 md:grid-cols-4">
+        <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6 bg-gradient-to-br from-card to-muted/20">
+            <h3 class="tracking-tight text-sm font-medium text-muted-foreground">Total Requests</h3>
+            <div class="mt-2 text-3xl font-bold">{{ stats.total }}</div>
+        </div>
+        <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6 border-l-4 border-l-destructive">
+            <h3 class="tracking-tight text-sm font-medium text-muted-foreground">High Priority</h3>
+            <div class="mt-2 text-3xl font-bold text-destructive">{{ stats.high_priority }}</div>
+        </div>
+        <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6 border-l-4 border-l-primary">
+            <h3 class="tracking-tight text-sm font-medium text-muted-foreground">Active (In Progress)</h3>
+            <div class="mt-2 text-3xl font-bold text-primary">{{ stats.in_progress }}</div>
+        </div>
+        <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6 border-l-4 border-l-success">
+            <h3 class="tracking-tight text-sm font-medium text-muted-foreground">Completed</h3>
+            <div class="mt-2 text-3xl font-bold text-success">{{ stats.closed }}</div>
+        </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="grid gap-4 md:grid-cols-2">
+        <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6">
+            <h3 class="font-semibold text-lg mb-4">Request Status Distribution</h3>
+            <div class="h-[300px] w-full flex justify-center">
+                <canvas id="maintenanceChart"></canvas>
+            </div>
+        </div>
+        
+        <!-- Action Items (Simulated) -->
+        <div class="rounded-xl border border-border bg-card text-card-foreground shadow-sm p-6">
+            <h3 class="font-semibold text-lg mb-4">Action Required</h3>
+            <div class="space-y-4">
+                {% if stats.open > 0 %}
+                <div class="flex items-start gap-4 p-3 rounded-lg bg-orange-50 border border-orange-100 dark:bg-orange-900/10 dark:border-orange-900/20">
+                    <div class="p-2 bg-orange-100 text-orange-600 rounded-full dark:bg-orange-900/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M3.34 19a2 2 0 0 1-1.73-3L7 6a2 2 0 0 1 1.73-1h8.54a2 2 0 0 1 1.73 1l5.38 10a2 2 0 0 1-1.73 3Z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-orange-900 dark:text-orange-200">Unassigned Requests</h4>
+                        <p class="text-sm text-orange-700 dark:text-orange-300">You have {{ stats.open }} open requests waiting for assignment.</p>
+                        <a href="{% url 'operations:work_order_list' %}?status=OPEN" class="text-xs font-semibold text-orange-800 hover:underline dark:text-orange-200 mt-1 inline-block">View Requests &rarr;</a>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="flex items-start gap-4 p-3 rounded-lg bg-blue-50 border border-blue-100 dark:bg-blue-900/10 dark:border-blue-900/20">
+                    <div class="p-2 bg-blue-100 text-blue-600 rounded-full dark:bg-blue-900/30">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                    </div>
+                    <div>
+                        <h4 class="font-medium text-blue-900 dark:text-blue-200">Vendor Performance</h4>
+                        <p class="text-sm text-blue-700 dark:text-blue-300">Review vendor completion times for closed tickets.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('maintenanceChart').getContext('2d');
+        
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: {{ chart_data.labels|safe }},
+                datasets: [{
+                    label: 'Use Count',
+                    data: {{ chart_data.data|safe }},
+                    backgroundColor: [
+                        'rgba(234, 179, 8, 0.7)', // Open (Yellow/Orange)
+                        'rgba(59, 130, 246, 0.7)', // In Progress (Blue)
+                        'rgba(34, 197, 94, 0.7)',  // Resolved (Green)
+                        'rgba(107, 114, 128, 0.7)' // Closed (Gray)
+                    ],
+                    borderColor: [
+                        '#eab308',
+                        '#3b82f6',
+                        '#22c55e',
+                        '#6b7280'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

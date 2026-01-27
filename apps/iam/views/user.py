@@ -22,7 +22,7 @@ class UserListView(LoginRequiredMixin, AdminRequiredMixin, ListView):
 
 class UserCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
     model = User
-    fields = ['username', 'email', 'first_name', 'last_name', 'role', 'organization', 'password'] # Password handling needs care
+    fields = ['username', 'email', 'first_name', 'last_name', 'role', 'organizations', 'password'] # Password handling needs care
     template_name = "iam/user_form.html"
     success_url = reverse_lazy('iam:user_list')
     
@@ -34,7 +34,7 @@ class UserCreateView(LoginRequiredMixin, AdminRequiredMixin, CreateView):
 
 class UserUpdateView(LoginRequiredMixin, AdminRequiredMixin, UpdateView):
     model = User
-    fields = ['username', 'email', 'first_name', 'last_name', 'role', 'organization', 'is_active']
+    fields = ['username', 'email', 'first_name', 'last_name', 'role', 'organizations', 'is_active']
     template_name = "iam/user_form.html"
     success_url = reverse_lazy('iam:user_list')
     # Prevent password update here for simplicity, force password reset flow or separate view

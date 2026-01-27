@@ -35,8 +35,6 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     *DISCOVERED_APPS,
-    # Administration (Renamed from Management)
-    'apps.administration',
     
     'django.contrib.admin',
     'django.contrib.auth',

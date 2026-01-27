@@ -45,5 +45,48 @@ class Lease(BaseModel):
         return f"Lease: {self.tenant} - {self.units.count()} Units"
 
     def clean(self):
-        # Validate that unit belongs to same org as tenant (optional sanity check)
+        from django.core.exceptions import ValidationError
+        from django.db.models import Q
+
+        # Date validation
+        if self.start_date and self.end_date and self.start_date >= self.end_date:
+            raise ValidationError(_("End date must be after start date."))
+
+        # Overlap check
+        # We need to check if ANY of the assigned units have an overlapping active lease
+        # This is strictly for ACTIVE leases or confirmed ones, we might want to exclude CANCELLED/TERMINATED if the logic allows re-leasing
+        
+        # Note: Since units is ManyToMany, instance needs to be saved to have units. 
+        # But clean() is called before save() in ModelForms.
+        # If this is a new instance, we might not have access to self.units.all() easily without hacking.
+        # However, typically M2M is set after save. 
+        # For strict validation usually we do it in a Service layer or Form. 
+        # But if we assume 'units' are set (e.g. update) we can check.
+        
+        # For simplicity in this 'clean' method, we can't easily check M2M on NEW creation before save.
+        # A common tailored approach is checking if the user passed 'units' to the form context.
+        # OR we rely on the implementation where we might check this in a Service or Serializer.
+        
+        # BUT, if we want to add the code, here is the logic:
         pass
+        # Real implementation would likely need to happen in the text of the application logic 
+        # or we accept that M2M validation in model.clean() is tricky for new objects.
+        
+        # Let's check for specific unit overlap if we can.
+        # If we stick to 'one active lease per unit', we should enforce it.
+        
+        # Strategy: The Application Logic (Service/Serializer) should call this validation 
+        # explicitly passing the units to check.
+        # But for 'clean' on existing instance:
+        
+        if self.pk:
+            overlapping_leases = Lease.objects.filter(
+                organization=self.organization,
+                units__in=self.units.all(),
+                status=Lease.Status.ACTIVE
+            ).exclude(pk=self.pk).filter(
+                Q(start_date__lt=self.end_date) & Q(end_date__gt=self.start_date)
+            ).distinct()
+            
+            if overlapping_leases.exists():
+                raise ValidationError(_("One or more units have an overlapping active lease."))

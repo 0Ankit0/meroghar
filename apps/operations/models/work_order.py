@@ -55,5 +55,14 @@ class WorkOrder(BaseModel):
         related_name='assigned_work_orders'
     )
     
+    # Optional external vendor assignment
+    assigned_vendor = models.ForeignKey(
+        'operations.Vendor',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='assigned_work_orders'
+    )
+    
     def __str__(self):
         return f"WO-{self.id.hex[:6].upper()} : {self.title}"

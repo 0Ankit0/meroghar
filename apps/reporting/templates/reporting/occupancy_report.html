@@ -4,38 +4,8 @@
 
 {% block content %}
 <div class="space-y-6">
-    <div class="flex items-center justify-between">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-sm text-muted-foreground mb-2">
-                <a href="{% url 'reporting:report_list' %}" class="hover:text-primary transition-colors">Reports</a>
-                <span>/</span>
-                <span>Occupancy</span>
-            </div>
-            <h1 class="text-3xl font-bold text-foreground">Occupancy Analysis</h1>
-        </div>
-    </div>
-
-    <div class="grid gap-6 md:grid-cols-3">
-        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <h3 class="text-sm font-medium text-muted-foreground">Occupancy Rate</h3>
-            <div class="flex items-end mt-2">
-                 <p class="text-4xl font-bold text-primary">{{ occupancy.rate }}%</p>
-            </div>
-            <div class="w-full bg-muted rounded-full h-2.5 mt-4">
-                <div class="bg-primary h-2.5 rounded-full" style="width: {{ occupancy.rate }}%"></div>
-            </div>
-        </div>
-        
-        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-            <h3 class="text-sm font-medium text-muted-foreground">Total Units</h3>
-            <p class="text-3xl font-bold mt-2">{{ occupancy.total }}</p>
-            <p class="text-sm text-muted-foreground mt-1">Properties under management</p>
-        </div>
-
-        <div class="rounded-xl border border-border bg-card p-6 shadow-sm">
-             <div class="grid grid-cols-2 gap-4">
-                 <div>
-                     <h3 class="text-xs font-semibold uppercase text-muted-foreground">Occupied</h3>
                      <p class="text-2xl font-bold text-success mt-1">{{ occupancy.occupied }}</p>
                  </div>
                  <div>

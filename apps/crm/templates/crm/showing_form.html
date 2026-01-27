@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-3xl mx-auto">
+        <form method="post" class="space-y-8 divide-y divide-gray-200">
+            {% csrf_token %}
+            <div class="space-y-8 divide-y divide-gray-200">
+                <div>
+                     <h3 class="text-lg leading-6 font-medium text-gray-900">Schedule Showing</h3>
+                    
+                    <div class="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">Lead</label>
+                            <div class="mt-1">{{ form.lead }}</div>
+                        </div>
+                        
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">Unit</label>
+                            <div class="mt-1">{{ form.unit }}</div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">Start Time</label>
+                            <div class="mt-1">{{ form.start_time }}</div>
+                        </div>
+
+                        <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">End Time</label>
+                            <div class="mt-1">{{ form.end_time }}</div>
+                        </div>
+                        
+                         <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">Agent</label>
+                            <div class="mt-1">{{ form.showing_agent }}</div>
+                        </div>
+                        
+                         <div class="sm:col-span-3">
+                            <label class="block text-sm font-medium text-gray-700">Status</label>
+                            <div class="mt-1">{{ form.status }}</div>
+                        </div>
+
+                        <div class="sm:col-span-6">
+                            <label class="block text-sm font-medium text-gray-700">Notes</label>
+                            <div class="mt-1">{{ form.notes }}</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+             <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'crm:showing_list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50">Cancel</a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary hover:bg-primary/90">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

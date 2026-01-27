@@ -2,10 +2,14 @@ from django.urls import path
 from .views import user as user_views
 from .views import organization as org_views
 from .views import group as group_views
+from .views import auth as auth_views
 
 app_name = "iam"
 
 urlpatterns = [
+    # Auth
+    path("auth/2fa/", auth_views.TwoFactorVerificationView.as_view(), name="two_factor_verification"),
+
     path("users/", user_views.UserListView.as_view(), name="user_list"),
     path("users/add/", user_views.UserCreateView.as_view(), name="user_add"),
     path("users/<uuid:pk>/edit/", user_views.UserUpdateView.as_view(), name="user_edit"),

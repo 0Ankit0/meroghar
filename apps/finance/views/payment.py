@@ -44,6 +44,8 @@ class InitiatePaymentView(LoginRequiredMixin, View):
 
 class VerifyPaymentView(LoginRequiredMixin, View):
     def get(self, request):
+        from django.db import transaction
+        
         # Khalti redirects back with ?pidx=...&status=...&purchase_order_id=...
         pidx = request.GET.get('pidx')
         status = request.GET.get('status')
@@ -53,47 +55,74 @@ class VerifyPaymentView(LoginRequiredMixin, View):
              messages.error(request, "Invalid verification request.")
              return redirect('dashboard')
              
-        # Find payment
+        # Call verify on Khalti first (external call before lock ideally to keep lock time short, 
+        # but strictly for race condition on DB update, we lock first OR check status.
+        # Better pattern: Verify external, THEN lock and update. 
+        # BUT if double-click happens, we might verify twice. 
+        # Idempotency relies on DB state. So lock first is safer for idempotency check.
+        
         try:
-             payment = Payment.objects.get(transaction_id=pidx)
-        except Payment.DoesNotExist:
-             messages.error(request, "Payment record not found.")
-             return redirect('finance:invoice_list')
+            with transaction.atomic():
+                # Find payment with lock
+                try:
+                     payment = Payment.objects.select_for_update().get(transaction_id=pidx)
+                except Payment.DoesNotExist:
+                     # If not found by transaction_id, try by purchase_order_id (ID) if valid
+                     # But Khalti doc says pidx is key.
+                     messages.error(request, "Payment record not found.")
+                     return redirect('finance:invoice_list')
 
-        # Call verify on Khalti
-        khalti = KhaltiService()
-        verification_data = khalti.verify_payment(pidx)
-        
-        if verification_data and verification_data.get('status') == 'Completed':
-            # Mark payment success
-            payment.status = Payment.Status.SUCCESS
-            payment.verified_at = timezone.now()
-            payment.provider_payload = verification_data # Store final data
-            payment.save()
-            
-            # Update Invoice
-            invoice = payment.invoice
-            if invoice:
-                # Update paid amount
-                invoice.paid_amount += payment.amount
+                # Idempotency check
+                if payment.status == Payment.Status.SUCCESS:
+                    messages.info(request, "Payment already verified.")
+                    if payment.invoice:
+                        return redirect('finance:invoice_detail', pk=payment.invoice.id)
+                    return redirect('finance:invoice_list')
+
+                # Call verify on Khalti
+                khalti = KhaltiService()
+                verification_data = khalti.verify_payment(pidx)
                 
-                # Update status
-                if invoice.paid_amount >= invoice.total_amount:
-                    invoice.status = Invoice.Status.PAID
+                if verification_data and verification_data.get('status') == 'Completed':
+                    # Mark payment success
+                    payment.status = Payment.Status.SUCCESS
+                    payment.verified_at = timezone.now()
+                    payment.provider_payload = verification_data # Store final data
+                    payment.save()
+                    
+                    # Update Invoice
+                    invoice = payment.invoice
+                    if invoice:
+                        # Lock invoice to prevent concurrent updates
+                        invoice = Invoice.objects.select_for_update().get(pk=invoice.pk)
+                        
+                        # Update paid amount
+                        invoice.paid_amount += payment.amount
+                        
+                        # Update status (allow for float/decimal precision tolerance if needed, but Decimal is exact)
+                        if invoice.paid_amount >= invoice.total_amount:
+                            invoice.status = Invoice.Status.PAID
+                        else:
+                            invoice.status = Invoice.Status.PARTIALLY_PAID
+                        invoice.save()
+                    
+                    messages.success(request, f"Payment successful! Invoice {invoice.invoice_number if invoice else ''} updated.")
+                    if invoice:
+                        return redirect('finance:invoice_detail', pk=invoice.id)
+                    return redirect('finance:invoice_list')
+                
                 else:
-                    invoice.status = Invoice.Status.PARTIALLY_PAID
-                invoice.save()
-            
-            messages.success(request, f"Payment successful! Invoice {invoice.invoice_number} updated.")
-            return redirect('finance:invoice_detail', pk=invoice.id)
-        
-        else:
-             payment.status = Payment.Status.FAILED
-             payment.save()
-             messages.error(request, "Payment verification failed or not completed.")
-             if payment.invoice:
-                 return redirect('finance:invoice_detail', pk=payment.invoice.id)
-             return redirect('finance:invoice_list')
+                     payment.status = Payment.Status.FAILED
+                     payment.save()
+                     messages.error(request, "Payment verification failed or not completed.")
+                     if payment.invoice:
+                         return redirect('finance:invoice_detail', pk=payment.invoice.id)
+                     return redirect('finance:invoice_list')
+                     
+        except Exception as e:
+            # Catch transaction errors
+            messages.error(request, f"System error during verification: {e}")
+            return redirect('finance:invoice_list')
 
 class PaymentListView(LoginRequiredMixin, ListView):
     model = Payment

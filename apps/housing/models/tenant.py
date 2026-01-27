@@ -19,6 +19,15 @@ class Tenant(BaseModel):
     # ID/Documents
     id_proof_number = models.CharField(max_length=100, blank=True)
     
+    # Link to System User (for Mobile App access)
+    user = models.OneToOneField(
+        'iam.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='tenant_profile'
+    )
+    
     @property
     def full_name(self):
         return f"{self.first_name} {self.last_name}"

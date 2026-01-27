@@ -1,0 +1,75 @@
+from rest_framework import viewsets, permissions
+from apps.housing.models import PropertyInspection, InventoryItem, Property, Unit, Tenant, Lease
+from .serializers import PropertyInspectionSerializer, InventoryItemSerializer, PropertySerializer, UnitSerializer, TenantSerializer, LeaseSerializer
+
+class PropertyInspectionViewSet(viewsets.ModelViewSet):
+    serializer_class = PropertyInspectionSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if hasattr(self.request, 'active_organization'):
+            return PropertyInspection.objects.filter(unit__property__organization=self.request.active_organization)
+        return PropertyInspection.objects.none()
+
+class InventoryItemViewSet(viewsets.ModelViewSet):
+    serializer_class = InventoryItemSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if hasattr(self.request, 'active_organization'):
+            return InventoryItem.objects.filter(unit__property__organization=self.request.active_organization)
+        return InventoryItem.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(organization=self.request.active_organization)
+
+class PropertyViewSet(viewsets.ModelViewSet):
+    serializer_class = PropertySerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if hasattr(self.request, 'active_organization'):
+            return Property.objects.filter(organization=self.request.active_organization)
+        return Property.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(organization=self.request.active_organization)
+
+class UnitViewSet(viewsets.ModelViewSet):
+    serializer_class = UnitSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if hasattr(self.request, 'active_organization'):
+            return Unit.objects.filter(property__organization=self.request.active_organization)
+        return Unit.objects.none()
+
+class TenantViewSet(viewsets.ModelViewSet):
+    serializer_class = TenantSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        if hasattr(self.request, 'active_organization'):
+            return Tenant.objects.filter(organization=self.request.active_organization)
+        return Tenant.objects.none()
+
+    def perform_create(self, serializer):
+        serializer.save(organization=self.request.active_organization)
+
+class LeaseViewSet(viewsets.ModelViewSet):
+    serializer_class = LeaseSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if hasattr(self.request, 'active_organization'):
+            # Filter by units__property because Lease -> units (M2M) -> property
+            queryset = Lease.objects.filter(total_amount__gt=0) # Dummy filter start or just distinct()
+            queryset = Lease.objects.filter(units__property__organization=self.request.active_organization).distinct()
+            
+            if user.role == 'TENANT':
+                queryset = queryset.filter(tenant__user=user)
+                
+            return queryset
+        return Lease.objects.none()
+
