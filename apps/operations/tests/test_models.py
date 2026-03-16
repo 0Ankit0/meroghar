@@ -1,5 +1,5 @@
 from django.test import TestCase
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Tenant
 from apps.operations.models import Vendor, WorkOrder
 from datetime import date
@@ -8,7 +8,7 @@ class OperationsModelTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Ops Org", slug="ops-org")
         self.user = User.objects.create_user(username="manager", password="password")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         
         self.property = Property.objects.create(name="Ops Apts", organization=self.organization)
         self.unit = Unit.objects.create(property=self.property, unit_number="303", market_rent=1400)

@@ -1,13 +1,13 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease
 
 class HousingViewTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Housing Org", slug="housing-org")
         self.user = User.objects.create_user(username="manager", password="password", role="MANAGER")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="manager", password="password")
         
         self.property = Property.objects.create(name="Sunset Apts", organization=self.organization)

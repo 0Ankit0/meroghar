@@ -1,6 +1,6 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease, Tenant
 from apps.finance.models import Expense
 from datetime import date
@@ -9,7 +9,7 @@ class FinanceViewTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Finance Org", slug="finance-org")
         self.user = User.objects.create_user(username="accountant", password="password", role="MANAGER")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="accountant", password="password")
         
         self.property = Property.objects.create(name="Finance Apts", organization=self.organization)

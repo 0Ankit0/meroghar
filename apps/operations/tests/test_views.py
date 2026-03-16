@@ -1,13 +1,13 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.operations.models import Vendor
 
 class OperationsViewTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Ops Org", slug="ops-org")
         self.user = User.objects.create_user(username="manager", password="password", role="MANAGER")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="manager", password="password")
 
     def test_vendor_list_view(self):
