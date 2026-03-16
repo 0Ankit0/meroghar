@@ -1,8 +1,4 @@
-from django.http import JsonResponse
-
-from apps.iam.models import Organization, User
-
-
+from apps.core.organization import resolve_active_organization
 
 class OrganizationMiddleware:
     def __init__(self, get_response):
@@ -10,23 +6,8 @@ class OrganizationMiddleware:
 
     def __call__(self, request):
         request.active_organization = None
-
-        if request.user.is_authenticated:
-            active_org_id = request.session.get('active_org_id')
-
-            if active_org_id:
-                try:
-                    org = request.user.organizations.get(id=active_org_id)
-                    request.active_organization = org
-                except Organization.DoesNotExist:
-                    active_org_id = None
-
-            if not request.active_organization:
-                first_org = request.user.organizations.first()
-                if first_org:
-                    request.active_organization = first_org
-                    request.session['active_org_id'] = str(first_org.id)
-
+        request.active_organization = resolve_active_organization(request, request.user)
+        
         response = self.get_response(request)
         return response
 

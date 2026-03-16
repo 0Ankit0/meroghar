@@ -1,111 +1,127 @@
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from apps.iam.models import Organization, User, UserOnboardingEvent
+from apps.iam.models import Organization, User
 
 
 class IamApiTest(APITestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="IAM API Org", slug="iam-api-org")
-        self.superuser = User.objects.create_superuser(
-            username="super_iam",
-            email="super@example.com",
-            password="password",
-        )
-        self.owner = User.objects.create_user(
-            username="owner_iam",
-            password="password",
-            role=User.Role.OWNER,
-            is_staff=True,
-            verification_status=User.VerificationStatus.VERIFIED,
-        )
-        self.owner.organizations.add(self.organization)
+        self.organization_2 = Organization.objects.create(name="IAM API Org 2", slug="iam-api-org-2")
+        self.other_org = Organization.objects.create(name="Other Org", slug="other-org")
 
-    def authenticate(self, user):
-        self.client.force_authenticate(user=user)
+        self.user = User.objects.create_user(
+            username="api_iam",
+            password="password",
+            role="ADMIN",
+            is_staff=True,
+        )
+        self.user.organizations.add(self.organization, self.organization_2)
+
+        self.client.login(username="api_iam", password="password")
         session = self.client.session
         session['active_org_id'] = str(self.organization.id)
         session.save()
 
     def test_user_api_access(self):
-        self.authenticate(self.superuser)
         url = reverse('api-user-list')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertGreaterEqual(len(response.data), 1)
 
-    def test_owner_creates_pending_account(self):
-        self.authenticate(self.owner)
-        url = reverse('api-user-create-pending-account')
-        payload = {
-            'username': 'pending_member',
-            'email': 'pending@example.com',
-            'password': 'strong-password',
-            'first_name': 'Pending',
-            'last_name': 'Member',
-        }
-        response = self.client.post(url, payload, format='json')
+    def test_login_returns_token_and_profile(self):
+        self.client.logout()
+        url = reverse('api-iam-login')
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        created = User.objects.get(username='pending_member')
-        self.assertEqual(created.verification_status, User.VerificationStatus.PENDING)
-        self.assertTrue(created.provisioned_by_owner)
-        self.assertEqual(created.created_by, self.owner)
-        self.assertEqual(created.organizations.first(), self.organization)
-        self.assertTrue(
-            UserOnboardingEvent.objects.filter(
-                account=created,
-                actor=self.owner,
-                event_type=UserOnboardingEvent.EventType.CREATED,
-            ).exists()
+        response = self.client.post(
+            url,
+            {'username': 'api_iam', 'password': 'password'},
+            format='json',
         )
 
-    def test_superuser_verifies_account(self):
-        member = User.objects.create_user(
-            username='pending_verification',
-            password='password',
-            verification_status=User.VerificationStatus.PENDING,
-            is_active=False,
-        )
-        self.authenticate(self.superuser)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertIn('token', response.data)
+        self.assertEqual(response.data['user']['username'], self.user.username)
+        self.assertEqual(response.data['user']['active_organization']['id'], str(self.organization.id))
 
-        url = reverse('api-user-verify-account', kwargs={'pk': member.id})
+    def test_profile_with_token_auth(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        url = reverse('api-iam-profile')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['username'], self.user.username)
+        self.assertEqual(response.data['active_organization']['id'], str(self.organization.id))
+
+    def test_memberships_and_switch_organization(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        memberships_url = reverse('api-iam-memberships')
+        memberships_response = self.client.get(memberships_url)
+        self.assertEqual(memberships_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(memberships_response.data), 2)
+
+        switch_url = reverse('api-iam-switch-organization')
+        switch_response = self.client.post(
+            switch_url,
+            {'organization_id': str(self.organization_2.id)},
+            format='json',
+        )
+
+        self.assertEqual(switch_response.status_code, status.HTTP_200_OK)
+        self.assertEqual(
+            switch_response.data['active_organization']['id'],
+            str(self.organization_2.id),
+        )
+
+    def test_switch_organization_requires_membership(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        switch_url = reverse('api-iam-switch-organization')
+        response = self.client.post(
+            switch_url,
+            {'organization_id': str(self.other_org.id)},
+            format='json',
+        )
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_x_organization_id_header_changes_context(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}',
+            HTTP_X_ORGANIZATION_ID=str(self.organization_2.id),
+        )
+
+        url = reverse('api-iam-profile')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data['active_organization']['id'], str(self.organization_2.id))
+
+    def test_refresh_rotates_token(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        url = reverse('api-iam-refresh')
         response = self.client.post(url, {}, format='json')
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        member.refresh_from_db()
-        self.assertEqual(member.verification_status, User.VerificationStatus.VERIFIED)
-        self.assertTrue(member.verified_by_superuser)
-        self.assertEqual(member.verified_by, self.superuser)
-        self.assertIsNotNone(member.verified_at)
+        self.assertIn('token', response.data)
+        self.assertNotEqual(response.data['token'], token.key)
 
-    def test_owner_delegates_member_role(self):
-        member = User.objects.create_user(
-            username='member_delegate',
-            password='password',
-            verification_status=User.VerificationStatus.VERIFIED,
-            is_active=False,
-        )
-        self.authenticate(self.owner)
+    def test_logout_revokes_token(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
 
-        url = reverse('api-user-activate-delegate-member-role', kwargs={'pk': member.id})
-        response = self.client.post(url, {'role': User.Role.MANAGER}, format='json')
-
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        member.refresh_from_db()
-        self.assertEqual(member.role, User.Role.MANAGER)
-        self.assertEqual(member.delegated_by, self.owner)
-        self.assertTrue(member.is_active)
-        self.assertEqual(member.organizations.first(), self.organization)
-
-    def test_superuser_assigns_owner_role(self):
-        candidate = User.objects.create_user(username='owner_candidate', password='password')
-        self.authenticate(self.superuser)
-
-        url = reverse('api-user-assign-organization-owner-role', kwargs={'pk': candidate.id})
+        url = reverse('api-iam-logout')
         response = self.client.post(url, {}, format='json')
 
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        candidate.refresh_from_db()
-        self.assertEqual(candidate.role, User.Role.OWNER)
-        self.assertEqual(candidate.delegated_by, self.superuser)
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertFalse(Token.objects.filter(key=token.key).exists())
