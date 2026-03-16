@@ -7,12 +7,7 @@ class User(AbstractUser, BaseModel):
     """
     Custom User model extending AbstractUser and our BaseModel (UUID).
     """
-    # AbstractUser already has username, password, email, first_name, last_name, etc.
-    # We override id here via BaseModel
-    
-    # We can add Roles here later or via Group/Permissions
-    # For simple RBAC, a role field is often useful.
-    
+
     class Role(models.TextChoices):
         OWNER = 'OWNER', 'Owner'
         MEMBER = 'MEMBER', 'Member'

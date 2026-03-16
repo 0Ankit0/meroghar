@@ -2,7 +2,7 @@ from django.views.generic import ListView, CreateView, DetailView, UpdateView, D
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import WorkOrder
-from apps.iam.models import Organization
+from apps.iam.models import Organization, OrganizationMembership
 
 class WorkOrderListView(LoginRequiredMixin, ListView):
     model = WorkOrder
@@ -28,7 +28,11 @@ class WorkOrderCreateView(LoginRequiredMixin, CreateView):
              # Create default
              org_name = f"{user.get_full_name() or user.username}'s Properties"
              org = Organization.objects.create(name=org_name)
-             user.organizations.add(org)
+             OrganizationMembership.objects.get_or_create(
+                organization=org,
+                user=user,
+                defaults={'role': OrganizationMembership.Role.OWNER, 'invited_by': user},
+            )
              self.request.active_organization = org
              self.request.session['active_org_id'] = str(org.id)
         

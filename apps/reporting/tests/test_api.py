@@ -1,6 +1,6 @@
 from django.test import TestCase
 from rest_framework.test import APIClient
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Tenant, Lease, Unit, Property
 from apps.finance.models import Invoice
 from django.utils import timezone
@@ -13,7 +13,7 @@ class MobileDashboardApiTest(TestCase):
         
         # Create Tenant User
         self.user = User.objects.create_user(username='tenant', email='tenant@test.com', password='password', role='TENANT')
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         
         # Property/Unit/Tenant
         self.property = Property.objects.create(name="Test Prop", organization=self.organization)

@@ -1,14 +1,14 @@
 from django.test import TestCase
 from django.utils import timezone
 from apps.crm.models import Lead, Showing, RentalApplication
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit
 
 class CrmModelTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Test Org", slug="test-org")
         self.user = User.objects.create_user(username="agent", password="password")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.property = Property.objects.create(name="Test Property", organization=self.organization)
         self.unit = Unit.objects.create(property=self.property, unit_number="101", market_rent=1000)
 

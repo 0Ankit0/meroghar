@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from apps.iam.models import Organization, User
 
 
+
 class OrganizationMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
