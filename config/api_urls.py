@@ -42,4 +42,5 @@ from django.urls import path
 urlpatterns = [
     path('', include(router.urls)),
     path('dashboard/mobile/', MobileDashboardView.as_view(), name='api-mobile-dashboard'),
+    path('iam/', include('apps.iam.api.urls')),
 ]
