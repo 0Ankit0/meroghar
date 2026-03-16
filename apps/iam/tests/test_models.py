@@ -1,5 +1,6 @@
 from django.test import TestCase
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
+
 
 class IamModelTest(TestCase):
     def test_create_organization(self):
@@ -11,9 +12,9 @@ class IamModelTest(TestCase):
         user = User.objects.create_user(username="testuser", password="password", role="MANAGER")
         self.assertTrue(user.check_password("password"))
         self.assertEqual(user.role, "MANAGER")
-        
+
     def test_user_organization_relationship(self):
         org = Organization.objects.create(name="Test Org", slug="test-org")
         user = User.objects.create_user(username="testuser", password="password")
-        user.organizations.add(org)
-        self.assertIn(org, user.organizations.all())
+        OrganizationMembership.objects.create(organization=org, user=user, role='OWNER')
+        self.assertTrue(OrganizationMembership.objects.filter(organization=org, user=user).exists())
