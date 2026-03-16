@@ -1,5 +1,5 @@
 from django.test import TestCase
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease, Tenant
 from apps.finance.models import Expense, Invoice, Payment
 from datetime import date, timedelta
@@ -9,7 +9,7 @@ class FinanceModelTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Finance Org", slug="finance-org")
         self.user = User.objects.create_user(username="accountant", password="password")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         
         self.property = Property.objects.create(name="Finance Apts", organization=self.organization)
         self.unit = Unit.objects.create(property=self.property, unit_number="202", market_rent=1500)

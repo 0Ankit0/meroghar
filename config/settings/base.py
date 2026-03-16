@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'apps.core.middleware.AccessVerificationMiddleware',
     'apps.core.middleware.OrganizationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -156,6 +157,12 @@ AUTH_USER_MODEL = 'iam.User' # requires apps.iam to be installed as 'apps.iam' o
 # No, AppConfig.name in my script was 'apps.iam'. 
 # So AUTH_USER_MODEL should be 'iam.User' IF label is 'iam'.
 # If name='apps.iam', label defaults to 'iam'. So 'iam.User' is correct.
+
+
+# Authentication backend
+AUTHENTICATION_BACKENDS = [
+    'apps.iam.auth_backends.VerifiedUserModelBackend',
+]
 
 # Authentication settings
 LOGIN_URL = '/admin/login/'

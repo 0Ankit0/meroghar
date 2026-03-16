@@ -1,10 +1,11 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from apps.finance.models import Expense, Invoice, Payment
 from .serializers import ExpenseSerializer, InvoiceSerializer, PaymentSerializer
+from apps.iam.api.permissions import IsOrgManager, IsOrgTenant
 
 class ExpenseViewSet(viewsets.ModelViewSet):
     serializer_class = ExpenseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgManager]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -16,7 +17,7 @@ class ExpenseViewSet(viewsets.ModelViewSet):
 
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = InvoiceSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgTenant]
 
     def get_queryset(self):
         user = self.request.user
@@ -34,7 +35,7 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
 
 class PaymentViewSet(viewsets.ModelViewSet):
     serializer_class = PaymentSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgTenant]
 
     def get_queryset(self):
         user = self.request.user

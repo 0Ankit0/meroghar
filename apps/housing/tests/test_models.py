@@ -1,5 +1,5 @@
 from django.test import TestCase
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease, PropertyInspection, InventoryItem, Tenant
 from django.core.exceptions import ValidationError
 from datetime import date, timedelta
@@ -8,7 +8,7 @@ class HousingModelTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Housing Org", slug="housing-org")
         self.user = User.objects.create_user(username="manager", password="password")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.property = Property.objects.create(name="Sunset Apts", organization=self.organization)
         self.unit = Unit.objects.create(property=self.property, unit_number="101", market_rent=1200)
         self.tenant = Tenant.objects.create(

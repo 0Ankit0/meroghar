@@ -2,7 +2,7 @@ from django.views.generic import ListView, DetailView, CreateView, UpdateView, D
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import Property
-from apps.iam.models import Organization
+from apps.iam.models import Organization, OrganizationMembership
 
 class PropertyListView(LoginRequiredMixin, ListView):
     model = Property
@@ -30,7 +30,11 @@ class PropertyCreateView(LoginRequiredMixin, CreateView):
             org = Organization.objects.create(name=org_name)
             
             # Add to M2M
-            user.organizations.add(org)
+            OrganizationMembership.objects.get_or_create(
+                organization=org,
+                user=user,
+                defaults={'role': OrganizationMembership.Role.OWNER, 'invited_by': user},
+            )
             
             # Set as Active
             self.request.active_organization = org
