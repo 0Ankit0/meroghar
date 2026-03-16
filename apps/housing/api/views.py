@@ -1,10 +1,11 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from apps.housing.models import PropertyInspection, InventoryItem, Property, Unit, Tenant, Lease
 from .serializers import PropertyInspectionSerializer, InventoryItemSerializer, PropertySerializer, UnitSerializer, TenantSerializer, LeaseSerializer
+from apps.iam.api.permissions import IsOrgManager, IsOrgTenant
 
 class PropertyInspectionViewSet(viewsets.ModelViewSet):
     serializer_class = PropertyInspectionSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgManager]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -13,7 +14,7 @@ class PropertyInspectionViewSet(viewsets.ModelViewSet):
 
 class InventoryItemViewSet(viewsets.ModelViewSet):
     serializer_class = InventoryItemSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgManager]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -25,7 +26,7 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
 
 class PropertyViewSet(viewsets.ModelViewSet):
     serializer_class = PropertySerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgManager]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -37,7 +38,7 @@ class PropertyViewSet(viewsets.ModelViewSet):
 
 class UnitViewSet(viewsets.ModelViewSet):
     serializer_class = UnitSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgManager]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -46,7 +47,7 @@ class UnitViewSet(viewsets.ModelViewSet):
 
 class TenantViewSet(viewsets.ModelViewSet):
     serializer_class = TenantSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgTenant]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -58,7 +59,7 @@ class TenantViewSet(viewsets.ModelViewSet):
 
 class LeaseViewSet(viewsets.ModelViewSet):
     serializer_class = LeaseSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgTenant]
 
     def get_queryset(self):
         user = self.request.user

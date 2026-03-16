@@ -1,14 +1,14 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.operations.models import Vendor
 
 class OperationsApiTest(APITestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Ops API Org", slug="ops-api-org")
         self.user = User.objects.create_user(username="api_ops", password="password")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="api_ops", password="password")
         
         session = self.client.session

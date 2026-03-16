@@ -65,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'apps.core.middleware.AccessVerificationMiddleware',
     'apps.core.middleware.OrganizationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -157,6 +158,12 @@ AUTH_USER_MODEL = 'iam.User' # requires apps.iam to be installed as 'apps.iam' o
 # So AUTH_USER_MODEL should be 'iam.User' IF label is 'iam'.
 # If name='apps.iam', label defaults to 'iam'. So 'iam.User' is correct.
 
+
+# Authentication backend
+AUTHENTICATION_BACKENDS = [
+    'apps.iam.auth_backends.VerifiedUserModelBackend',
+]
+
 # Authentication settings
 LOGIN_URL = '/admin/login/'
 LOGIN_REDIRECT_URL = '/'
@@ -168,8 +175,8 @@ LOGOUT_REDIRECT_URL = '/admin/login/'
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework.authentication.TokenAuthentication',
+        'apps.core.api.authentication.OrganizationAwareSessionAuthentication',
+        'apps.core.api.authentication.OrganizationAwareTokenAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',

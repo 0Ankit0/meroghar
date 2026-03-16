@@ -35,6 +35,38 @@ class LeaseSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
 
+    def validate(self, attrs):
+        request = self.context.get('request')
+        active_organization = getattr(request, 'active_organization', None)
+        if not active_organization:
+            return attrs
+
+        tenant = attrs.get('tenant') or getattr(self.instance, 'tenant', None)
+
+        if 'units' in attrs:
+            units = attrs.get('units')
+        elif self.instance:
+            units = self.instance.units.all()
+        else:
+            units = []
+
+        errors = {}
+
+        if tenant and tenant.organization_id != active_organization.id:
+            errors['tenant'] = 'Selected tenant does not belong to your active organization.'
+
+        invalid_unit_numbers = [unit.unit_number for unit in units if unit.property.organization_id != active_organization.id]
+        if invalid_unit_numbers:
+            errors['units'] = (
+                'One or more selected units do not belong to your active organization: '
+                f"{', '.join(invalid_unit_numbers)}."
+            )
+
+        if errors:
+            raise serializers.ValidationError(errors)
+
+        return attrs
+
 class InspectionPhotoSerializer(serializers.ModelSerializer):
     class Meta:
         model = InspectionPhoto
