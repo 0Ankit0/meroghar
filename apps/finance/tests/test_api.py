@@ -1,7 +1,7 @@
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property
 from apps.finance.models import Expense
 from datetime import date
@@ -10,7 +10,7 @@ class FinanceApiTest(APITestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Finance API Org", slug="fin-api-org")
         self.user = User.objects.create_user(username="api_fin", password="password")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="api_fin", password="password")
         
         session = self.client.session

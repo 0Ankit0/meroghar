@@ -1,13 +1,13 @@
 from django.test import TestCase
 from django.urls import reverse
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 from apps.crm.models import Lead
 
 class CrmViewTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Test Org", slug="test-org")
         self.user = User.objects.create_user(username="testuser", password="password", role="ADMIN")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="testuser", password="password")
 
     def test_lead_list_view(self):

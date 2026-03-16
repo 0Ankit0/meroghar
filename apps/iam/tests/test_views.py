@@ -1,12 +1,12 @@
 from django.test import TestCase, Client
 from django.urls import reverse
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership
 
 class IamViewTest(TestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Test Org", slug="test-org")
         self.user = User.objects.create_user(username="admin", password="password", role="ADMIN")
-        self.user.organizations.add(self.organization)
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="admin", password="password")
 
     def test_organization_list_view(self):
