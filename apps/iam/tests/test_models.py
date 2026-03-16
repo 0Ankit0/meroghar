@@ -1,5 +1,6 @@
 from django.test import TestCase
-from apps.iam.models import User, Organization, OrganizationMembership
+
+from apps.iam.models import Organization, User
 
 
 class IamModelTest(TestCase):
@@ -16,5 +17,17 @@ class IamModelTest(TestCase):
     def test_user_organization_relationship(self):
         org = Organization.objects.create(name="Test Org", slug="test-org")
         user = User.objects.create_user(username="testuser", password="password")
-        OrganizationMembership.objects.create(organization=org, user=user, role='OWNER')
-        self.assertTrue(OrganizationMembership.objects.filter(organization=org, user=user).exists())
+        user.organizations.add(org)
+        self.assertIn(org, user.organizations.all())
+
+    def test_can_access_platform_depends_on_verification(self):
+        user = User.objects.create_user(
+            username='pending_user',
+            password='password',
+            verification_status=User.VerificationStatus.PENDING,
+            is_active=True,
+        )
+        self.assertFalse(user.can_access_platform())
+
+        user.verification_status = User.VerificationStatus.VERIFIED
+        self.assertTrue(user.can_access_platform())
