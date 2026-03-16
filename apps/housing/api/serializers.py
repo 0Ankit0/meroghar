@@ -16,7 +16,7 @@ class UnitSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
 class TenantSerializer(serializers.ModelSerializer):
-    name = serializers.ReadOnlyField(source='user_profile.full_name') # Assuming link to User
+    name = serializers.ReadOnlyField(source='full_name')
     
     class Meta:
         model = Tenant
@@ -24,8 +24,11 @@ class TenantSerializer(serializers.ModelSerializer):
         read_only_fields = ['organization', 'created_at', 'updated_at']
 
 class LeaseSerializer(serializers.ModelSerializer):
-    unit_number = serializers.ReadOnlyField(source='unit.unit_number')
-    tenant_name = serializers.ReadOnlyField(source='tenant.name')
+    unit_numbers = serializers.SerializerMethodField()
+    tenant_name = serializers.ReadOnlyField(source='tenant.full_name')
+
+    def get_unit_numbers(self, obj):
+        return list(obj.units.values_list('unit_number', flat=True))
     
     class Meta:
         model = Lease

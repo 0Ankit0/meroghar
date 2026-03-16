@@ -21,19 +21,16 @@ class WorkOrderViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if hasattr(self.request, 'active_organization'):
-            queryset = WorkOrder.objects.filter(organization=self.request.active_organization)
-            
-            if user.role == 'TENANT':
-                queryset = queryset.filter(unit__leases__tenant__user=user, unit__leases__status='ACTIVE').distinct()
-                # OR simpler: queryset.filter(requester__user=user)
-                # But requester is optional. Best to link via unit they live in or explicitly if they requested it.
-                # Let's check 'requester' field first. 
-                # WorkOrder model has 'requester' (Tenant). So:
-                queryset = queryset.filter(requester__user=user)
-            
-            return queryset
-        return WorkOrder.objects.none()
+        active_org = getattr(self.request, 'active_organization', None)
+        if not active_org:
+            return WorkOrder.objects.none()
+
+        queryset = WorkOrder.objects.filter(organization=active_org)
+
+        if user.role == 'TENANT':
+            queryset = queryset.filter(requester__user=user)
+
+        return queryset
 
     def perform_create(self, serializer):
         serializer.save(organization=self.request.active_organization)

@@ -10,14 +10,27 @@ from apps.finance.models import Payment
 
 class RevenueDataAPIView(LoginRequiredMixin, View):
     """API endpoint to fetch revenue data for different time periods."""
+
+    def _resolve_organization(self, request):
+        """Resolve organization from active context first, then user memberships."""
+        active_org = getattr(request, 'active_organization', None)
+        if active_org:
+            return active_org
+
+        user = request.user
+        if not user.is_authenticated:
+            return None
+
+        return user.organizations.first()
     
     def get(self, request, *args, **kwargs):
-        user = request.user
-        
-        if not user.is_authenticated or not hasattr(user, 'organization') or not user.organization:
+        if not request.user.is_authenticated:
             return JsonResponse({'labels': [], 'data': []})
-        
-        org = user.organization
+
+        org = self._resolve_organization(request)
+        if not org:
+            return JsonResponse({'labels': [], 'data': []})
+
         months_param = request.GET.get('months', '6')
         
         try:
