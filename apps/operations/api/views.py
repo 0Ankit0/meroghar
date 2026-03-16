@@ -1,10 +1,11 @@
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets
 from apps.operations.models import Vendor, WorkOrder
 from .serializers import VendorSerializer, WorkOrderSerializer
+from apps.iam.api.permissions import IsOrgManager, IsOrgTenant
 
 class VendorViewSet(viewsets.ModelViewSet):
     serializer_class = VendorSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgManager]
 
     def get_queryset(self):
         if hasattr(self.request, 'active_organization'):
@@ -16,7 +17,7 @@ class VendorViewSet(viewsets.ModelViewSet):
 
 class WorkOrderViewSet(viewsets.ModelViewSet):
     serializer_class = WorkOrderSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [IsOrgTenant]
 
     def get_queryset(self):
         user = self.request.user
