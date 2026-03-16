@@ -62,14 +62,14 @@ class LeaseViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
-        if hasattr(self.request, 'active_organization'):
-            # Filter by units__property because Lease -> units (M2M) -> property
-            queryset = Lease.objects.filter(total_amount__gt=0) # Dummy filter start or just distinct()
-            queryset = Lease.objects.filter(units__property__organization=self.request.active_organization).distinct()
-            
-            if user.role == 'TENANT':
-                queryset = queryset.filter(tenant__user=user)
-                
-            return queryset
-        return Lease.objects.none()
+        active_org = getattr(self.request, 'active_organization', None)
+        if not active_org:
+            return Lease.objects.none()
+
+        queryset = Lease.objects.filter(units__property__organization=active_org).distinct()
+
+        if user.role == 'TENANT':
+            queryset = queryset.filter(tenant__user=user)
+
+        return queryset
 
