@@ -7,7 +7,7 @@ Workflows related to the `OrganizationGroup` model.
 **Description**: View all groups.
 
 ### Endpoint
-`GET /groups/`
+`GET /iam/groups/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Admin->>System: GET /groups/
+    Admin->>System: GET /iam/groups/
     System->>DB: SELECT * FROM groups WHERE organization IN user.active_orgs (conceptually)
     DB-->>System: Group List
     System-->>Admin: Render List
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Create a group.
 
 ### Endpoint
-`POST /groups/add/`
+`POST /iam/groups/add/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Admin->>System: POST /groups/add/ (Name, Orgs, Users)
+    Admin->>System: POST /iam/groups/add/ (Name, Orgs, Users)
     System->>DB: INSERT OrganizationGroup
     System->>DB: Link M2M (Orgs, Users)
     DB-->>System: Success
@@ -50,7 +50,7 @@ sequenceDiagram
 **Description**: Modify members or permissions.
 
 ### Endpoint
-`POST /groups/<id>/edit/`
+`POST /iam/groups/<uuid:pk>/edit/`
 
 ### System Diagram
 
@@ -60,7 +60,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Admin->>System: POST /groups/<id>/edit/
+    Admin->>System: POST /iam/groups/<uuid:pk>/edit/
     System->>DB: UPDATE OrganizationGroup
     System->>DB: Sync M2M Relations
     DB-->>System: Success
@@ -72,7 +72,7 @@ sequenceDiagram
 **Description**: Remove a group.
 
 ### Endpoint
-`POST /groups/<id>/delete/`
+`POST /iam/groups/<uuid:pk>/delete/`
 
 ### System Diagram
 
@@ -82,7 +82,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Admin->>System: POST /groups/<id>/delete/
+    Admin->>System: POST /iam/groups/<uuid:pk>/delete/
     System->>DB: DELETE OrganizationGroup
     DB-->>System: Deleted
     System-->>Admin: Redirect

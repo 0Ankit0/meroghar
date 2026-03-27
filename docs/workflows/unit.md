@@ -7,7 +7,7 @@ Workflows related to the `Unit` model.
 **Description**: View all units in the active organization.
 
 ### Endpoint
-`GET /units/`
+`GET /housing/units/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: GET /units/
+    User->>System: GET /housing/units/
     System->>DB: SELECT * FROM units JOIN properties ON ... WHERE properties.organization = active_org
     DB-->>System: [Unit 101, Unit 102]
     System-->>User: Render List
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Adding a unit to a property.
 
 ### Endpoint
-`POST /units/add/`
+`POST /housing/units/add/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /units/add/ (Data)
+    User->>System: POST /housing/units/add/ (Data)
     System->>DB: INSERT Unit
     DB-->>System: Unit Created
     System-->>User: Redirect to Unit List
@@ -49,7 +49,7 @@ sequenceDiagram
 **Description**: Edit unit details (rent, status, etc.).
 
 ### Endpoint
-`POST /units/<id>/edit/`
+`POST /housing/units/<uuid:pk>/edit/`
 
 ### System Diagram
 
@@ -59,7 +59,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /units/<id>/edit/
+    User->>System: POST /housing/units/<uuid:pk>/edit/
     System->>DB: UPDATE Unit
     DB-->>System: Success
     System-->>User: Redirect to List
@@ -70,7 +70,7 @@ sequenceDiagram
 **Description**: Remove a unit. Usually restricted if active lease exists.
 
 ### Endpoint
-`POST /units/<id>/delete/`
+`POST /housing/units/<uuid:pk>/delete/`
 
 ### System Diagram
 
@@ -80,7 +80,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /units/<id>/delete/
+    User->>System: POST /housing/units/<uuid:pk>/delete/
     System->>DB: DELETE Unit
     DB-->>System: Deleted
     System-->>User: Redirect to List
