@@ -20,7 +20,6 @@ graph TB
     khalti -->|Callback/Verification| system
     system -->|Sends Notifications| email
 ```
-```
 
 ## Multi-tenancy Strategy
 
@@ -48,20 +47,29 @@ We use a split settings layout and a dedicated `apps/` folder:
 
 ```text
 meroghar/
-├── apps/               # Business Logic Modules
-│   ├── core/           # Base models, utils
-│   ├── iam/            # Users, Organizations (Multi-tenancy)
-│   ├── properties/     # Properties, Units
-│   ├── tenants/        # Tenant profiles
-│   ├── leases/         # Lease contracts
-│   ├── billing/        # Invoices
-│   ├── payments/       # Payment records & Gateway integration
-│   └── maintenance/    # Work orders
-├── config/             # Project Configuration
-│   ├── settings/       # Split settings (base, dev, prod)
-│   ├── urls.py         # Main routing
+├── apps/                   # Business Logic Modules
+│   ├── core/               # Shared dashboard, utilities, foundational services
+│   ├── housing/            # Properties, Units, Tenants, Leases, inspections
+│   ├── finance/            # Invoices, Payments, Expenses
+│   ├── operations/         # Work orders, Vendors, Documents, Notifications
+│   ├── crm/                # Leads, Showings, Applications
+│   ├── iam/                # Users, Organizations, Groups, access control
+│   └── reporting/          # Occupancy, financial, and maintenance reports
+├── config/                 # Project Configuration
+│   ├── settings/           # Split settings (base, dev, prod)
+│   ├── urls.py             # Main web routing
+│   ├── api_urls.py         # Main API routing
 │   └── wsgi.py
-├── templates/          # Base templates
-├── static/             # Static assets
+├── docs/                   # Product and architecture documentation
+├── templates/              # Base templates
+├── static/                 # Static assets
 └── manage.py
 ```
+
+## Route Source of Truth
+
+Route truth lives in:
+
+- `config/urls.py` for top-level web URL namespaces.
+- `config/api_urls.py` for top-level API URL namespaces.
+- Each app's `urls.py` (for example, `apps/housing/urls.py`, `apps/finance/urls.py`) for app-local route definitions.
