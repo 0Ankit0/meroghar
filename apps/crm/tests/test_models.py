@@ -1,3 +1,5 @@
+"""Requirement coverage: CRM-01, CRM-02, CRM-03."""
+
 from django.test import TestCase
 from django.utils import timezone
 from apps.crm.models import Lead, Showing, RentalApplication

@@ -1,3 +1,5 @@
+"""Requirement coverage: HOU-01, HOU-02."""
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership

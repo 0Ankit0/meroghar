@@ -1,6 +1,4 @@
-from datetime import date, timedelta
-from decimal import Decimal
-from unittest.mock import patch
+"""Requirement coverage: FIN-05."""
 
 from django.urls import reverse
 from rest_framework import status
