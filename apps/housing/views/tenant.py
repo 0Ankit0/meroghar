@@ -4,7 +4,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from ..models import Tenant
 from apps.iam.models import Organization, OrganizationMembership
 from apps.finance.models import Payment
-from apps.operations.models import WorkOrder
 
 class TenantListView(LoginRequiredMixin, ListView):
     model = Tenant

@@ -1,7 +1,5 @@
 import requests
 import os
-import json
-from django.conf import settings
 
 class KhaltiService:
     """

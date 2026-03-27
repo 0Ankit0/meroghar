@@ -1,6 +1,6 @@
 """Requirement coverage: OPS-05."""
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.operations.models import Vendor

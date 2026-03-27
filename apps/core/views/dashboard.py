@@ -1,4 +1,3 @@
-from django.shortcuts import render
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
@@ -26,7 +25,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         from apps.housing.models import Tenant
         from apps.operations.models import WorkOrder
         from apps.finance.models import Payment
-        from django.db.models import Sum, Q
+        from django.db.models import Sum
         from django.utils import timezone
         
         # 1. Property Stats

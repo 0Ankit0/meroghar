@@ -6,7 +6,6 @@ from rest_framework.test import APITestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.operations.models import Vendor
 from apps.housing.models import Property, Unit
-from apps.finance.models import Expense
 
 class OperationsApiTest(APITestCase):
     def setUp(self):

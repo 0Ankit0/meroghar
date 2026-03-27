@@ -1,3 +1,4 @@
+from apps.iam.models import User
 from apps.core.organization import resolve_active_organization
 from django.http import JsonResponse
 

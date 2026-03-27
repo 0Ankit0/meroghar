@@ -4,7 +4,6 @@ from django.test import TestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Tenant
 from apps.operations.models import Vendor, WorkOrder
-from datetime import date
 
 class OperationsModelTest(TestCase):
     def setUp(self):

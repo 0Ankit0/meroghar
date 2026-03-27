@@ -82,6 +82,8 @@ class VerifyPaymentView(LoginRequiredMixin, View):
                      messages.error(request, "Payment record not found.")
                      return redirect('finance:invoice_list')
 
+                invoice = payment.invoice
+
                 if payment.status == Payment.Status.SUCCESS:
                     messages.info(request, "Payment already verified.")
                     if invoice:

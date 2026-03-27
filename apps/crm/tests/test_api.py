@@ -4,10 +4,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from apps.iam.models import User, Organization, OrganizationMembership
-from apps.crm.models import Lead, Showing
+from apps.crm.models import Lead
 from apps.housing.models import Property, Unit
-from django.utils import timezone
-from datetime import timedelta
 
 class CrmApiTest(APITestCase):
     def setUp(self):

@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
-from django.db.models import Sum, Avg
+from django.db.models import Avg
 from django.utils import timezone
 
 from apps.finance.models import Invoice
