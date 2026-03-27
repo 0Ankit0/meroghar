@@ -10,7 +10,12 @@ from ..services.khalti import KhaltiService
 
 class InitiatePaymentView(LoginRequiredMixin, View):
     def post(self, request, invoice_id):
-        invoice = get_object_or_404(Invoice, id=invoice_id)
+        active_org = getattr(request, "active_organization", None)
+        if not active_org:
+            messages.error(request, "No active organization selected.")
+            return redirect("finance:invoice_list")
+
+        invoice = get_object_or_404(Invoice, id=invoice_id, organization=active_org)
         
         # Create a payment record
         payment = Payment.objects.create(
