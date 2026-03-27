@@ -14,6 +14,15 @@ class WorkOrder(BaseModel):
         MEDIUM = 'MEDIUM', _('Medium')
         HIGH = 'HIGH', _('High')
         EMERGENCY = 'EMERGENCY', _('Emergency')
+    
+    class ServiceType(models.TextChoices):
+        PLUMBING = 'PLUMBING', _('Plumbing')
+        ELECTRICAL = 'ELECTRICAL', _('Electrical')
+        HVAC = 'HVAC', _('HVAC')
+        GENERAL = 'GENERAL', _('General Maintenance')
+        CLEANING = 'CLEANING', _('Cleaning')
+        LANDSCAPING = 'LANDSCAPING', _('Landscaping')
+        OTHER = 'OTHER', _('Other')
 
     organization = models.ForeignKey(
         'iam.Organization',
@@ -63,6 +72,13 @@ class WorkOrder(BaseModel):
         blank=True,
         related_name='assigned_work_orders'
     )
+    preferred_service_type = models.CharField(
+        max_length=20,
+        choices=ServiceType.choices,
+        default=ServiceType.GENERAL,
+    )
+    actual_hours = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
+    vendor_auto_assigned_at = models.DateTimeField(null=True, blank=True)
     
     def __str__(self):
         return f"WO-{self.id.hex[:6].upper()} : {self.title}"

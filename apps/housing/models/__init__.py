@@ -2,6 +2,7 @@ from .property import Property, Amenity
 from .unit import Unit
 from .tenant import Tenant
 from .lease import Lease
+from .renewal import LeaseRenewal
 from .inspection import PropertyInspection, InspectionPhoto
 from .inventory import InventoryItem
 

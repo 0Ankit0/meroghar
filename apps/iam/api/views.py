@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, login, logout
+from django.utils import timezone
 from drf_spectacular.utils import extend_schema
 from rest_framework import status, viewsets
 from rest_framework.authtoken.models import Token
@@ -7,12 +8,13 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from apps.core.organization import resolve_active_organization
-from apps.iam.models import Organization
+from apps.iam.models import Organization, OrganizationInvitation, OrganizationMembership
 from .serializers import (
     AuthProfileSerializer,
     LoginSerializer,
     MembershipSerializer,
     SwitchOrganizationSerializer,
+    OrganizationInvitationSerializer,
     UserSerializer,
 )
 
@@ -22,6 +24,23 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsAdminUser]
+
+
+class OrganizationInvitationViewSet(viewsets.ModelViewSet):
+    serializer_class = OrganizationInvitationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        active_org = getattr(self.request, 'active_organization', None)
+        if not active_org:
+            return OrganizationInvitation.objects.none()
+        return OrganizationInvitation.objects.filter(organization=active_org).order_by('-created_at')
+
+    def perform_create(self, serializer):
+        serializer.save(
+            organization=self.request.active_organization,
+            invited_by=self.request.user,
+        )
 
 
 @extend_schema(request=LoginSerializer)
@@ -111,3 +130,33 @@ class SwitchOrganizationApiView(APIView):
             context={'active_organization': organization},
         )
         return Response({'active_organization': membership.data}, status=status.HTTP_200_OK)
+
+
+class AcceptInvitationApiView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, token):
+        invitation = OrganizationInvitation.objects.filter(token=token).first()
+        if not invitation:
+            return Response({'detail': 'Invitation not found.'}, status=status.HTTP_404_NOT_FOUND)
+        if invitation.status != OrganizationInvitation.Status.PENDING:
+            return Response({'detail': 'Invitation is no longer valid.'}, status=status.HTTP_400_BAD_REQUEST)
+        if invitation.expires_at <= timezone.now():
+            invitation.status = OrganizationInvitation.Status.EXPIRED
+            invitation.save(update_fields=['status', 'updated_at'])
+            return Response({'detail': 'Invitation expired.'}, status=status.HTTP_400_BAD_REQUEST)
+        if invitation.email.lower() != request.user.email.lower():
+            return Response({'detail': 'Invitation email does not match logged in user.'}, status=status.HTTP_403_FORBIDDEN)
+
+        OrganizationMembership.objects.update_or_create(
+            organization=invitation.organization,
+            user=request.user,
+            defaults={
+                'role': invitation.role,
+                'invited_by': invitation.invited_by,
+                'is_active': True,
+            },
+        )
+        request.user.organizations.add(invitation.organization)
+        invitation.mark_accepted(request.user)
+        return Response({'detail': 'Invitation accepted.'}, status=status.HTTP_200_OK)

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import lead, showing
+from .views import lead, showing, followup
 
 app_name = 'crm'
 
@@ -12,4 +12,6 @@ urlpatterns = [
     # Showings
     path('showings/', showing.ShowingListView.as_view(), name='showing_list'),
     path('showings/add/', showing.ShowingCreateView.as_view(), name='showing_add'),
+    path('follow-ups/', followup.FollowUpListView.as_view(), name='followup_list'),
+    path('follow-ups/add/', followup.FollowUpCreateView.as_view(), name='followup_add'),
 ]

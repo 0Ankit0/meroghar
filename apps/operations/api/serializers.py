@@ -1,5 +1,7 @@
 from rest_framework import serializers
+from django.utils import timezone
 from apps.operations.models import Vendor, WorkOrder
+from apps.finance.models import Expense
 
 class VendorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -9,7 +11,7 @@ class VendorSerializer(serializers.ModelSerializer):
 
 class WorkOrderSerializer(serializers.ModelSerializer):
     unit_number = serializers.ReadOnlyField(source='unit.unit_number')
-    vendor_name = serializers.ReadOnlyField(source='assigned_vendor.name')
+    vendor_name = serializers.ReadOnlyField(source='assigned_vendor.company_name')
     
     class Meta:
         model = WorkOrder
@@ -46,4 +48,48 @@ class WorkOrderSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         if request and hasattr(request, 'active_organization'):
             validated_data['organization'] = request.active_organization
-        return super().create(validated_data)
+        work_order = super().create(validated_data)
+        self._auto_assign_vendor_if_needed(work_order)
+        self._create_resolution_expense_if_needed(work_order)
+        return work_order
+
+    def update(self, instance, validated_data):
+        work_order = super().update(instance, validated_data)
+        self._auto_assign_vendor_if_needed(work_order)
+        self._create_resolution_expense_if_needed(work_order)
+        return work_order
+
+    def _auto_assign_vendor_if_needed(self, work_order):
+        if work_order.assigned_vendor_id:
+            return
+        vendor = Vendor.objects.filter(
+            organization=work_order.organization,
+            is_active=True,
+            service_type=work_order.preferred_service_type,
+        ).order_by('created_at').first()
+        if vendor:
+            work_order.assigned_vendor = vendor
+            work_order.vendor_auto_assigned_at = timezone.now()
+            work_order.save(update_fields=['assigned_vendor', 'vendor_auto_assigned_at', 'updated_at'])
+
+    def _create_resolution_expense_if_needed(self, work_order):
+        if work_order.status not in [WorkOrder.Status.RESOLVED, WorkOrder.Status.CLOSED]:
+            return
+        if not work_order.assigned_vendor or not work_order.actual_hours:
+            return
+        if Expense.objects.filter(work_order=work_order).exists():
+            return
+        rate = work_order.assigned_vendor.hourly_rate
+        if not rate:
+            return
+
+        Expense.objects.create(
+            organization=work_order.organization,
+            property=work_order.unit.property,
+            unit=work_order.unit,
+            work_order=work_order,
+            category=Expense.Category.MAINTENANCE,
+            amount=rate * work_order.actual_hours,
+            expense_date=timezone.now().date(),
+            description=f"Auto-created from work order {work_order.id}",
+        )

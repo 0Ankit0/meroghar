@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from ..models import Lead, Showing, RentalApplication
+from django.utils import timezone
+from ..models import Lead, Showing, RentalApplication, LeadFollowUp
 
 class LeadSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,8 +20,27 @@ class ShowingSerializer(serializers.ModelSerializer):
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at']
 
+    def update(self, instance, validated_data):
+        status_value = validated_data.get('status')
+        if status_value == Showing.Status.COMPLETED and not instance.completed_at:
+            validated_data['completed_at'] = timezone.now()
+        return super().update(instance, validated_data)
+
 class RentalApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = RentalApplication
         fields = '__all__'
         read_only_fields = ['created_at', 'updated_at', 'submission_date']
+
+
+class LeadFollowUpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeadFollowUp
+        fields = '__all__'
+        read_only_fields = ['created_at', 'updated_at', 'completed_at']
+
+    def update(self, instance, validated_data):
+        status_value = validated_data.get('status')
+        if status_value == LeadFollowUp.Status.DONE and not instance.completed_at:
+            validated_data['completed_at'] = timezone.now()
+        return super().update(instance, validated_data)

@@ -12,7 +12,17 @@ class VendorForm(forms.ModelForm):
 class WorkOrderForm(forms.ModelForm):
     class Meta:
         model = WorkOrder
-        fields = ['unit', 'title', 'description', 'priority', 'status', 'assigned_to', 'assigned_vendor']
+        fields = [
+            'unit',
+            'title',
+            'description',
+            'priority',
+            'preferred_service_type',
+            'status',
+            'assigned_to',
+            'assigned_vendor',
+            'actual_hours',
+        ]
         widgets = {
             'description': forms.Textarea(attrs={'rows': 3}),
         }
