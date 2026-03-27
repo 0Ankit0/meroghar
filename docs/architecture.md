@@ -20,7 +20,6 @@ graph TB
     khalti -->|Callback/Verification| system
     system -->|Sends Notifications| email
 ```
-```
 
 ## Multi-tenancy Strategy
 
@@ -49,14 +48,14 @@ We use a split settings layout and a dedicated `apps/` folder:
 ```text
 meroghar/
 ├── apps/               # Business Logic Modules
-│   ├── core/           # Base models, utils
-│   ├── iam/            # Users, Organizations (Multi-tenancy)
-│   ├── properties/     # Properties, Units
-│   ├── tenants/        # Tenant profiles
-│   ├── leases/         # Lease contracts
-│   ├── billing/        # Invoices
-│   ├── payments/       # Payment records & Gateway integration
-│   └── maintenance/    # Work orders
+│   ├── core/           # Middleware, dashboard, shared utilities
+│   ├── iam/            # Users, organizations, groups, memberships
+│   ├── housing/        # Properties, units, tenants, leases, inspections, inventory
+│   ├── finance/        # Invoices, payments, expenses
+│   ├── operations/     # Work orders, vendors, documents, notifications
+│   ├── crm/            # Leads, showings, applications
+│   ├── reporting/      # Financial, occupancy, maintenance reports
+│   └── theme/          # Frontend theme assets and dev command helpers
 ├── config/             # Project Configuration
 │   ├── settings/       # Split settings (base, dev, prod)
 │   ├── urls.py         # Main routing
@@ -65,3 +64,11 @@ meroghar/
 ├── static/             # Static assets
 └── manage.py
 ```
+
+## Documentation Source of Truth
+
+Routing and endpoint authority should always be verified against:
+
+- `config/urls.py`
+- `config/api_urls.py`
+- `apps/*/urls.py`

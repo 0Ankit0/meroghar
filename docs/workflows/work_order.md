@@ -7,7 +7,7 @@ Workflows related to the `WorkOrder` model.
 **Description**: View maintenance queue.
 
 ### Endpoint
-`GET /maintenance/requests/`
+`GET /operations/maintenance/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: GET /maintenance/requests/
+    User->>System: GET /operations/maintenance/
     System->>DB: SELECT * FROM work_orders WHERE organization = active_org
     DB-->>System: List
     System-->>User: Render Queue
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Create new request.
 
 ### Endpoint
-`POST /maintenance/requests/add/`
+`POST /operations/maintenance/add/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /maintenance/requests/add/
+    User->>System: POST /operations/maintenance/add/
     System->>DB: INSERT WorkOrder
     DB-->>System: Created
     System-->>User: Redirect
@@ -49,7 +49,7 @@ sequenceDiagram
 **Description**: Update status (e.g. In Progress, Completed).
 
 ### Endpoint
-`POST /maintenance/requests/<id>/edit/`
+`POST /operations/maintenance/<uuid:pk>/edit/`
 
 ### System Diagram
 
@@ -59,7 +59,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /maintenance/requests/<id>/edit/ (Status: Completed)
+    Manager->>System: POST /operations/maintenance/<uuid:pk>/edit/ (Status: Completed)
     System->>DB: UPDATE WorkOrder
     DB-->>System: Success
     System-->>Manager: Redirect

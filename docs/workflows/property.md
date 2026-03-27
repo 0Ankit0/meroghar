@@ -7,7 +7,7 @@ Workflows related to the `Property` model.
 **Description**: View all properties belonging to the active organization.
 
 ### Endpoint
-`GET /properties/`
+`GET /housing/properties/`
 
 ### Logic
 1.  System identifies the Active Organization from component/session.
@@ -22,7 +22,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: GET /properties/
+    User->>System: GET /housing/properties/
     System->>DB: SELECT * FROM properties WHERE organization = active_org
     DB-->>System: [Property A, Property B]
     System-->>User: Render List
@@ -33,7 +33,7 @@ sequenceDiagram
 **Description**: Usage of the system to register a new real estate property.
 
 ### Endpoint
-`POST /properties/add/`
+`POST /housing/properties/add/`
 
 ### Logic
 1.  User submits form data.
@@ -48,7 +48,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /properties/add/
+    User->>System: POST /housing/properties/add/
     System->>System: Validate Data
     alt Valid
         System->>DB: INSERT Property (org_id=active)
@@ -64,7 +64,7 @@ sequenceDiagram
 **Description**: Modifying an existing property's details.
 
 ### Endpoint
-`POST /properties/<id>/edit/`
+`POST /housing/properties/<uuid:pk>/edit/`
 
 ### Logic
 1.  User requests edit form.
@@ -80,12 +80,12 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: GET /properties/<id>/edit/
+    User->>System: GET /housing/properties/<uuid:pk>/edit/
     System->>DB: Fetch Property (Ensure Org Match)
     DB-->>System: Property Data
     System-->>User: Render Form (Pre-filled)
 
-    User->>System: POST /properties/<id>/edit/ (Updated Data)
+    User->>System: POST /housing/properties/<uuid:pk>/edit/ (Updated Data)
     System->>DB: UPDATE Property
     DB-->>System: Success
     System-->>User: Redirect to List
@@ -96,7 +96,7 @@ sequenceDiagram
 **Description**: Removing a property from the system.
 
 ### Endpoint
-`POST /properties/<id>/delete/`
+`POST /housing/properties/<uuid:pk>/delete/`
 
 ### Logic
 1.  User requests delete confirmation.
@@ -112,7 +112,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /properties/<id>/delete/ (Confirm)
+    User->>System: POST /housing/properties/<uuid:pk>/delete/ (Confirm)
     System->>DB: DELETE Property WHERE id=<id> AND organization=active
     DB-->>System: Deleted
     System-->>User: Redirect to List

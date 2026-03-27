@@ -7,7 +7,7 @@ Workflows related to the `Organization` model.
 **Description**: View all organizations the user is a member of.
 
 ### Endpoint
-`GET /organizations/`
+`GET /iam/organizations/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: GET /organizations/
+    User->>System: GET /iam/organizations/
     System->>DB: SELECT * FROM organizations JOIN user_organizations ...
     DB-->>System: List of Orgs
     System-->>User: Render List
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Change active context.
 
 ### Endpoint
-`POST /organizations/switch/<org_id>/`
+`POST /iam/organizations/switch/<uuid:pk>/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant Session as Session
 
-    User->>System: POST /organizations/switch/<id>/
+    User->>System: POST /iam/organizations/switch/<uuid:pk>/
     System->>Session: KEY active_org_id = <id>
     System-->>User: Redirect
 ```
@@ -48,7 +48,7 @@ sequenceDiagram
 **Description**: Create a new organization.
 
 ### Endpoint
-`POST /organizations/add/`
+`POST /iam/organizations/add/`
 
 ### System Diagram
 
@@ -59,7 +59,7 @@ sequenceDiagram
     participant DB as Database
     participant Session as Session
 
-    User->>System: POST /organizations/add/
+    User->>System: POST /iam/organizations/add/
     System->>DB: INSERT Organization
     System->>DB: Link User (Member/Owner)
     System->>Session: Auto-switch (active_org_id = new_id)
@@ -72,7 +72,7 @@ sequenceDiagram
 **Description**: Update org details.
 
 ### Endpoint
-`POST /organizations/<id>/edit/`
+`POST /iam/organization/edit/`
 
 ### System Diagram
 
@@ -82,7 +82,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /organizations/<id>/edit/
+    User->>System: POST /iam/organization/edit/
     System->>DB: UPDATE Organization
     DB-->>System: Updated
     System-->>User: Redirect

@@ -25,3 +25,16 @@ To run the project locally:
 MeroGhar follows a **Modular Monolith** architecture using Django Web Framework.
 
 See [Architecture](architecture.md) for details.
+
+## Domain Ownership Map
+
+| Requirement Area | Owning App(s) | Primary Web Namespace |
+|---|---|---|
+| IAM & Multi-tenancy | `apps/iam`, `apps/core` | `/iam/` |
+| Property / Unit / Tenant / Lease | `apps/housing` | `/housing/` |
+| Billing, Payments, Expenses | `apps/finance` | `/finance/` |
+| Maintenance & Operations | `apps/operations` | `/operations/` |
+| CRM & Leasing Funnel | `apps/crm` | `/crm/` |
+| Analytics & Reports | `apps/reporting` | `/reporting/` |
+
+For API route ownership, use `config/api_urls.py` as the root registry.
