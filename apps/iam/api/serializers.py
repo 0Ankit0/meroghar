@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from apps.iam.models import User, Organization
+from apps.iam.models import User, Organization, OrganizationMembership, OrganizationInvitation
 
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
@@ -121,3 +121,19 @@ class AuthProfileSerializer(serializers.ModelSerializer):
             active_organization,
             context={'active_organization': active_organization},
         ).data
+
+
+class OrganizationInvitationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrganizationInvitation
+        fields = '__all__'
+        read_only_fields = [
+            'organization',
+            'invited_by',
+            'token',
+            'accepted_at',
+            'accepted_by',
+            'status',
+            'created_at',
+            'updated_at',
+        ]

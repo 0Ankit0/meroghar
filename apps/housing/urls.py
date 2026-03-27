@@ -5,6 +5,7 @@ from .views import lease as lease_views
 from .views import unit as unit_views
 from .views import inspection as inspection_views
 from .views import inventory as inventory_views
+from .views import renewal as renewal_views
 
 app_name = "housing"
 
@@ -37,6 +38,9 @@ urlpatterns = [
     path('leases/<uuid:pk>/', lease_views.LeaseDetailView.as_view(), name='lease_detail'),
     path('leases/<uuid:pk>/edit/', lease_views.LeaseUpdateView.as_view(), name='lease_edit'),
     path("leases/<uuid:pk>/delete/", lease_views.LeaseDeleteView.as_view(), name="lease_delete"),
+    path("lease-renewals/", renewal_views.LeaseRenewalListView.as_view(), name="lease_renewal_list"),
+    path("lease-renewals/add/", renewal_views.LeaseRenewalCreateView.as_view(), name="lease_renewal_add"),
+    path("lease-renewals/<uuid:pk>/edit/", renewal_views.LeaseRenewalUpdateView.as_view(), name="lease_renewal_edit"),
 
     # Inspections
     path('inspections/', inspection_views.InspectionListView.as_view(), name='inspection_list'),

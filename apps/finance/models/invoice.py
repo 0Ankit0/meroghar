@@ -1,6 +1,8 @@
 from django.db import models
+from decimal import Decimal
 from apps.core.models import BaseModel
 from django.utils.translation import gettext_lazy as _
+from django.utils import timezone
 
 class Invoice(BaseModel):
     class Status(models.TextChoices):
@@ -31,6 +33,8 @@ class Invoice(BaseModel):
     tax = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
     paid_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    late_fee_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+    late_fee_applied_at = models.DateTimeField(null=True, blank=True)
     
     status = models.CharField(
         max_length=20,
@@ -48,4 +52,20 @@ class Invoice(BaseModel):
 
     @property
     def balance_due(self):
-        return self.total_amount - self.paid_amount
+        return self.total_amount + self.late_fee_amount - self.paid_amount
+
+    def apply_late_fee(self, percentage=Decimal('0.05')):
+        if self.status in [self.Status.PAID, self.Status.CANCELLED]:
+            return False
+        if self.due_date >= timezone.now().date():
+            return False
+        if self.balance_due <= 0:
+            return False
+        if self.late_fee_amount > 0:
+            return False
+
+        self.late_fee_amount = (self.total_amount * percentage).quantize(Decimal('0.01'))
+        self.late_fee_applied_at = timezone.now()
+        self.status = self.Status.OVERDUE
+        self.save(update_fields=['late_fee_amount', 'late_fee_applied_at', 'status', 'updated_at'])
+        return True

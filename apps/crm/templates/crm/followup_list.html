@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Lead Follow-ups{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Lead Follow-ups</h1>
+<a class="text-blue-600" href="{% url 'crm:followup_add' %}">Add Follow-up</a>
+<ul class="mt-4 space-y-2">
+{% for item in followups %}
+<li>{{ item.lead }} - {{ item.channel }} - {{ item.status }}</li>
+{% empty %}
+<li>No follow-ups.</li>
+{% endfor %}
+</ul>
+{% endblock %}

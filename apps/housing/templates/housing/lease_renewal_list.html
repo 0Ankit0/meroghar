@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% block title %}Lease Renewals{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Lease Renewals</h1>
+<a href="{% url 'housing:lease_renewal_add' %}" class="text-blue-600">New Renewal</a>
+<ul class="mt-4 space-y-2">
+{% for renewal in renewals %}
+  <li>
+    {{ renewal.lease }} - {{ renewal.status }}
+    <a class="text-blue-600" href="{% url 'housing:lease_renewal_edit' renewal.id %}">Edit</a>
+  </li>
+{% empty %}
+  <li>No renewals yet.</li>
+{% endfor %}
+</ul>
+{% endblock %}

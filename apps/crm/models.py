@@ -82,6 +82,7 @@ class Showing(BaseModel):
     )
     
     notes = models.TextField(blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f"Showing: {self.lead} at {self.unit}"
@@ -125,3 +126,25 @@ class RentalApplication(BaseModel):
 
     def __str__(self):
         return f"Application: {self.lead} for {self.unit}"
+
+
+class LeadFollowUp(BaseModel):
+    class Channel(models.TextChoices):
+        EMAIL = 'EMAIL', 'Email'
+        PHONE = 'PHONE', 'Phone'
+        SMS = 'SMS', 'SMS'
+
+    class Status(models.TextChoices):
+        PENDING = 'PENDING', 'Pending'
+        DONE = 'DONE', 'Done'
+        SKIPPED = 'SKIPPED', 'Skipped'
+
+    lead = models.ForeignKey(Lead, on_delete=models.CASCADE, related_name='follow_ups')
+    channel = models.CharField(max_length=20, choices=Channel.choices, default=Channel.EMAIL)
+    scheduled_at = models.DateTimeField()
+    status = models.CharField(max_length=20, choices=Status.choices, default=Status.PENDING)
+    message = models.TextField(blank=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Follow-up for {self.lead} ({self.channel})"

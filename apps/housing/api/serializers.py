@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from apps.housing.models import PropertyInspection, InventoryItem, InspectionPhoto, Property, Unit, Tenant, Lease
+from apps.housing.models import PropertyInspection, InventoryItem, InspectionPhoto, Property, Unit, Tenant, Lease, LeaseRenewal
 
 class PropertySerializer(serializers.ModelSerializer):
     class Meta:
@@ -90,3 +90,10 @@ class InventoryItemSerializer(serializers.ModelSerializer):
         model = InventoryItem
         fields = '__all__'
         read_only_fields = ['organization', 'created_at', 'updated_at']
+
+
+class LeaseRenewalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LeaseRenewal
+        fields = '__all__'
+        read_only_fields = ['reviewed_by', 'reviewed_at', 'renewal_lease', 'created_at', 'updated_at']

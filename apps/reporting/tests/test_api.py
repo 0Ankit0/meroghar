@@ -5,6 +5,7 @@ from rest_framework.test import APIClient
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Tenant, Lease, Unit, Property
 from apps.finance.models import Invoice
+from apps.operations.models import WorkOrder
 from django.utils import timezone
 from datetime import timedelta
 
@@ -56,3 +57,22 @@ class MobileDashboardApiTest(TestCase):
         self.assertEqual(response.data['balance_due'], 1000)
         self.assertEqual(response.data['lease_status'], 'ACTIVE')
         self.assertEqual(response.data['open_requests'], 0)
+
+    def test_reporting_kpis_endpoint(self):
+        self.client.force_authenticate(user=self.user)
+        session = self.client.session
+        session['active_org_id'] = str(self.organization.id)
+        session.save()
+        WorkOrder.objects.create(
+            organization=self.organization,
+            unit=self.unit,
+            requester=self.tenant,
+            title='Fix faucet',
+            description='Leak',
+            status='OPEN',
+        )
+        response = self.client.get('/api/reporting/kpis/')
+        self.assertEqual(response.status_code, 200)
+        self.assertIn('occupancy', response.data)
+        self.assertIn('receivables', response.data)
+        self.assertIn('maintenance', response.data)

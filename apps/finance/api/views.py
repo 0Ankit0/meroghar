@@ -30,6 +30,9 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
         
         if hasattr(self.request, 'active_organization'):
             queryset = Invoice.objects.filter(organization=self.request.active_organization)
+            for invoice in queryset:
+                invoice.apply_late_fee()
+            queryset = Invoice.objects.filter(organization=self.request.active_organization)
             
         # Tenant Restriction
         if user.role == 'TENANT':

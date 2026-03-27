@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from apps.housing.models import PropertyInspection, InventoryItem, Property, Unit, Tenant, Lease
-from .serializers import PropertyInspectionSerializer, InventoryItemSerializer, PropertySerializer, UnitSerializer, TenantSerializer, LeaseSerializer
+from apps.housing.models import PropertyInspection, InventoryItem, Property, Unit, Tenant, Lease, LeaseRenewal
+from .serializers import PropertyInspectionSerializer, InventoryItemSerializer, PropertySerializer, UnitSerializer, TenantSerializer, LeaseSerializer, LeaseRenewalSerializer
 from apps.iam.api.permissions import IsOrgManager, IsOrgTenant
 
 class PropertyInspectionViewSet(viewsets.ModelViewSet):
@@ -74,3 +74,21 @@ class LeaseViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+
+class LeaseRenewalViewSet(viewsets.ModelViewSet):
+    serializer_class = LeaseRenewalSerializer
+    permission_classes = [IsOrgTenant]
+
+    def get_queryset(self):
+        active_org = getattr(self.request, 'active_organization', None)
+        if not active_org:
+            return LeaseRenewal.objects.none()
+        return LeaseRenewal.objects.filter(lease__organization=active_org)
+
+    def perform_update(self, serializer):
+        instance = serializer.save()
+        status_value = serializer.validated_data.get('status')
+        if status_value == LeaseRenewal.Status.APPROVED:
+            instance.approve(self.request.user)
+        elif status_value == LeaseRenewal.Status.REJECTED:
+            instance.reject(self.request.user)
