@@ -1,1 +1,0 @@
-from .khalti import KhaltiService
