@@ -7,7 +7,7 @@ Workflows related to the `Tenant` model.
 **Description**: View all tenants in the active organization.
 
 ### Endpoint
-`GET /tenants/`
+`GET /housing/tenants/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: GET /tenants/
+    Manager->>System: GET /housing/tenants/
     System->>DB: SELECT * FROM tenants WHERE organization = active_org
     DB-->>System: [Tenant A, Tenant B]
     System-->>Manager: Render List
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Onboarding a new tenant.
 
 ### Endpoint
-`POST /tenants/add/`
+`POST /housing/tenants/add/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /tenants/add/ (Details)
+    Manager->>System: POST /housing/tenants/add/ (Details)
     System->>DB: Check Email Uniqueness (Organization Scope)
     
     alt Email Unique
@@ -55,7 +55,7 @@ sequenceDiagram
 **Description**: Updating contact or personal info.
 
 ### Endpoint
-`POST /tenants/<id>/edit/`
+`POST /housing/tenants/<id>/edit/`
 
 ### System Diagram
 
@@ -65,7 +65,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /tenants/<id>/edit/
+    Manager->>System: POST /housing/tenants/<id>/edit/
     System->>DB: UPDATE Tenant
     DB-->>System: Updated
     System-->>Manager: Redirect
@@ -76,7 +76,7 @@ sequenceDiagram
 **Description**: Viewing full profile, leases, and payment history.
 
 ### Endpoint
-`GET /tenants/<id>/`
+`GET /housing/tenants/<id>/`
 
 ### System Diagram
 
@@ -86,7 +86,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: GET /tenants/<id>/
+    Manager->>System: GET /housing/tenants/<id>/
     System->>DB: Fetch Tenant
     System->>DB: Fetch Related Leases
     System->>DB: Fetch Related Payments

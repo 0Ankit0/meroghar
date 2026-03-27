@@ -7,7 +7,7 @@ Workflows related to the `Lease` model.
 **Description**: View all active and past leases.
 
 ### Endpoint
-`GET /leases/`
+`GET /housing/leases/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: GET /leases/
+    Manager->>System: GET /housing/leases/
     System->>DB: SELECT * FROM leases WHERE organization = active_org
     DB-->>System: Lease List
     System-->>Manager: Render List
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Formalizing a rental agreement.
 
 ### Endpoint
-`POST /leases/add/`
+`POST /housing/leases/add/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /leases/add/ (Tenant, Unit, Dates)
+    Manager->>System: POST /housing/leases/add/ (Tenant, Unit, Dates)
     System->>System: Validate Dates
     System->>DB: Check Unit Availability
     
@@ -57,7 +57,7 @@ sequenceDiagram
 **Description**: Extending dates or changing rent.
 
 ### Endpoint
-`POST /leases/<id>/edit/`
+`POST /housing/leases/<id>/edit/`
 
 ### System Diagram
 
@@ -67,7 +67,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /leases/<id>/edit/
+    Manager->>System: POST /housing/leases/<id>/edit/
     System->>DB: UPDATE Lease
     DB-->>System: Success
     System-->>Manager: Redirect
@@ -78,7 +78,7 @@ sequenceDiagram
 **Description**: Ending a lease early or deleting record.
 
 ### Endpoint
-`POST /leases/<id>/delete/`
+`POST /housing/leases/<id>/delete/`
 
 ### System Diagram
 
@@ -88,7 +88,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /leases/<id>/delete/
+    Manager->>System: POST /housing/leases/<id>/delete/
     System->>DB: DELETE Lease
     System->>DB: UPDATE Unit Status (Vacant)
     DB-->>System: Success

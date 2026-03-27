@@ -7,7 +7,7 @@ Workflows related to the `Invoice` model.
 **Description**: Accessing billing history.
 
 ### Endpoint
-`GET /invoices/`
+`GET /finance/invoices/`
 
 ### System Diagram
 
@@ -17,7 +17,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: GET /invoices/
+    Manager->>System: GET /finance/invoices/
     System->>DB: Fetch Invoices (Active Org)
     DB-->>System: List
     System-->>Manager: Render Table
@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Creating a new invoice.
 
 ### Endpoint
-`POST /invoices/add/`
+`POST /finance/invoices/add/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /invoices/add/
+    Manager->>System: POST /finance/invoices/add/
     System->>DB: Verify Lease
     System->>DB: INSERT Invoice
     DB-->>System: Created
@@ -50,7 +50,7 @@ sequenceDiagram
 **Description**: Correcting an invoice.
 
 ### Endpoint
-`POST /invoices/<id>/edit/`
+`POST /finance/invoices/<id>/edit/`
 
 ### System Diagram
 
@@ -60,7 +60,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /invoices/<id>/edit/
+    Manager->>System: POST /finance/invoices/<id>/edit/
     System->>DB: UPDATE Invoice
     DB-->>System: Success
     System-->>Manager: Redirect
