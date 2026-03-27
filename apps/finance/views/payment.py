@@ -11,29 +11,23 @@ from ..services.khalti import KhaltiService
 
 class InitiatePaymentView(LoginRequiredMixin, View):
     def post(self, request, invoice_id):
-        with transaction.atomic():
-            invoice = get_object_or_404(
-                Invoice.objects.select_for_update(), id=invoice_id
-            )
-            payment = (
-                Payment.objects.select_for_update()
-                .filter(
-                    invoice=invoice,
-                    provider=Payment.Provider.KHALTI,
-                    status=Payment.Status.INITIATED,
-                    transaction_id='',
-                )
-                .order_by('-created_at')
-                .first()
-            )
-            if not payment:
-                payment = Payment.objects.create(
-                    organization=invoice.organization,
-                    invoice=invoice,
-                    amount=invoice.total_amount - invoice.paid_amount,
-                    status=Payment.Status.INITIATED,
-                    provider=Payment.Provider.KHALTI,
-                )
+        if not request.active_organization:
+            messages.error(request, "No active organization selected.")
+            return redirect('finance:invoice_list')
+
+        invoice = get_object_or_404(
+            Invoice.objects.filter(organization=request.active_organization),
+            id=invoice_id,
+        )
+        
+        # Create a payment record
+        payment = Payment.objects.create(
+            organization=invoice.organization,
+            invoice=invoice,
+            amount=invoice.total_amount - invoice.paid_amount, # Paying remaining balance
+            status=Payment.Status.INITIATED,
+            provider=Payment.Provider.KHALTI
+        )
         
         # Build URLs
         return_url = request.build_absolute_uri(reverse('finance:verify_payment'))
@@ -76,14 +70,17 @@ class VerifyPaymentView(LoginRequiredMixin, View):
 
         try:
             with transaction.atomic():
-                payment = (
-                    Payment.objects.select_for_update()
-                    .select_related('invoice')
-                    .get(provider=Payment.Provider.KHALTI, transaction_id=pidx)
-                )
-                invoice = payment.invoice
-                if invoice:
-                    invoice = Invoice.objects.select_for_update().get(pk=invoice.pk)
+                # Find payment with lock
+                try:
+                     payment_qs = Payment.objects.select_for_update()
+                     if request.active_organization:
+                         payment_qs = payment_qs.filter(organization=request.active_organization)
+                     payment = payment_qs.get(transaction_id=pidx)
+                except Payment.DoesNotExist:
+                     # If not found by transaction_id, try by purchase_order_id (ID) if valid
+                     # But Khalti doc says pidx is key.
+                     messages.error(request, "Payment record not found.")
+                     return redirect('finance:invoice_list')
 
                 if payment.status == Payment.Status.SUCCESS:
                     messages.info(request, "Payment already verified.")

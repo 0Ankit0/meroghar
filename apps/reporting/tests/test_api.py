@@ -13,6 +13,7 @@ class MobileDashboardApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.organization = Organization.objects.create(name="Test Org", slug="test-org")
+        self.other_org = Organization.objects.create(name="Other Test Org", slug="other-test-org")
         
         # Create Tenant User
         self.user = User.objects.create_user(username='tenant', email='tenant@test.com', password='password', role='TENANT')
@@ -47,6 +48,43 @@ class MobileDashboardApiTest(TestCase):
             due_date=timezone.now().date() + timedelta(days=5),
             total_amount=1000,
             status='SENT'
+        )
+
+        # Cross-org records for the same user should not leak into dashboard totals
+        other_property = Property.objects.create(name="Other Prop", organization=self.other_org)
+        other_unit = Unit.objects.create(property=other_property, unit_number="202")
+        other_tenant = Tenant.objects.create(
+            organization=self.other_org,
+            first_name="John",
+            last_name="Doe",
+            email="tenant@test.com",
+            user=self.user,
+        )
+        other_lease = Lease.objects.create(
+            organization=self.other_org,
+            tenant=other_tenant,
+            start_date=timezone.now().date(),
+            end_date=timezone.now().date() + timedelta(days=365),
+            rent_amount=2000,
+            status='ACTIVE',
+        )
+        other_lease.units.add(other_unit)
+        Invoice.objects.create(
+            organization=self.other_org,
+            lease=other_lease,
+            invoice_number="INV-OTHER-001",
+            invoice_date=timezone.now().date(),
+            due_date=timezone.now().date() + timedelta(days=3),
+            total_amount=2000,
+            status='SENT',
+        )
+        WorkOrder.objects.create(
+            organization=self.other_org,
+            unit=other_unit,
+            requester=other_tenant,
+            title="Other Org WO",
+            description="Should not be counted",
+            status='OPEN',
         )
 
     def test_dashboard_stats(self):
