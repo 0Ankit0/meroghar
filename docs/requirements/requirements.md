@@ -73,7 +73,8 @@ The system will support:
 
 #### FR-AL-001: Property Type Management
 - Landlords shall define or select property types (Apartment, House, Room, Studio, Villa, Commercial Space)
-- Each property type shall support configurable custom attribute fields (e.g., number of bedrooms, bathrooms, floor area in sqft/sqm, furnishing status, parking availability, balcony)
+- Each property type shall support configurable custom attribute fields (e.g., number of bedrooms, bathrooms, floor area, furnishing status, parking availability, balcony)
+- Floor area shall support a configurable unit preference (sqft or sqm) set at the platform or landlord account level
 - Admins shall manage the global property type taxonomy
 
 #### FR-AL-002: Property Creation
@@ -283,7 +284,7 @@ The system will support:
 | API response time | < 300ms (p95) |
 | Availability calendar load | < 500ms |
 | Dashboard load time | < 2 seconds |
-| Concurrent users | 50,000+ |
+| Concurrent users (peak active sessions) | 50,000+ |
 | File upload size | Up to 50 MB per file |
 
 ### 3.2 Scalability
