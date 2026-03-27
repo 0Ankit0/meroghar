@@ -2,6 +2,7 @@ from datetime import timedelta, datetime, timezone
 from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
 from sqlmodel import select
+from sqlalchemy import col
 from sqlalchemy.ext.asyncio import AsyncSession
 from jose import jwt
 import pyotp
@@ -239,7 +240,7 @@ async def validate_otp_login(
                     LoginAttempt.success == False,
                     LoginAttempt.timestamp >= window_start,
                 )
-                .order_by(LoginAttempt.timestamp.desc())
+                .order_by(col(LoginAttempt.timestamp).desc())
             )
             failures = result.scalars().all()
             if len(failures) >= settings.MAX_LOGIN_ATTEMPTS:

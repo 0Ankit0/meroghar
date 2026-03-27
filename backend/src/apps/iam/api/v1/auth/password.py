@@ -91,6 +91,17 @@ async def confirm_password_reset(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Invalid reset token data"
             )
+        if not isinstance(jwt_token, str):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid reset token format"
+            )
+        if not isinstance(user_id, (int, str)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Invalid user identifier in reset token"
+            )
+        user_id_int = int(user_id)
         
         # Verify the embedded JWT token
         payload = security.verify_token(jwt_token, token_type=TokenType.PASSWORD_RESET)
@@ -122,7 +133,7 @@ async def confirm_password_reset(
         )
     
     try:
-        result = await db.execute(select(User).where(User.id == int(user_id)))
+        result = await db.execute(select(User).where(User.id == user_id_int))
         user = result.scalars().first()
         
         if not user:
@@ -137,7 +148,7 @@ async def confirm_password_reset(
         if token_jti:
             used_token = UsedToken(
                 token_jti=token_jti,
-                user_id=int(user_id),
+                user_id=user_id_int,
                 token_purpose="password_reset"
             )
             db.add(used_token)
@@ -159,10 +170,10 @@ async def confirm_password_reset(
         await db.commit()
         
         # Invalidate all related caches
-        await RedisCache.delete(f"user:profile:{user_id}")
-        await RedisCache.clear_pattern(f"tokens:active:{user_id}:*")
+        await RedisCache.delete(f"user:profile:{user_id_int}")
+        await RedisCache.clear_pattern(f"tokens:active:{user_id_int}:*")
 
-        await analytics.capture(str(user_id), AuthEvents.PASSWORD_RESET_COMPLETED)
+        await analytics.capture(str(user_id_int), AuthEvents.PASSWORD_RESET_COMPLETED)
 
         return {"message": "Password has been reset successfully"}
     except HTTPException:
@@ -186,6 +197,11 @@ async def change_password(
     Change password for authenticated user
     """
     try:
+        if not current_user.hashed_password:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Password is not set for this account"
+            )
         if not security.verify_password(password_data.current_password, current_user.hashed_password):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,

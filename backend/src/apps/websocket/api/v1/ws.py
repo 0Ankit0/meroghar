@@ -30,6 +30,7 @@ from src.apps.core.config import settings
 from src.apps.iam.api.deps import get_current_user, get_db
 from src.apps.iam.models.user import User
 from src.apps.iam.utils.hashid import decode_id_or_404, encode_id
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.websocket.crypto import session_key_b64
 from src.apps.websocket.deps import ws_get_current_user
 from src.apps.websocket.manager import manager
@@ -81,8 +82,9 @@ async def _handle_connection(
         user, session_key = await ws_get_current_user(websocket, db)
     except RuntimeError:
         return  # already closed by ws_get_current_user
+    user_id = require_user_id(user.id)
 
-    await manager.connect(websocket, user.id, session_key)
+    await manager.connect(websocket, user_id, session_key)
 
     # Send handshake (plaintext — the connection is already TLS-protected)
     jti = None  # session_key_b64 uses the same derivation; we need jti from token
@@ -101,23 +103,23 @@ async def _handle_connection(
     await websocket.send_text(handshake.model_dump_json())
 
     if initial_room:
-        await manager.join_room(user.id, initial_room)
+        await manager.join_room(user_id, initial_room)
 
-    heartbeat_task = asyncio.create_task(_heartbeat_loop(user.id))
+    heartbeat_task = asyncio.create_task(_heartbeat_loop(user_id))
 
     try:
         while True:
             # Receive and decrypt; closes connection on decryption failure
             try:
                 data = await asyncio.wait_for(
-                    manager.receive_and_decrypt(websocket, user.id),
+                    manager.receive_and_decrypt(websocket, user_id),
                     timeout=settings.WS_MAX_IDLE_SECONDS,
                 )
             except (ValueError, RuntimeError):
                 break
             except asyncio.TimeoutError:
                 await manager.send_personal_model(
-                    user.id,
+                    user_id,
                     WSErrorMessage(code=4008, detail="WebSocket idle timeout"),
                 )
                 await websocket.close(code=4008)
@@ -130,7 +132,7 @@ async def _handle_connection(
                 msg_type = WSMessageType(msg_type_raw)
             except ValueError:
                 await manager.send_personal_model(
-                    user.id,
+                    user_id,
                     WSErrorMessage(code=4004, detail=f"Unknown message type: {msg_type_raw}"),
                 )
                 continue
@@ -138,50 +140,50 @@ async def _handle_connection(
             # ── dispatch ──────────────────────────────────────────────────
 
             if msg_type == WSMessageType.PING:
-                await manager.send_personal_model(user.id, WSPongMessage())
+                await manager.send_personal_model(user_id, WSPongMessage())
 
             elif msg_type == WSMessageType.JOIN_ROOM:
                 msg = WSJoinRoomMessage(**data)
-                await manager.join_room(user.id, msg.room)
-                await manager.send_personal_model(user.id, WSAckMessage(ref=msg_id))
+                await manager.join_room(user_id, msg.room)
+                await manager.send_personal_model(user_id, WSAckMessage(ref=msg_id))
 
             elif msg_type == WSMessageType.LEAVE_ROOM:
                 msg = WSLeaveRoomMessage(**data)
-                await manager.leave_room(user.id, msg.room)
-                await manager.send_personal_model(user.id, WSAckMessage(ref=msg_id))
+                await manager.leave_room(user_id, msg.room)
+                await manager.send_personal_model(user_id, WSAckMessage(ref=msg_id))
 
             elif msg_type == WSMessageType.MESSAGE:
                 msg = WSMessagePayload(**data)
-                out = WSRoomMessage(room=msg.room, sender_id=user.id, data=msg.data)
-                await manager.broadcast_room(msg.room, out, exclude_user=user.id)
-                await manager.send_personal_model(user.id, WSAckMessage(ref=msg_id))
+                out = WSRoomMessage(room=msg.room, sender_id=user_id, data=msg.data)
+                await manager.broadcast_room(msg.room, out, exclude_user=user_id)
+                await manager.send_personal_model(user_id, WSAckMessage(ref=msg_id))
 
             elif msg_type == WSMessageType.BROADCAST:
                 if not user.is_superuser:
                     await manager.send_personal_model(
-                        user.id,
+                        user_id,
                         WSErrorMessage(code=4030, detail="Superuser required for broadcast"),
                     )
                     continue
                 msg = WSBroadcastMessage(**data)
                 from src.apps.websocket.schemas.messages import WSEventMessage
                 await manager.broadcast_all(WSEventMessage(event="broadcast", data=msg.data))
-                await manager.send_personal_model(user.id, WSAckMessage(ref=msg_id))
+                await manager.send_personal_model(user_id, WSAckMessage(ref=msg_id))
 
             elif msg_type == WSMessageType.TYPING:
                 msg = WSTypingMessage(**data)
                 from src.apps.websocket.schemas.messages import WSEventMessage
                 typing_event = WSEventMessage(
                     event="typing",
-                    data={"user_id": encode_id(user.id), "is_typing": msg.is_typing},
+                    data={"user_id": encode_id(user_id), "is_typing": msg.is_typing},
                     room=msg.room,
-                    sender_id=user.id,
+                    sender_id=user_id,
                 )
-                await manager.broadcast_room(msg.room, typing_event, exclude_user=user.id)
+                await manager.broadcast_room(msg.room, typing_event, exclude_user=user_id)
 
             else:
                 await manager.send_personal_model(
-                    user.id,
+                    user_id,
                     WSErrorMessage(code=4005, detail=f"Unhandled message type: {msg_type}"),
                 )
 
@@ -189,7 +191,7 @@ async def _handle_connection(
         pass
     finally:
         heartbeat_task.cancel()
-        await manager.disconnect(websocket, user.id)
+        await manager.disconnect(websocket, user_id)
 
 
 # ──────────────────────────────────────────────────────────────────────────────

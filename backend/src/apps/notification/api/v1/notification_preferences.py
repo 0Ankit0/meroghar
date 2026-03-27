@@ -4,6 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from src.apps.iam.api.deps import get_current_user, get_db
 from src.apps.iam.models.user import User
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.notification.schemas.notification_preference import (
     NotificationPreferenceRead,
     NotificationPreferenceUpdate,
@@ -22,8 +23,7 @@ async def get_preferences(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> NotificationPreferenceRead:
-    assert isinstance(current_user.id, int), "User Id can't be None"
-    return await get_preference_read(db, current_user.id)
+    return await get_preference_read(db, require_user_id(current_user.id))
 
 
 @router.patch("/preferences/", response_model=NotificationPreferenceRead)
@@ -32,8 +32,8 @@ async def update_preferences(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> NotificationPreferenceRead:
-    assert isinstance(current_user.id, int), "User Id can't be None"
-    pref = await get_or_create_preference(db, current_user.id)
+    current_user_id = require_user_id(current_user.id)
+    pref = await get_or_create_preference(db, current_user_id)
     for field, value in data.model_dump(exclude_none=True).items():
         setattr(pref, field, value)
     db.add(pref)

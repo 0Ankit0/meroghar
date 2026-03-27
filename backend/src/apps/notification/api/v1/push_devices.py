@@ -7,6 +7,7 @@ from src.apps.core.config import settings
 from src.apps.iam.api.deps import get_current_user, get_db
 from src.apps.iam.models.user import User
 from src.apps.iam.utils.hashid import decode_id_or_404
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.notification.models.notification_device import NotificationDevicePlatform, NotificationDeviceProvider
 from src.apps.notification.schemas.notification_device import (
     FcmDeviceCreate,
@@ -59,10 +60,10 @@ async def _register_and_enable_push(
     current_user: User,
     db: AsyncSession,
 ) -> NotificationDeviceRead:
-    assert isinstance(current_user.id, int), "User Id can't be None"
+    current_user_id = require_user_id(current_user.id)
     _require_push_provider(payload.provider)
-    device = await register_device(db, current_user.id, payload)
-    pref = await get_or_create_preference(db, current_user.id)
+    device = await register_device(db, current_user_id, payload)
+    pref = await get_or_create_preference(db, current_user_id)
     pref.push_enabled = True
     db.add(pref)
     await db.commit()
@@ -76,8 +77,7 @@ async def get_notification_devices(
     db: AsyncSession = Depends(get_db),
 ) -> list[NotificationDeviceRead]:
     _require_push_enabled()
-    assert isinstance(current_user.id, int), "User Id can't be None"
-    devices = await list_devices(db, current_user.id)
+    devices = await list_devices(db, require_user_id(current_user.id))
     return [NotificationDeviceRead.model_validate(device) for device in devices]
 
 
@@ -136,8 +136,8 @@ async def delete_notification_device(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     _require_push_enabled()
-    assert isinstance(current_user.id, int), "User Id can't be None"
-    removed = await remove_device(db, current_user.id, decode_id_or_404(device_id))
+    current_user_id = require_user_id(current_user.id)
+    removed = await remove_device(db, current_user_id, decode_id_or_404(device_id))
     if not removed:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Device not found")
 
@@ -155,10 +155,10 @@ async def register_push_subscription(
     db: AsyncSession = Depends(get_db),
 ) -> NotificationPreferenceRead:
     _require_push_provider(NotificationDeviceProvider.WEBPUSH)
-    assert isinstance(current_user.id, int), "User Id can't be None"
+    current_user_id = require_user_id(current_user.id)
     await register_device(
         db,
-        current_user.id,
+        current_user_id,
         NotificationDeviceCreate(
             provider=NotificationDeviceProvider.WEBPUSH,
             platform=NotificationDevicePlatform.WEB,
@@ -167,7 +167,7 @@ async def register_push_subscription(
             auth=data.auth,
         ),
     )
-    pref = await get_or_create_preference(db, current_user.id)
+    pref = await get_or_create_preference(db, current_user_id)
     pref.push_enabled = True
     db.add(pref)
     await db.commit()
@@ -181,5 +181,4 @@ async def remove_push_subscription(
     db: AsyncSession = Depends(get_db),
 ) -> None:
     _require_push_enabled()
-    assert isinstance(current_user.id, int), "User Id can't be None"
-    await remove_webpush_subscription(db, current_user.id)
+    await remove_webpush_subscription(db, require_user_id(current_user.id))

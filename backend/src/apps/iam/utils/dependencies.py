@@ -5,6 +5,7 @@ from src.apps.iam.api.deps import get_current_user
 from src.apps.iam.casbin_enforcer import CasbinEnforcer
 from src.apps.iam.models.user import User
 from src.apps.iam.utils.hashid import decode_id_or_404
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.iam.utils.rbac import check_permission, resolve_authorization_domain
 
 
@@ -29,6 +30,7 @@ def require_permission(resource: str, action: str):
         current_user: User = Depends(get_current_user),
         session: AsyncSession = Depends(get_session)
     ):
+        current_user_id = require_user_id(current_user.id)
         organization_id = (
             request.path_params.get("organization_id")
             or request.query_params.get("organization_id")
@@ -48,7 +50,7 @@ def require_permission(resource: str, action: str):
             organization_slug=organization_slug,
         )
         has_permission = await check_permission(
-            user_id=current_user.id,
+            user_id=current_user_id,
             resource=resource,
             action=action,
             session=session,
@@ -104,7 +106,7 @@ def require_role(role_name: str):
             organization_id=organization_db_id,
             organization_slug=organization_slug,
         )
-        roles = await CasbinEnforcer.get_roles_for_user(str(current_user.id), domain)
+        roles = await CasbinEnforcer.get_roles_for_user(str(require_user_id(current_user.id)), domain)
 
         if role_name not in roles:
             raise HTTPException(

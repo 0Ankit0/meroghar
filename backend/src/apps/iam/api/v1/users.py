@@ -12,6 +12,7 @@ from src.apps.iam.models.user import User
 from src.apps.iam.models.role import UserRole
 from src.apps.iam.schemas.user import UserResponse, UserUpdate
 from src.apps.iam.utils.hashid import decode_id_or_404
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.core.schemas import PaginatedResponse
 from src.apps.core.cache import RedisCache
 from src.apps.core.config import settings
@@ -156,6 +157,7 @@ async def upload_avatar(
     analytics: AnalyticsService = Depends(get_analytics),
 ):
     """Upload or replace the current user's avatar image."""
+    current_user_id = require_user_id(current_user.id)
     ALLOWED_TYPES = {"image/jpeg", "image/png", "image/gif", "image/webp"}
     MAX_SIZE = settings.MAX_AVATAR_SIZE_MB * 1024 * 1024
 
@@ -173,7 +175,7 @@ async def upload_avatar(
         )
 
     ext = file.filename.rsplit(".", 1)[-1].lower() if file.filename and "." in file.filename else "jpg"
-    filename = f"{current_user.id}_{uuid.uuid4().hex[:8]}.{ext}"
+    filename = f"{current_user_id}_{uuid.uuid4().hex[:8]}.{ext}"
     relative_path = f"avatars/{filename}"
 
     if current_user.profile and current_user.profile.image_url:
@@ -190,7 +192,7 @@ async def upload_avatar(
         db.add(current_user.profile)
     else:
         from src.apps.iam.models.user import UserProfile
-        profile = UserProfile(user_id=current_user.id, image_url=image_url)
+        profile = UserProfile(user_id=current_user_id, image_url=image_url)
         db.add(profile)
         current_user.profile = profile
 
@@ -199,10 +201,10 @@ async def upload_avatar(
     if current_user.profile:
         await db.refresh(current_user.profile)
 
-    await _invalidate_user_cache(current_user.id)
+    await _invalidate_user_cache(current_user_id)
 
     await analytics.capture(
-        str(current_user.id),
+        str(current_user_id),
         UserEvents.AVATAR_UPLOADED,
         {"file_type": file.content_type, "file_size_bytes": len(contents)},
     )
@@ -258,13 +260,14 @@ async def update_current_user(
     """
     Update current user's profile
     """
+    current_user_id = require_user_id(current_user.id)
     # Update user fields
     if user_update.email is not None:
         # Check if email is already taken
         result = await db.execute(
             select(User).where(
                 User.email == user_update.email,
-                User.id != current_user.id
+                User.id != current_user_id
             )
         )
         if result.scalars().first():
@@ -291,12 +294,12 @@ async def update_current_user(
         await db.refresh(current_user.profile)
     
     # Invalidate caches
-    await _invalidate_user_cache(current_user.id)
+    await _invalidate_user_cache(current_user_id)
     await RedisCache.clear_pattern("users:list:*")
 
     updated_fields = user_update.model_dump(exclude_unset=True)
     await analytics.capture(
-        str(current_user.id),
+        str(current_user_id),
         UserEvents.PROFILE_UPDATED,
         {"updated_fields": list(updated_fields.keys())},
     )
@@ -315,6 +318,7 @@ async def update_user(
     """
     Update user by ID (admin only)
     """
+    actor_user_id = require_user_id(current_user.id)
     uid = decode_id_or_404(user_id)
     result = await db.execute(
         select(User).options(
@@ -399,7 +403,7 @@ async def update_user(
     if privilege_changes:
         await record_admin_privilege_change(
             db,
-            actor_user_id=current_user.id,
+            actor_user_id=actor_user_id,
             subject_user_id=uid,
             changes=privilege_changes,
             request=request,
