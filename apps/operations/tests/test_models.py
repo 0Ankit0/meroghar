@@ -1,3 +1,5 @@
+"""Requirement coverage: OPS-01, OPS-05."""
+
 from django.test import TestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Tenant

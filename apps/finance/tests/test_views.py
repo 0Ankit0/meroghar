@@ -1,3 +1,5 @@
+"""Requirement coverage: FIN-05."""
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership

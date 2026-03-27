@@ -1,3 +1,5 @@
+"""Requirement coverage: CRM-01."""
+
 from django.test import TestCase
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership
