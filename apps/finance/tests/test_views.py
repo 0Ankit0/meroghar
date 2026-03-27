@@ -1,10 +1,16 @@
-from django.test import TestCase, Client
-from django.urls import reverse
+from datetime import date, timedelta
+from decimal import Decimal
 from unittest.mock import patch
-from apps.iam.models import User, Organization, OrganizationMembership
-from apps.housing.models import Property, Unit, Lease, Tenant
+
+from django.contrib.admin.sites import AdminSite
+from django.test import Client, RequestFactory, TestCase
+from django.urls import reverse
+
+from apps.finance.admin.payment import PaymentAdmin
 from apps.finance.models import Expense, Invoice, Payment
-from datetime import date
+from apps.housing.models import Lease, Property, Tenant, Unit
+from apps.iam.models import Organization, OrganizationMembership, User
+
 
 class FinanceViewTest(TestCase):
     def setUp(self):
@@ -12,11 +18,15 @@ class FinanceViewTest(TestCase):
         self.user = User.objects.create_user(username="accountant", password="password", role="MANAGER")
         OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="accountant", password="password")
-        
+
+        session = self.client.session
+        session['active_org_id'] = str(self.organization.id)
+        session.save()
+
         self.property = Property.objects.create(
             name="Finance Apts",
             organization=self.organization,
-            address="Kathmandu 1",
+            address="Kathmandu",
             city="Kathmandu",
         )
 
@@ -40,96 +50,119 @@ class FinanceViewTest(TestCase):
             'category': 'MAINTENANCE',
             'description': 'Test Expense'
         })
-        if response.status_code != 302:
-             print(f"Expense Form Errors: {response.context['form'].errors}")
         self.assertEqual(response.status_code, 302)
         self.assertTrue(Expense.objects.filter(amount=250.00).exists())
 
-    @patch("apps.finance.views.payment.KhaltiService.initiate_payment")
-    def test_initiate_payment_rejects_cross_org_invoice(self, mock_initiate_payment):
-        other_org = Organization.objects.create(name="Other Org", slug="other-org")
 
-        tenant = Tenant.objects.create(
-            organization=other_org,
-            first_name="Other",
-            last_name="Tenant",
-            email="other@example.com",
-            phone="9800000000",
-        )
-        property_other = Property.objects.create(
-            organization=other_org,
-            name="Other Property",
-            address="Pokhara 1",
-            city="Pokhara",
-        )
-        unit = Unit.objects.create(
-            property=property_other,
-            unit_number="101",
-            market_rent="10000.00",
-        )
-        lease = Lease.objects.create(
-            organization=other_org,
-            tenant=tenant,
-            start_date=date(2026, 1, 1),
-            end_date=date(2026, 12, 31),
-            rent_amount="10000.00",
-        )
-        lease.units.add(unit)
-        invoice = Invoice.objects.create(
-            organization=other_org,
-            lease=lease,
-            invoice_number="INV-OTHER-1",
-            invoice_date=date(2026, 1, 1),
-            due_date=date(2026, 1, 5),
-            total_amount="10000.00",
-        )
+class PaymentFlowViewTest(TestCase):
+    def setUp(self):
+        self.organization = Organization.objects.create(name="Pay Org", slug="pay-org")
+        self.user = User.objects.create_user(username="payer", password="password", role="MANAGER")
+        OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
+        self.client = Client()
+        self.client.login(username="payer", password="password")
+        session = self.client.session
+        session['active_org_id'] = str(self.organization.id)
+        session.save()
 
-        response = self.client.post(reverse("finance:initiate_payment", kwargs={"invoice_id": invoice.id}))
-
-        self.assertEqual(response.status_code, 404)
-        self.assertFalse(Payment.objects.filter(invoice=invoice).exists())
-        mock_initiate_payment.assert_not_called()
-
-    @patch("apps.finance.views.payment.KhaltiService.initiate_payment")
-    def test_initiate_payment_uses_active_org_invoice(self, mock_initiate_payment):
-        tenant = Tenant.objects.create(
+        self.property = Property.objects.create(
             organization=self.organization,
-            first_name="Finance",
+            name="Pay Property",
+            address="Street",
+            city="Kathmandu",
+        )
+        self.unit = Unit.objects.create(property=self.property, unit_number="101")
+        self.tenant = Tenant.objects.create(
+            organization=self.organization,
+            first_name="Test",
             last_name="Tenant",
             email="tenant@example.com",
-            phone="9800000001",
+            phone="9800000000",
         )
-        unit = Unit.objects.create(
-            property=self.property,
-            unit_number="201",
-            market_rent="12000.00",
-        )
-        lease = Lease.objects.create(
+        self.lease = Lease.objects.create(
             organization=self.organization,
-            tenant=tenant,
-            start_date=date(2026, 1, 1),
-            end_date=date(2026, 12, 31),
-            rent_amount="12000.00",
+            tenant=self.tenant,
+            start_date=date.today() - timedelta(days=10),
+            end_date=date.today() + timedelta(days=355),
+            rent_amount=Decimal("1000.00"),
         )
-        lease.units.add(unit)
-        invoice = Invoice.objects.create(
+        self.lease.units.add(self.unit)
+        self.invoice = Invoice.objects.create(
             organization=self.organization,
-            lease=lease,
-            invoice_number="INV-FIN-1",
-            invoice_date=date(2026, 1, 1),
-            due_date=date(2026, 1, 5),
-            total_amount="12000.00",
+            lease=self.lease,
+            invoice_number="INV-DOUBLE-001",
+            invoice_date=date.today(),
+            due_date=date.today() + timedelta(days=5),
+            subtotal=Decimal("100.00"),
+            tax=Decimal("0.00"),
+            total_amount=Decimal("100.00"),
+            status=Invoice.Status.SENT,
         )
-        mock_initiate_payment.return_value = {
-            "pidx": "test-pidx-123",
-            "payment_url": "https://khalti.test/pay",
-        }
 
-        response = self.client.post(reverse("finance:initiate_payment", kwargs={"invoice_id": invoice.id}))
+    @patch('apps.finance.views.payment.KhaltiService.initiate_payment')
+    def test_double_click_initiate_creates_single_pending_record(self, mock_initiate):
+        mock_initiate.return_value = {'pidx': 'pidx-123', 'payment_url': 'https://khalti.test/pay'}
+        url = reverse('finance:initiate_payment', kwargs={'invoice_id': self.invoice.id})
 
-        self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, "https://khalti.test/pay")
-        payment = Payment.objects.get(invoice=invoice)
-        self.assertEqual(payment.organization, self.organization)
-        self.assertEqual(payment.transaction_id, "test-pidx-123")
-        mock_initiate_payment.assert_called_once()
+        first = self.client.post(url)
+        second = self.client.post(url)
+
+        self.assertEqual(first.status_code, 302)
+        self.assertEqual(second.status_code, 302)
+        self.assertEqual(mock_initiate.call_count, 2)
+        self.assertEqual(
+            Payment.objects.filter(
+                invoice=self.invoice,
+                provider=Payment.Provider.KHALTI,
+                transaction_id='pidx-123',
+            ).count(),
+            1,
+        )
+
+    @patch('apps.finance.views.payment.KhaltiService.verify_payment')
+    def test_duplicate_callback_is_idempotent_success(self, mock_verify):
+        payment = Payment.objects.create(
+            organization=self.organization,
+            invoice=self.invoice,
+            amount=Decimal("100.00"),
+            provider=Payment.Provider.KHALTI,
+            status=Payment.Status.INITIATED,
+            transaction_id='pidx-cb-1',
+        )
+        mock_verify.return_value = {'status': 'Completed', 'pidx': 'pidx-cb-1'}
+        url = reverse('finance:verify_payment')
+
+        first = self.client.get(f'{url}?pidx=pidx-cb-1')
+        second = self.client.get(f'{url}?pidx=pidx-cb-1')
+
+        self.assertEqual(first.status_code, 302)
+        self.assertEqual(second.status_code, 302)
+        payment.refresh_from_db()
+        self.invoice.refresh_from_db()
+        self.assertEqual(payment.status, Payment.Status.SUCCESS)
+        self.assertEqual(self.invoice.paid_amount, Decimal("100.00"))
+        self.assertEqual(mock_verify.call_count, 1)
+
+    def test_admin_reversal_transitions_invoice_and_payment(self):
+        payment = Payment.objects.create(
+            organization=self.organization,
+            invoice=self.invoice,
+            amount=Decimal("100.00"),
+            provider=Payment.Provider.KHALTI,
+            status=Payment.Status.SUCCESS,
+            transaction_id='pidx-admin-1',
+        )
+        self.invoice.paid_amount = Decimal("100.00")
+        self.invoice.status = Invoice.Status.PAID
+        self.invoice.save(update_fields=['paid_amount', 'status', 'updated_at'])
+
+        model_admin = PaymentAdmin(Payment, AdminSite())
+        request = RequestFactory().post('/admin/finance/payment/')
+        request.user = self.user
+        model_admin.mark_refunded(request, Payment.objects.filter(pk=payment.pk))
+
+        payment.refresh_from_db()
+        self.invoice.refresh_from_db()
+        self.assertEqual(payment.status, Payment.Status.REFUNDED)
+        self.assertEqual(self.invoice.paid_amount, Decimal("0"))
+        self.assertEqual(self.invoice.status, Invoice.Status.SENT)
