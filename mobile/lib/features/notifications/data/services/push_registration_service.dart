@@ -17,39 +17,44 @@ class PushRegistrationService {
 
   Future<void> sync({
     required PushConfig config,
+    required List<String> providerPriority,
     required List<NotificationDevice> existingDevices,
     required String userId,
   }) async {
-    final activeProvider = config.provider;
-    if (activeProvider == null) {
+    if (providerPriority.isEmpty) {
       return;
     }
 
-    final hasActiveDevice = existingDevices.any(
-      (device) => device.provider == activeProvider && device.isActive,
-    );
-    if (hasActiveDevice) {
-      return;
-    }
+    for (final provider in providerPriority) {
+      final hasActiveDevice = existingDevices.any(
+        (device) => device.provider == provider && device.isActive,
+      );
+      if (hasActiveDevice) {
+        return;
+      }
 
-    if (activeProvider == 'fcm') {
-      await _registerFcm(config, userId);
-      return;
-    }
-
-    if (activeProvider == 'onesignal') {
-      await _registerOneSignal(config, userId);
+      if (provider == 'fcm') {
+        final registered = await _registerFcm(config, userId);
+        if (registered) {
+          return;
+        }
+      } else if (provider == 'onesignal') {
+        final registered = await _registerOneSignal(config, userId);
+        if (registered) {
+          return;
+        }
+      }
     }
   }
 
-  Future<void> _registerFcm(PushConfig config, String userId) async {
+  Future<bool> _registerFcm(PushConfig config, String userId) async {
     final providerConfig = config.fcm;
     if (!providerConfig.enabled ||
         providerConfig.apiKey == null ||
         providerConfig.appId == null ||
         providerConfig.messagingSenderId == null ||
         providerConfig.projectId == null) {
-      return;
+      return false;
     }
 
     final app = Firebase.apps.where((candidate) => candidate.name == 'template-push');
@@ -76,7 +81,7 @@ class PushRegistrationService {
       vapidKey: kIsWeb ? providerConfig.webVapidKey : null,
     );
     if (token == null || token.isEmpty) {
-      return;
+      return false;
     }
 
     await _repository.registerDevice({
@@ -88,12 +93,13 @@ class PushRegistrationService {
         'platform': _platform,
       },
     });
+    return true;
   }
 
-  Future<void> _registerOneSignal(PushConfig config, String userId) async {
+  Future<bool> _registerOneSignal(PushConfig config, String userId) async {
     final providerConfig = config.onesignal;
     if (!providerConfig.enabled || providerConfig.appId == null) {
-      return;
+      return false;
     }
 
     OneSignal.initialize(providerConfig.appId!);
@@ -102,7 +108,7 @@ class PushRegistrationService {
 
     final subscriptionId = OneSignal.User.pushSubscription.id;
     if (subscriptionId == null || subscriptionId.isEmpty) {
-      return;
+      return false;
     }
 
     await _repository.registerDevice({
@@ -114,6 +120,7 @@ class PushRegistrationService {
         'platform': _platform,
       },
     });
+    return true;
   }
 
   String get _platform {

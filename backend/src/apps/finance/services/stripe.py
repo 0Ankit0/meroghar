@@ -20,6 +20,7 @@ Flow:
 """
 import json
 from datetime import datetime
+from typing import Any, cast
 
 import stripe
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -47,7 +48,8 @@ class StripeService(BasePaymentProvider):
     """Stripe payment provider using the official stripe-python SDK."""
 
     def __init__(self) -> None:
-        stripe.api_key = settings.STRIPE_SECRET_KEY
+        stripe_client = cast(Any, stripe)
+        stripe_client.api_key = settings.STRIPE_SECRET_KEY
 
     # ------------------------------------------------------------------ #
     # Initiate                                                             #
@@ -69,7 +71,8 @@ class StripeService(BasePaymentProvider):
         success_url = f"{request.return_url}?session_id={{CHECKOUT_SESSION_ID}}"
         cancel_url = request.return_url
 
-        session = stripe.checkout.Session.create(
+        stripe_client = cast(Any, stripe)
+        session = stripe_client.checkout.Session.create(
             payment_method_types=["card"],
             line_items=[
                 {
@@ -136,7 +139,8 @@ class StripeService(BasePaymentProvider):
         if not session_id:
             raise ValueError("session_id (pidx) is required for Stripe verification")
 
-        session = stripe.checkout.Session.retrieve(session_id)
+        stripe_client = cast(Any, stripe)
+        session = stripe_client.checkout.Session.retrieve(session_id)
 
         our_status = _STATUS_MAP.get(session.status, PaymentStatus.FAILED)
         # Also check payment_status for completed sessions

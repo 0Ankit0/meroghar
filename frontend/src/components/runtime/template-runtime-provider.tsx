@@ -15,15 +15,19 @@ export function TemplateRuntimeProvider({ children }: { children: React.ReactNod
 
   const notificationsEnabled = capabilities?.modules.notifications ?? true;
   const activePushProvider = pushConfig?.provider;
+  const fallbackPushProviders = capabilities?.fallback_providers?.push ?? [];
+  const providerPriority = [activePushProvider, ...fallbackPushProviders].filter(
+    (provider, index, list): provider is string =>
+      Boolean(provider) && list.indexOf(provider) === index
+  );
   const shouldRegisterPush = Boolean(
     isAuthenticated &&
       notificationsEnabled &&
       preferences?.push_enabled &&
-      activePushProvider
+      providerPriority.length > 0
   );
-  const hasMatchingDevice = Boolean(
-    activePushProvider &&
-      devices?.some((device) => device.provider === activePushProvider && device.is_active)
+  const hasMatchingDevice = providerPriority.some((provider) =>
+    Boolean(devices?.some((device) => device.provider === provider && device.is_active))
   );
 
   useEffect(() => {
@@ -34,10 +38,15 @@ export function TemplateRuntimeProvider({ children }: { children: React.ReactNod
     let cancelled = false;
 
     const syncDevice = async () => {
-      const payload = await registerCurrentPushDevice(activePushProvider, pushConfig);
-
-      if (!cancelled && payload) {
-        registerDevice.mutate(payload);
+      for (const provider of providerPriority) {
+        if (!pushConfig.providers[provider as keyof typeof pushConfig.providers]?.enabled) {
+          continue;
+        }
+        const payload = await registerCurrentPushDevice(provider, pushConfig);
+        if (!cancelled && payload) {
+          await registerDevice.mutateAsync(payload);
+          break;
+        }
       }
     };
 
@@ -46,7 +55,7 @@ export function TemplateRuntimeProvider({ children }: { children: React.ReactNod
     return () => {
       cancelled = true;
     };
-  }, [activePushProvider, hasMatchingDevice, pushConfig, registerDevice, shouldRegisterPush]);
+  }, [hasMatchingDevice, providerPriority, pushConfig, registerDevice, shouldRegisterPush]);
 
   return <>{children}</>;
 }

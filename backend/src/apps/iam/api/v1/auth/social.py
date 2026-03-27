@@ -16,6 +16,7 @@ from src.apps.core.http import default_timeout, retry_async
 from src.apps.core.security import TokenType
 from src.apps.iam.api.deps import get_db
 from src.apps.iam.models.token_tracking import TokenTracking
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.iam.utils.ip_access import revoke_tokens_for_ip, get_client_ip
 from src.apps.analytics.dependencies import get_analytics
 from src.apps.analytics.service import AnalyticsService
@@ -196,6 +197,7 @@ async def social_callback(
         )
 
     user = await find_or_create_social_user(db, provider, social_id, email, display_name)
+    user_id = require_user_id(user.id)
 
     if not user.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="This account has been deactivated.")
@@ -206,17 +208,17 @@ async def social_callback(
 
     # Issue application JWT tokens
     access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
-    access_token = security.create_access_token(user.id, expires_delta=access_token_expires)
-    refresh_token = security.create_refresh_token(user.id)
+    access_token = security.create_access_token(user_id, expires_delta=access_token_expires)
+    refresh_token = security.create_refresh_token(user_id)
 
     access_payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
     refresh_payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
 
     # Revoke any existing active tokens for this user+IP before issuing new ones
-    await revoke_tokens_for_ip(db, user.id, ip_address)
+    await revoke_tokens_for_ip(db, user_id, ip_address)
 
     db.add(TokenTracking(
-        user_id=user.id,
+        user_id=user_id,
         token_jti=access_payload["jti"],
         token_type=TokenType.ACCESS,
         ip_address=ip_address,
@@ -224,7 +226,7 @@ async def social_callback(
         expires_at=datetime.fromtimestamp(access_payload["exp"], tz=timezone.utc),
     ))
     db.add(TokenTracking(
-        user_id=user.id,
+        user_id=user_id,
         token_jti=refresh_payload["jti"],
         token_type=TokenType.REFRESH,
         ip_address=ip_address,
@@ -234,14 +236,14 @@ async def social_callback(
     await db.commit()
     await record_successful_login_event(
         db,
-        user_id=user.id,
+        user_id=user_id,
         ip_address=ip_address,
         request=request,
         method=f"social:{provider}",
     )
     await record_token_event(
         db,
-        user_id=user.id,
+        user_id=user_id,
         ip_address=ip_address,
         action="issued",
         request=request,
@@ -250,7 +252,7 @@ async def social_callback(
     await db.commit()
 
     await analytics.capture(
-        str(user.id),
+        str(user_id),
         AuthEvents.LOGGED_IN_SOCIAL,
         {"provider": provider, "ip_address": ip_address, "user_agent": user_agent},
     )

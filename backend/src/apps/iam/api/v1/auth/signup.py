@@ -16,6 +16,7 @@ from src.apps.iam.schemas.token import Token
 from src.apps.iam.schemas.user import UserCreate
 from src.apps.core.cache import RedisCache
 
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.iam.utils.ip_access import revoke_tokens_for_ip, get_client_ip
 from src.apps.analytics.dependencies import get_analytics
 from src.apps.analytics.service import AnalyticsService
@@ -70,6 +71,8 @@ async def signup(
         db.add(new_user)
         db.add(user_profile)
         await db.commit()
+        await db.refresh(new_user)
+        new_user_id = require_user_id(new_user.id)
         
         # Invalidate users list cache
         await RedisCache.clear_pattern("users:list:*")
@@ -81,21 +84,21 @@ async def signup(
         
         access_token_expires = timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
         access_token = security.create_access_token(
-            new_user.id, expires_delta=access_token_expires
+            new_user_id, expires_delta=access_token_expires
         )
         
-        refresh_token = security.create_refresh_token(new_user.id)
+        refresh_token = security.create_refresh_token(new_user_id)
         
         # Decode tokens to get JTI
         access_payload = jwt.decode(access_token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
         refresh_payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[security.ALGORITHM])
 
         # Revoke any existing active tokens for this user+IP before issuing new ones
-        await revoke_tokens_for_ip(db, new_user.id, ip_address)
+        await revoke_tokens_for_ip(db, new_user_id, ip_address)
 
         # Track access token
         access_token_tracking = TokenTracking(
-            user_id=new_user.id,
+            user_id=new_user_id,
             token_jti=access_payload["jti"],
             token_type=TokenType.ACCESS,
             ip_address=ip_address,
@@ -106,7 +109,7 @@ async def signup(
         
         # Track refresh token
         refresh_token_tracking = TokenTracking(
-            user_id=new_user.id,
+            user_id=new_user_id,
             token_jti=refresh_payload["jti"],
             token_type=TokenType.REFRESH,
             ip_address=ip_address,
@@ -117,7 +120,7 @@ async def signup(
         await db.commit()
         await record_token_event(
             db,
-            user_id=new_user.id,
+            user_id=new_user_id,
             ip_address=ip_address,
             action="issued",
             request=request,
@@ -126,11 +129,11 @@ async def signup(
         await db.commit()
 
         await analytics.identify(
-            str(new_user.id),
+            str(new_user_id),
             {"email": new_user.email, "username": new_user.username, "created_at": str(new_user.created_at)},
         )
         await analytics.capture(
-            str(new_user.id),
+            str(new_user_id),
             AuthEvents.SIGNED_UP,
             {"ip_address": ip_address, "user_agent": user_agent},
         )

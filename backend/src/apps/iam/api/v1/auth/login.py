@@ -18,6 +18,7 @@ from src.apps.iam.models.token_tracking import TokenTracking
 from src.apps.iam.schemas.token import Token
 from src.apps.iam.schemas.user import LoginRequest
 
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.iam.utils.ip_access import revoke_tokens_for_ip, get_client_ip
 from src.apps.analytics.dependencies import get_analytics
 from src.apps.analytics.service import AnalyticsService
@@ -295,6 +296,7 @@ async def logout(
     Logout user by clearing cookies and revoking current session token only
     """
     try:
+        current_user_id = require_user_id(current_user.id)
         # Get the current token
         auth_header = request.headers.get("Authorization")
         token = None
@@ -315,7 +317,7 @@ async def logout(
                     # Revoke only tokens from current IP/device
                     result = await db.execute(
                         select(TokenTracking).where(
-                            TokenTracking.user_id == current_user.id,
+                            TokenTracking.user_id == current_user_id,
                             TokenTracking.ip_address == ip_address,
                             TokenTracking.is_active
                         )
@@ -330,7 +332,7 @@ async def logout(
                     await db.commit()
                     await record_token_event(
                         db,
-                        user_id=current_user.id,
+                        user_id=current_user_id,
                         ip_address=ip_address,
                         action="revoked",
                         request=request,
@@ -338,12 +340,12 @@ async def logout(
                     )
                     await db.commit()
                     # Invalidate cached token list so revoked tokens are not served from cache
-                    await RedisCache.clear_pattern(f"tokens:active:{current_user.id}:*")
+                    await RedisCache.clear_pattern(f"tokens:active:{current_user_id}:*")
             except Exception:
                 pass
         
         clear_auth_cookies(response)
-        await analytics.capture(str(current_user.id), AuthEvents.LOGGED_OUT)
+        await analytics.capture(str(current_user_id), AuthEvents.LOGGED_OUT)
         return {"message": "Successfully logged out from this device"}
     except Exception:
         raise HTTPException(

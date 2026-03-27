@@ -34,6 +34,7 @@ from src.apps.iam.utils.rbac import (
 )
 from src.apps.iam.casbin_enforcer import CasbinEnforcer, GLOBAL_DOMAIN
 from src.apps.iam.utils.hashid import decode_id_or_404
+from src.apps.iam.utils.identity import require_user_id
 from src.apps.core.schemas import PaginatedResponse
 from src.apps.core.cache import RedisCache
 from src.apps.observability.service import record_admin_role_change
@@ -218,6 +219,7 @@ async def assign_role(
     session: AsyncSession = Depends(get_session),
 ):
     """Assign a role to a user."""
+    actor_user_id = require_user_id(current_user.id)
     user_db_id = decode_id_or_404(assignment.user_id)
     role_db_id = decode_id_or_404(assignment.role_id)
     user_role = await assign_role_to_user(
@@ -228,7 +230,7 @@ async def assign_role(
     await _invalidate_user_authorization_cache(user_db_id)
     await record_admin_role_change(
         session,
-        actor_user_id=current_user.id,
+        actor_user_id=actor_user_id,
         subject_user_id=user_db_id,
         action="assign_role",
         metadata={"user_id": user_db_id, "role_id": role_db_id},
@@ -244,6 +246,7 @@ async def remove_role(
     session: AsyncSession = Depends(get_session),
 ):
     """Remove a role from a user."""
+    actor_user_id = require_user_id(current_user.id)
     user_db_id = decode_id_or_404(assignment.user_id)
     role_db_id = decode_id_or_404(assignment.role_id)
     result = await remove_role_from_user(
@@ -254,7 +257,7 @@ async def remove_role(
     await _invalidate_user_authorization_cache(user_db_id)
     await record_admin_role_change(
         session,
-        actor_user_id=current_user.id,
+        actor_user_id=actor_user_id,
         subject_user_id=user_db_id,
         action="remove_role",
         metadata={"user_id": user_db_id, "role_id": role_db_id},
@@ -302,6 +305,7 @@ async def assign_permission(
     session: AsyncSession = Depends(get_session),
 ):
     """Assign a permission to a role."""
+    actor_user_id = require_user_id(current_user.id)
     role_db_id = decode_id_or_404(assignment.role_id)
     perm_db_id = decode_id_or_404(assignment.permission_id)
     role_permission = await assign_permission_to_role(
@@ -312,7 +316,7 @@ async def assign_permission(
     await _invalidate_role_authorization_cache(role_db_id)
     await record_admin_role_change(
         session,
-        actor_user_id=current_user.id,
+        actor_user_id=actor_user_id,
         subject_user_id=None,
         action="assign_permission",
         metadata={"role_id": role_db_id, "permission_id": perm_db_id},
@@ -331,6 +335,7 @@ async def remove_permission(
     session: AsyncSession = Depends(get_session),
 ):
     """Remove a permission from a role."""
+    actor_user_id = require_user_id(current_user.id)
     role_db_id = decode_id_or_404(assignment.role_id)
     perm_db_id = decode_id_or_404(assignment.permission_id)
     result = await remove_permission_from_role(
@@ -341,7 +346,7 @@ async def remove_permission(
     await _invalidate_role_authorization_cache(role_db_id)
     await record_admin_role_change(
         session,
-        actor_user_id=current_user.id,
+        actor_user_id=actor_user_id,
         subject_user_id=None,
         action="remove_permission",
         metadata={"role_id": role_db_id, "permission_id": perm_db_id},

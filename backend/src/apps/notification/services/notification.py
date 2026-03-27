@@ -1,7 +1,7 @@
 """Notification service — persistence plus multi-channel delivery."""
 import logging
 from datetime import datetime
-from typing import Optional
+from typing import Any, Optional, cast
 
 from sqlalchemy import and_, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -213,7 +213,7 @@ async def _push_to_email(db: AsyncSession, notification: Notification) -> None:
         user = result.scalars().first()
         if not user:
             return
-        send_notification_email_task.delay(
+        cast(Any, send_notification_email_task).delay(
             recipients=[{"name": user.username, "email": user.email}],
             subject=notification.title,
             context={
@@ -245,7 +245,7 @@ async def _push_to_devices(db: AsyncSession, notification: Notification) -> None
                 "auth": device.auth,
                 "subscription_id": device.subscription_id,
             }
-            send_push_notification_task.delay(payload)
+            cast(Any, send_push_notification_task).delay(payload)
         except Exception as exc:
             log.warning(
                 "Push task enqueue failed for notification id=%s device=%s: %s",
@@ -265,7 +265,7 @@ async def _push_to_sms(db: AsyncSession, notification: Notification) -> None:
         profile = result.scalars().first()
         if not profile or not profile.phone:
             return
-        send_sms_notification_task.delay(
+        cast(Any, send_sms_notification_task).delay(
             to_number=profile.phone,
             body=f"{notification.title}: {notification.body}",
         )

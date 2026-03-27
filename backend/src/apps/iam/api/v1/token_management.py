@@ -13,6 +13,7 @@ from src.apps.analytics.dependencies import get_analytics
 from src.apps.analytics.service import AnalyticsService
 from src.apps.analytics.events import UserEvents
 from src.apps.observability.service import record_token_event
+from src.apps.iam.utils.identity import require_user_id
 
 router = APIRouter()
 
@@ -87,11 +88,12 @@ async def revoke_token(
     Revoke a specific token
     """
     try:
+        current_user_id = require_user_id(current_user.id)
         tid = decode_id_or_404(token_id)
         result = await db.execute(
             select(TokenTracking).where(
                 TokenTracking.id == tid,
-                TokenTracking.user_id == current_user.id
+                TokenTracking.user_id == current_user_id
             )
         )
         token_tracking = result.scalars().first()
@@ -114,7 +116,7 @@ async def revoke_token(
         await db.commit()
         await record_token_event(
             db,
-            user_id=current_user.id,
+            user_id=current_user_id,
             ip_address=token_tracking.ip_address,
             action="revoked",
             request=request,
@@ -123,10 +125,10 @@ async def revoke_token(
         await db.commit()
         
         # Invalidate cache
-        await RedisCache.clear_pattern(f"tokens:active:{current_user.id}:*")
+        await RedisCache.clear_pattern(f"tokens:active:{current_user_id}:*")
 
         await analytics.capture(
-            str(current_user.id),
+            str(current_user_id),
             UserEvents.TOKEN_REVOKED,
             {"token_id": token_id, "revoke_all": False},
         )
@@ -153,9 +155,10 @@ async def revoke_all_tokens(
     Revoke all active tokens for the current user
     """
     try:
+        current_user_id = require_user_id(current_user.id)
         result = await db.execute(
             select(TokenTracking).where(
-                TokenTracking.user_id == current_user.id,
+                TokenTracking.user_id == current_user_id,
                 TokenTracking.is_active
             )
         )
@@ -170,7 +173,7 @@ async def revoke_all_tokens(
         if tokens:
             await record_token_event(
                 db,
-                user_id=current_user.id,
+                user_id=current_user_id,
                 ip_address=tokens[0].ip_address,
                 action="revoked",
                 request=request,
@@ -179,10 +182,10 @@ async def revoke_all_tokens(
             await db.commit()
         
         # Invalidate cache
-        await RedisCache.clear_pattern(f"tokens:active:{current_user.id}:*")
+        await RedisCache.clear_pattern(f"tokens:active:{current_user_id}:*")
 
         await analytics.capture(
-            str(current_user.id),
+            str(current_user_id),
             UserEvents.TOKEN_REVOKED,
             {"revoke_all": True, "count": len(tokens)},
         )
