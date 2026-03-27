@@ -1,6 +1,5 @@
 from datetime import datetime, timedelta
 from apps.housing.models import Lease
-from apps.operations.models import WorkOrder
 from apps.crm.models import Showing
 
 class CalendarService:

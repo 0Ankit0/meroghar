@@ -1,9 +1,9 @@
 from django.views.generic import TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.db.models import Sum, Count
+from django.db.models import Sum
 from django.utils import timezone
 from apps.finance.models import Payment, Expense
-from apps.housing.models import Lease, Unit, Property
+from apps.housing.models import Unit, Property
 
 class ReportListView(LoginRequiredMixin, TemplateView):
     template_name = "reporting/report_list.html"
@@ -60,11 +60,11 @@ class FinancialReportView(LoginRequiredMixin, TemplateView):
         expense_data = []
         
         for i in range(5, -1, -1):
-            month_start = now - timezone.timedelta(days=30*i) # Approx
+            now - timezone.timedelta(days=30*i) # Approx
             # Better month calculation needed for production, utilizing 'trunc' or proper date math
             # Using simple month extraction for MVP
-            target_month = (now.month - i - 1) % 12 + 1
-            target_year = now.year - ((now.month - i - 1) // 12 + 1)
+            (now.month - i - 1) % 12 + 1
+            now.year - ((now.month - i - 1) // 12 + 1)
             # Actually easier: use dateutil relativedelta but let's stick to stdlib
             # Python date math is tricky without external libs like dateutil or pandas
             # Let's simple-case it: Filter by month/year explicitly in loop

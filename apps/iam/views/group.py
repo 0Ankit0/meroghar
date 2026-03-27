@@ -1,10 +1,8 @@
-from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.urls import reverse_lazy
 from ..models import OrganizationGroup
 from django import forms
-from ..models import User, Organization
-from django.contrib.auth.models import Permission
 
 class AdminRequiredMixin(UserPassesTestMixin):
     def test_func(self):

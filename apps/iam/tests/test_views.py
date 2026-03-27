@@ -1,6 +1,6 @@
 """Requirement coverage: IAM-02, IAM-03."""
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership
 
@@ -24,7 +24,7 @@ class IamViewTest(TestCase):
     def test_create_user_view(self):
         # We need to test creating a user via the view
         # Ensure form data matches UserCreationForm requirements
-        response = self.client.post(reverse('iam:user_add'), {
+        self.client.post(reverse('iam:user_add'), {
             'username': 'newuser',
             'password': 'password123', # ModelForm might require validation or use AdminPasswordChangeForm logic
             'role': 'STAFF'

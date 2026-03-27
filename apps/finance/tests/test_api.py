@@ -9,7 +9,6 @@ from apps.finance.models import Expense, Invoice
 from django.utils import timezone
 from datetime import timedelta
 from datetime import date
-from datetime import timedelta
 
 class FinanceApiTest(APITestCase):
     def setUp(self):

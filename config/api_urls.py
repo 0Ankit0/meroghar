@@ -7,6 +7,7 @@ from apps.crm.api.views import LeadViewSet, ShowingViewSet, RentalApplicationVie
 from apps.operations.api.views import VendorViewSet, WorkOrderViewSet
 from apps.housing.api.views import PropertyInspectionViewSet, InventoryItemViewSet, PropertyViewSet, UnitViewSet, TenantViewSet, LeaseViewSet, LeaseRenewalViewSet
 from apps.finance.api.views import ExpenseViewSet, InvoiceViewSet, PaymentViewSet
+from apps.reporting.api.views import MobileDashboardView, PortfolioKPIView
 
 # Initialize DefaultRouter
 router = routers.DefaultRouter()
@@ -39,8 +40,6 @@ router.register(r'finance/expenses', ExpenseViewSet, basename='api-expense')
 router.register(r'finance/invoices', InvoiceViewSet, basename='api-invoice')
 router.register(r'finance/payments', PaymentViewSet, basename='api-payment')
 
-from apps.reporting.api.views import MobileDashboardView, PortfolioKPIView
-from django.urls import path
 
 urlpatterns = [
     path('', include(router.urls)),

@@ -1,9 +1,9 @@
 """Requirement coverage: HOU-01, HOU-02."""
 
-from django.test import TestCase, Client
+from django.test import TestCase
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership
-from apps.housing.models import Property, Unit, Lease
+from apps.housing.models import Property, Unit
 
 class HousingViewTest(TestCase):
     def setUp(self):

@@ -3,6 +3,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.urls import reverse_lazy
 from django.shortcuts import get_object_or_404, redirect
 from django.http import Http404
+from django.views import View
 
 from ..models import Organization, OrganizationMembership
 
@@ -57,9 +58,6 @@ class OrganizationCreateView(LoginRequiredMixin, CreateView):
         )
         self.request.session['active_org_id'] = str(self.object.id)
         return response
-
-
-from django.views import View
 
 
 class SwitchOrganizationView(LoginRequiredMixin, View):

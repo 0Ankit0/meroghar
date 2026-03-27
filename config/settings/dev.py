@@ -1,10 +1,10 @@
-from .base import *
+from . import base
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
 # Dev tools
-INSTALLED_APPS += [
+INSTALLED_APPS = base.INSTALLED_APPS + [
     # 'debug_toolbar',
 ]
 

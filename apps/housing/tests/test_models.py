@@ -4,7 +4,7 @@ from django.test import TestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease, PropertyInspection, InventoryItem, Tenant
 from django.core.exceptions import ValidationError
-from datetime import date, timedelta
+from datetime import date
 
 class HousingModelTest(TestCase):
     def setUp(self):
