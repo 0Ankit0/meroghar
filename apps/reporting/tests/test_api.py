@@ -1,3 +1,5 @@
+"""Requirement coverage: RPT-02, TEN-03, FIN-01."""
+
 from django.test import TestCase
 from rest_framework.test import APIClient
 from apps.iam.models import User, Organization, OrganizationMembership

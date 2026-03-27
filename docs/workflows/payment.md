@@ -8,7 +8,7 @@ Workflows related to the `Payment` model.
 
 ### Part 1: Initiation
 
-**Endpoint**: `POST /payments/initiate/<invoice_id>/`
+**Endpoint**: `POST /finance/payments/initiate/<invoice_id>/`
 
 1.  Tenant clicks "Pay with Khalti".
 2.  System creates `Payment` (INITIATED).
@@ -23,7 +23,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant Khalti as Khalti Gateway
 
-    User->>System: POST /payments/initiate/ (Invoice ID)
+    User->>System: POST /finance/payments/initiate/ (Invoice ID)
     System->>System: Calculate Amount (Total - Paid)
     System->>System: Create Payment (Status: INITIATED)
     
@@ -36,7 +36,7 @@ sequenceDiagram
 
 ### Part 2: Verification
 
-**Endpoint**: `GET /payments/verify/`
+**Endpoint**: `GET /finance/payments/verify/`
 
 1.  Khalti redirects back with `pidx`.
 2.  System calls Khalti Lookup API.
@@ -51,7 +51,7 @@ sequenceDiagram
     participant Khalti as Khalti Gateway
     participant DB as Database
 
-    Khalti->>System: GET /payments/verify/ (pidx, status)
+    Khalti->>System: GET /finance/payments/verify/ (pidx, status)
     System->>DB: Find Payment by pidx
     
     System->>Khalti: POST /epayment/lookup/ (pidx)

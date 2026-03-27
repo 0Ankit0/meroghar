@@ -1,3 +1,5 @@
+"""Requirement coverage: HOU-01, HOU-02, HOU-04, HOU-05, TEN-02."""
+
 from django.test import TestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease, PropertyInspection, InventoryItem, Tenant

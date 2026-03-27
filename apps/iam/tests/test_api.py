@@ -1,3 +1,5 @@
+"""Requirement coverage: IAM-01, IAM-02."""
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
