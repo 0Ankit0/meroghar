@@ -1,7 +1,7 @@
 # Deployment Diagram
 
 ## Overview
-Deployment diagrams showing the mapping of the rental management system's software components to cloud infrastructure. The architecture targets a scaled production environment on AWS, but the design is cloud-agnostic.
+Deployment diagrams showing the mapping of MeroGhar's software components to cloud infrastructure. The architecture targets a scaled production environment on AWS, but the design is cloud-agnostic.
 
 ---
 
@@ -124,7 +124,7 @@ graph TB
             end
 
             subgraph "Property Domain"
-                AssetSvc[Property Service<br>3 replicas]
+                PropertySvc[Property Service<br>3 replicas]
                 SearchSvc[Search Service<br>2 replicas]
             end
 
@@ -169,7 +169,7 @@ graph TB
 
     Ingress --> Gateway
     Gateway --> AuthSvc
-    Gateway --> AssetSvc
+    Gateway --> PropertySvc
     Gateway --> BookingSvc
     Gateway --> AgreeSvc
     Gateway --> PaymentSvc

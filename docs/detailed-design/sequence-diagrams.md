@@ -1,7 +1,7 @@
 # Sequence Diagrams
 
 ## Overview
-Internal sequence diagrams showing object-level interactions within the rental management system for key operations.
+Internal sequence diagrams showing object-level interactions within MeroGhar for key operations.
 
 ---
 
@@ -17,17 +17,17 @@ sequenceDiagram
     participant PaymentSvc as PaymentService
     participant EventPub as EventPublisher
 
-    Router->>BookingSvc: createBooking(customerId, assetId, start, end)
-    BookingSvc->>AvailRepo: isAvailable(assetId, start, end)
+    Router->>RentalApplicationSvc: createRentalApplication(tenantId, propertyId, start, end)
+    BookingSvc->>AvailRepo: isAvailable(propertyId, start, end)
     AvailRepo-->>BookingSvc: true
 
-    BookingSvc->>PricingEng: calculatePrice(assetId, start, end)
+    BookingSvc->>PricingEng: calculatePrice(propertyId, start, end)
     PricingEng-->>BookingSvc: PriceBreakdown
 
-    BookingSvc->>PaymentSvc: holdDeposit(customerId, depositAmount)
+    BookingSvc->>PaymentSvc: holdDeposit(tenantId, depositAmount)
     PaymentSvc-->>BookingSvc: depositHoldRef
 
-    BookingSvc->>AvailRepo: createBlock(assetId, start, end, BOOKING_HOLD)
+    BookingSvc->>AvailRepo: createBlock(propertyId, start, end, BOOKING_HOLD)
     AvailRepo-->>BookingSvc: availabilityBlockId
 
     BookingSvc->>BookingRepo: save(rental application)
@@ -65,7 +65,7 @@ sequenceDiagram
     AgreeSvc->>AgreementRepository: save({ bookingId, status: PENDING_CUSTOMER_SIGNATURE, eSignRequestId })
     AgreementRepository-->>AgreeSvc: savedAgreement
 
-    AgreeSvc->>EventPub: publish("agreement.sent", { bookingId, customerId })
+    AgreeSvc->>EventPub: publish("agreement.sent", { bookingId, tenantId })
     EventPub-->>AgreeSvc: acknowledged
     AgreeSvc-->>Router: AgreementResponse
 
@@ -84,7 +84,7 @@ sequenceDiagram
     AgreeSvc->>StorageSvc: storeSignedPDF(documentUrl)
     StorageSvc-->>AgreeSvc: stableStorageUrl
     AgreeSvc->>AgreementRepository: update({ status: SIGNED, ownerSignedAt, signedDocumentUrl })
-    AgreeSvc->>EventPub: publish("agreement.signed", { bookingId, customerId, ownerId })
+    AgreeSvc->>EventPub: publish("agreement.signed", { bookingId, tenantId, ownerId })
 ```
 
 ---
@@ -98,9 +98,9 @@ sequenceDiagram
     participant RuleRepo as PricingRuleRepository
     participant TaxSvc as TaxService
 
-    BookingSvc->>PricingEng: calculatePrice(assetId, startAt, endAt)
+    BookingSvc->>PricingEng: calculatePrice(propertyId, startAt, endAt)
 
-    PricingEng->>RuleRepo: findByAsset(assetId)
+    PricingEng->>RuleRepo: findByProperty(propertyId)
     RuleRepo-->>PricingEng: PricingRule[]
 
     PricingEng->>PricingEng: computeDuration(startAt, endAt) → hours
@@ -110,7 +110,7 @@ sequenceDiagram
     PricingEng->>PricingEng: applyPeakSurcharges(baseFee, rules, startAt, endAt)
     PricingEng->>PricingEng: applyDiscounts(baseFee, rules, hours)
 
-    PricingEng->>TaxSvc: calculateTax(subtotal, assetCategoryId, jurisdiction)
+    PricingEng->>TaxSvc: calculateTax(subtotal, propertyTypeId, jurisdiction)
     TaxSvc-->>PricingEng: taxAmount
 
     PricingEng-->>BookingSvc: PriceBreakdown { baseFee, peakSurcharge, discount, tax, total }
@@ -150,7 +150,7 @@ sequenceDiagram
         EventPub-->>AssessSvc: acknowledged
         note over Router: Landlord adds damage charges
         Router->>ChargeSvc: addAdditionalCharge(bookingId, type, amount, evidenceUrl)
-        ChargeSvc->>EventPub: publish("charge.raised", { bookingId, customerId, amount })
+        ChargeSvc->>EventPub: publish("charge.raised", { bookingId, tenantId, amount })
     else No Discrepancies
         AssessSvc->>EventPub: publish("assessment.clean", { bookingId })
         EventPub-->>AssessSvc: acknowledged
@@ -180,13 +180,13 @@ sequenceDiagram
 
     loop For each overdue rental application
         Worker->>Worker: calculateOverdueHours(rental application.rentalEndAt, currentTime)
-        Worker->>ChargeSvc: calculateLateReturnFee(assetId, overdueHours)
+        Worker->>ChargeSvc: calculateLateReturnFee(propertyId, overdueHours)
         ChargeSvc-->>Worker: lateReturnFee
 
         Worker->>InvoiceSvc: addLateReturnLineItem(bookingId, lateReturnFee)
         InvoiceSvc-->>Worker: updated invoice
 
-        Worker->>EventPub: publish("rental application.lateReturn", { bookingId, customerId, ownerId, fee })
+        Worker->>EventPub: publish("rental application.lateReturn", { bookingId, tenantId, ownerId, fee })
         EventPub-->>Worker: acknowledged
     end
 ```

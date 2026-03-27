@@ -1,7 +1,7 @@
 # C4 Component Diagram
 
 ## Overview
-C4 Level 3 — Component diagram showing the internal components of the REST API container in the rental management system.
+C4 Level 3 — Component diagram showing the internal components of the REST API container in MeroGhar.
 
 ---
 

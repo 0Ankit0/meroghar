@@ -1,7 +1,7 @@
 # Component Diagrams
 
 ## Overview
-Software component diagrams showing the internal module structure of the rental management system backend.
+Software component diagrams showing the internal module structure of the MeroGhar backend.
 
 ---
 
@@ -18,7 +18,7 @@ graph TB
 
     subgraph "Domain Modules"
         IAMModule[IAM Module]
-        AssetModule[Property & Listing Module]
+        PropertyModule[Property & Listing Module]
         BookingModule[Rental Application Module]
         PricingModule[Pricing Engine Module]
         AgreementModule[Agreement Module]
@@ -50,7 +50,7 @@ graph TB
     Router --> Auth
     Auth --> Validation
     Validation --> IAMModule
-    Validation --> AssetModule
+    Validation --> PropertyModule
     Validation --> BookingModule
     Validation --> AgreementModule
     Validation --> PaymentModule
@@ -65,13 +65,13 @@ graph TB
     PaymentModule --> PayGWAdapter
     DepositModule --> PayGWAdapter
     IAMModule --> IDVerifyAdapter
-    AssetModule --> StorageAdapter
+    PropertyModule --> StorageAdapter
     AgreementModule --> StorageAdapter
     AssessmentModule --> StorageAdapter
     ReportModule --> StorageAdapter
 
     IAMModule --> EventBus
-    AssetModule --> EventBus
+    PropertyModule --> EventBus
     BookingModule --> EventBus
     AgreementModule --> EventBus
     PaymentModule --> EventBus
@@ -84,7 +84,7 @@ graph TB
     NotifyModule --> PushAdapter
 
     IAMModule --> ORM
-    AssetModule --> ORM
+    PropertyModule --> ORM
     BookingModule --> ORM
     AgreementModule --> ORM
     PaymentModule --> ORM

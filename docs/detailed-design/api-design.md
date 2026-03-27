@@ -1,7 +1,7 @@
 # API Design
 
 ## Overview
-REST API design for the rental management system. All endpoints are versioned under `/api/v1`. Authentication is via Bearer JWT tokens. Landlord, Tenant, Staff, and Admin roles have different permission scopes.
+REST API design for MeroGhar. All endpoints are versioned under `/api/v1`. Authentication is via Bearer JWT tokens. Landlord, Tenant, Staff, and Admin roles have different permission scopes.
 
 ---
 
@@ -36,16 +36,16 @@ REST API design for the rental management system. All endpoints are versioned un
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
 | GET | `/assets` | Public | Search and list published assets (with filters) |
-| GET | `/assets/{assetId}` | Public | Get full property details, photos, attributes, and pricing |
+| GET | `/properties/{propertyId}` | Public | Get full property details, photos, attributes, and pricing |
 | POST | `/assets` | Landlord | Create a new property (draft) |
-| PUT | `/assets/{assetId}` | Landlord | Update property details |
-| DELETE | `/assets/{assetId}` | Landlord | Archive an property |
-| POST | `/assets/{assetId}/publish` | Landlord | Publish the property listing |
-| POST | `/assets/{assetId}/unpublish` | Landlord | Unpublish the property listing |
-| POST | `/assets/{assetId}/photos` | Landlord | Upload property photos |
-| DELETE | `/assets/{assetId}/photos/{photoId}` | Landlord | Delete a photo |
-| GET | `/assets/{assetId}/availability` | Public | Get availability calendar for a date range |
-| GET | `/assets/{assetId}/price` | Public | Get pricing breakdown for a given period |
+| PUT | `/properties/{propertyId}` | Landlord | Update property details |
+| DELETE | `/properties/{propertyId}` | Landlord | Archive an property |
+| POST | `/properties/{propertyId}/publish` | Landlord | Publish the property listing |
+| POST | `/properties/{propertyId}/unpublish` | Landlord | Unpublish the property listing |
+| POST | `/properties/{propertyId}/photos` | Landlord | Upload property photos |
+| DELETE | `/properties/{propertyId}/photos/{photoId}` | Landlord | Delete a photo |
+| GET | `/properties/{propertyId}/availability` | Public | Get availability calendar for a date range |
+| GET | `/properties/{propertyId}/price` | Public | Get pricing breakdown for a given period |
 
 ### GET /assets — Query Parameters
 
@@ -67,10 +67,10 @@ REST API design for the rental management system. All endpoints are versioned un
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/assets/{assetId}/pricing-rules` | Landlord | List pricing rules for an property |
-| POST | `/assets/{assetId}/pricing-rules` | Landlord | Create a pricing rule |
-| PUT | `/assets/{assetId}/pricing-rules/{ruleId}` | Landlord | Update a pricing rule |
-| DELETE | `/assets/{assetId}/pricing-rules/{ruleId}` | Landlord | Remove a pricing rule |
+| GET | `/properties/{propertyId}/pricing-rules` | Landlord | List pricing rules for an property |
+| POST | `/properties/{propertyId}/pricing-rules` | Landlord | Create a pricing rule |
+| PUT | `/properties/{propertyId}/pricing-rules/{ruleId}` | Landlord | Update a pricing rule |
+| DELETE | `/properties/{propertyId}/pricing-rules/{ruleId}` | Landlord | Remove a pricing rule |
 
 ---
 
@@ -92,7 +92,7 @@ REST API design for the rental management system. All endpoints are versioned un
 
 ```json
 {
-  "assetId": "uuid",
+  "propertyId": "uuid",
   "rentalStartAt": "2025-06-15T10:00:00Z",
   "rentalEndAt": "2025-06-18T10:00:00Z",
   "specialRequests": "Please include a properties seat",
@@ -179,8 +179,8 @@ REST API design for the rental management system. All endpoints are versioned un
 | POST | `/maintenance-requests/{requestId}/approve` | Landlord | Approve completed maintenance |
 | POST | `/maintenance-requests/{requestId}/reopen` | Landlord | Reopen the request |
 | POST | `/maintenance-requests/{requestId}/cost` | Landlord | Log maintenance cost |
-| GET | `/assets/{assetId}/preventive-services` | Landlord | List preventive service tasks |
-| POST | `/assets/{assetId}/preventive-services` | Landlord | Schedule a preventive service task |
+| GET | `/properties/{propertyId}/preventive-services` | Landlord | List preventive service tasks |
+| POST | `/properties/{propertyId}/preventive-services` | Landlord | Schedule a preventive service task |
 
 ---
 

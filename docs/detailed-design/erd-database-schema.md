@@ -1,7 +1,7 @@
 # ERD / Database Schema
 
 ## Overview
-The database schema for the rental management system. The schema uses PostgreSQL with JSONB for flexible per-category property features, enabling the system to support any property type without schema migrations when new categories are added.
+The database schema for MeroGhar. The schema uses PostgreSQL with JSONB for flexible per-category property features, enabling the system to support any property type without schema migrations when new categories are added.
 
 ---
 
@@ -34,12 +34,12 @@ erDiagram
         datetime verified_at
     }
 
-    customer_profiles {
+    tenant_profiles {
         int id PK
         int user_id FK
         varchar id_verification_status
-        varchar driving_licence_number
-        varchar passport_number
+        varchar emergency_contact_name
+        varchar emergency_contact_phone
         datetime created_at
     }
 
@@ -52,7 +52,7 @@ erDiagram
         datetime created_at
     }
 
-    asset_categories {
+    property_types {
         int id PK
         int parent_category_id FK
         varchar name
@@ -63,9 +63,9 @@ erDiagram
         int display_order
     }
 
-    category_attributes {
+    property_type_features {
         int id PK
-        int category_id FK
+        int property_type_id FK
         varchar name
         varchar slug
         varchar attribute_type
@@ -75,10 +75,10 @@ erDiagram
         int display_order
     }
 
-    assets {
+    properties {
         int id PK
         int owner_user_id FK
-        int category_id FK
+        int property_type_id FK
         varchar name
         text description
         varchar status
@@ -97,16 +97,16 @@ erDiagram
         datetime updated_at
     }
 
-    asset_attribute_values {
+    property_feature_values {
         int id PK
-        int asset_id FK
+        int property_id FK
         int attribute_id FK
         varchar value
     }
 
-    asset_photos {
+    property_photos {
         int id PK
-        int asset_id FK
+        int property_id FK
         varchar url
         varchar thumbnail_url
         int position
@@ -116,7 +116,7 @@ erDiagram
 
     pricing_rules {
         int id PK
-        int asset_id FK
+        int property_id FK
         varchar rate_type
         decimal rate_amount
         varchar currency
@@ -131,7 +131,7 @@ erDiagram
 
     availability_blocks {
         int id PK
-        int asset_id FK
+        int property_id FK
         varchar block_type
         datetime start_at
         datetime end_at
@@ -143,8 +143,8 @@ erDiagram
     bookings {
         int id PK
         varchar booking_number
-        int asset_id FK
-        int customer_user_id FK
+        int property_id FK
+        int tenant_user_id FK
         int owner_user_id FK
         varchar status
         datetime rental_start_at
@@ -173,7 +173,7 @@ erDiagram
 
     cancellation_policies {
         int id PK
-        int asset_id FK
+        int property_id FK
         varchar name
         int free_cancellation_hours
         int partial_refund_hours
@@ -211,7 +211,7 @@ erDiagram
     agreement_templates {
         int id PK
         int created_by_admin_id FK
-        int category_id FK
+        int property_type_id FK
         varchar name
         text template_content
         boolean is_active
@@ -245,7 +245,7 @@ erDiagram
         int id PK
         varchar invoice_number
         int booking_id FK
-        int customer_user_id FK
+        int tenant_user_id FK
         int owner_user_id FK
         varchar invoice_type
         decimal subtotal
@@ -325,7 +325,7 @@ erDiagram
     condition_assessments {
         int id PK
         int booking_id FK
-        int asset_id FK
+        int property_id FK
         int conducted_by_user_id FK
         varchar assessment_type
         varchar status
@@ -360,7 +360,7 @@ erDiagram
     maintenance_requests {
         int id PK
         varchar request_number
-        int asset_id FK
+        int property_id FK
         int owner_user_id FK
         int assigned_to_user_id FK
         varchar priority
@@ -387,7 +387,7 @@ erDiagram
 
     preventive_services {
         int id PK
-        int asset_id FK
+        int property_id FK
         int created_by_user_id FK
         int assigned_to_user_id FK
         varchar title
@@ -402,8 +402,8 @@ erDiagram
     reviews {
         int id PK
         int booking_id FK
-        int asset_id FK
-        int customer_user_id FK
+        int property_id FK
+        int tenant_user_id FK
         int rating
         text comment
         boolean is_visible
@@ -433,22 +433,22 @@ erDiagram
     }
 
     users ||--o{ owner_profiles : has
-    users ||--o{ customer_profiles : has
+    users ||--o{ tenant_profiles : has
     users ||--o{ staff_profiles : has
 
-    asset_categories ||--o{ asset_categories : parentOf
-    asset_categories ||--o{ category_attributes : defines
-    asset_categories ||--o{ assets : classifies
-    asset_categories ||--o{ agreement_templates : scoped_to
+    property_types ||--o{ property_types : parentOf
+    property_types ||--o{ property_type_features : defines
+    property_types ||--o{ assets : classifies
+    property_types ||--o{ agreement_templates : scoped_to
 
-    assets ||--o{ asset_attribute_values : has
-    assets ||--o{ asset_photos : has
-    assets ||--o{ pricing_rules : has
-    assets ||--o{ availability_blocks : has
-    assets ||--o{ bookings : receives
-    assets ||--o{ maintenance_requests : subject_of
-    assets ||--o{ reviews : receives
-    assets ||--o{ preventive_services : has
+    assets ||--o{ property_feature_values : has
+    assets ||--o{ property_photos : has
+    properties ||--o{ pricing_rules : has
+    properties ||--o{ availability_blocks : has
+    properties ||--o{ bookings : receives
+    properties ||--o{ maintenance_requests : subject_of
+    properties ||--o{ reviews : receives
+    properties ||--o{ preventive_services : has
 
     bookings ||--o{ booking_events : logs
     bookings ||--|| security_deposits : has
@@ -483,7 +483,7 @@ erDiagram
 
 | Area | Design Decision |
 |------|----------------|
-| Property attributes | JSONB `asset_attribute_values` with category-defined schema — no migrations for new property types |
+| Property attributes | JSONB `property_feature_values` with category-defined schema — no migrations for new property types |
 | Pricing rules | Separate table supports multiple rate tiers, peak windows, and per-quantity discounts per property |
 | Availability | `availability_blocks` are written on rental application and maintenance; calendar queries use date overlap checks |
 | Payments | `reference_type` + `reference_id` polymorphic pattern covers invoices, deposits, and additional charges |

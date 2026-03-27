@@ -58,4 +58,4 @@ MeroGhar enables:
 - Phase coverage: requirements, analysis, design, infrastructure, edge cases, implementation, onboarding.
 - Diagram coverage: Mermaid-based system, process, architecture, and deployment views (all house-rental specific).
 - Validation coverage: enforced by `scripts/validate_documentation.py`.
-- Current status: MeroGhar platform documentation — fully converted from generic asset-rental template to house/property rental domain.
+- Current status: MeroGhar platform documentation — fully converted from generic rental template to house/property rental domain.

@@ -1,7 +1,7 @@
 # State Machine Diagrams
 
 ## Overview
-State machine diagrams for the key stateful entities in the rental management system.
+State machine diagrams for the key stateful entities in MeroGhar.
 
 ---
 

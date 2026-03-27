@@ -1,7 +1,7 @@
 # Class Diagrams
 
 ## Overview
-Detailed class diagrams with attributes, methods, and relationships for each major domain in the rental management system.
+Detailed class diagrams with attributes, methods, and relationships for each major domain in MeroGhar.
 
 ---
 
@@ -118,7 +118,7 @@ classDiagram
 
     class AssetAttributeValue {
         +UUID id
-        +UUID assetId
+        +UUID propertyId
         +UUID attributeId
         +String value
         +update(value) void
@@ -126,7 +126,7 @@ classDiagram
 
     class AssetPhoto {
         +UUID id
-        +UUID assetId
+        +UUID propertyId
         +String url
         +String thumbnailUrl
         +Integer position
@@ -152,7 +152,7 @@ classDiagram
 classDiagram
     class PricingRule {
         +UUID id
-        +UUID assetId
+        +UUID propertyId
         +RateType rateType
         +Decimal rateAmount
         +String currency
@@ -167,7 +167,7 @@ classDiagram
     }
 
     class PricingEngine {
-        +calculatePrice(assetId, start, end) PriceBreakdown
+        +calculatePrice(propertyId, start, end) PriceBreakdown
         +applyPeakSurcharge(baseFee, rules) Decimal
         +applyDiscount(baseFee, rule) Decimal
         +calculateTax(subtotal, categoryId, jurisdiction) Decimal
@@ -199,7 +199,7 @@ classDiagram
     class Rental Application {
         +UUID id
         +String bookingNumber
-        +UUID assetId
+        +UUID propertyId
         +UUID customerUserId
         +UUID ownerUserId
         +BookingStatus status
@@ -224,7 +224,7 @@ classDiagram
 
     class AvailabilityBlock {
         +UUID id
-        +UUID assetId
+        +UUID propertyId
         +AvailabilityBlockType type
         +DateTime startAt
         +DateTime endAt
@@ -237,7 +237,7 @@ classDiagram
 
     class CancellationPolicy {
         +UUID id
-        +UUID assetId
+        +UUID propertyId
         +String name
         +Integer freeCancellationHours
         +Integer partialRefundHours
@@ -427,7 +427,7 @@ classDiagram
     class ConditionAssessment {
         +UUID id
         +UUID bookingId
-        +UUID assetId
+        +UUID propertyId
         +UUID conductedByUserId
         +AssessmentType type
         +AssessmentStatus status
@@ -476,7 +476,7 @@ classDiagram
     class MaintenanceRequest {
         +UUID id
         +String requestNumber
-        +UUID assetId
+        +UUID propertyId
         +UUID ownerUserId
         +UUID assignedToUserId
         +RequestPriority priority
@@ -510,7 +510,7 @@ classDiagram
 
     class PreventiveService {
         +UUID id
-        +UUID assetId
+        +UUID propertyId
         +UUID createdByUserId
         +UUID assignedToUserId
         +String title

@@ -1,7 +1,7 @@
 # Cloud Architecture
 
 ## Overview
-Cloud architecture diagram and service selection for the rental management system on AWS.
+Cloud architecture diagram and service selection for MeroGhar on AWS.
 
 ---
 

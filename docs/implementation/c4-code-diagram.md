@@ -1,7 +1,7 @@
 # C4 Code Diagram
 
 ## Overview
-C4 Level 4 — Code-level diagram showing key class relationships inside the Rental Application component of the rental management system.
+C4 Level 4 — Code-level diagram showing key class relationships inside the Rental Application component of MeroGhar.
 
 ---
 
@@ -36,7 +36,7 @@ classDiagram
         -db: AsyncSession
         -rule_repo: PricingRuleRepository
         -tax_service: TaxService
-        +calculate(asset_id, start, end) PriceBreakdown
+        +calculate(property_id, start, end) PriceBreakdown
         -select_optimal_rates(duration_hours, rules) RateCombo[]
         -apply_peak_surcharge(base_fee, rules, start, end) Decimal
         -apply_discount(base_fee, rules, duration_hours) Decimal
@@ -46,10 +46,10 @@ classDiagram
         -db: AsyncSession
         -redis: RedisClient
         -block_repo: AvailabilityBlockRepository
-        +is_available(asset_id, start, end) Boolean
-        +acquire_lock(asset_id, start, end, ttl_seconds) Boolean
-        +release_lock(asset_id, start, end) void
-        +create_block(asset_id, start, end, type, ref_id) AvailabilityBlock
+        +is_available(property_id, start, end) Boolean
+        +acquire_lock(property_id, start, end, ttl_seconds) Boolean
+        +release_lock(property_id, start, end) void
+        +create_block(property_id, start, end, type, ref_id) AvailabilityBlock
         +release_block(block_id) void
     }
 
@@ -75,15 +75,15 @@ classDiagram
 
     class AvailabilityRepository {
         -db: AsyncSession
-        +find_blocks(asset_id, start, end) List[AvailabilityBlock]
+        +find_blocks(property_id, start, end) List[AvailabilityBlock]
         +create_block(block) AvailabilityBlock
         +release_block(block_id) void
     }
 
     class PricingRuleRepository {
         -db: AsyncSession
-        +find_by_asset(asset_id) List[PricingRule]
-        +find_active_peak_rules(asset_id, start, end) List[PricingRule]
+        +find_by_property(property_id) List[PricingRule]
+        +find_active_peak_rules(property_id, start, end) List[PricingRule]
     }
 
     class EventPublisher {

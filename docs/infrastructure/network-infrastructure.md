@@ -1,7 +1,7 @@
 # Network Infrastructure
 
 ## Overview
-Network topology and security architecture for the rental management system running on AWS.
+Network topology and security architecture for MeroGhar running on AWS.
 
 ---
 

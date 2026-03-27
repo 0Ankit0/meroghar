@@ -1,7 +1,7 @@
 # System Sequence Diagrams
 
 ## Overview
-Black-box system sequence diagrams showing interactions between actors and MeroGhar for the primary use cases of the house and apartment rental management system.
+Black-box system sequence diagrams showing interactions between actors and MeroGhar for the primary use cases of the house and apartment rental platform.
 
 ---
 

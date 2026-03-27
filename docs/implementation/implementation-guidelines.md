@@ -1,7 +1,7 @@
 # Implementation Guidelines
 
 ## Overview
-Implementation guidelines, technology stack, coding standards, and best practices for building the rental management system.
+Implementation guidelines, technology stack, coding standards, and best practices for building MeroGhar.
 
 ---
 
@@ -186,14 +186,14 @@ class BookingService:
     ) -> Rental Application:
         # Check availability
         available = await self.availability_repo.is_available(
-            data.asset_id, data.rental_start_at, data.rental_end_at
+            data.property_id, data.rental_start_at, data.rental_end_at
         )
         if not available:
             raise BookingUnavailableError("Property is not available for selected dates")
 
         # Calculate price
         pricing = await self.pricing_engine.calculate(
-            data.asset_id, data.rental_start_at, data.rental_end_at
+            data.property_id, data.rental_start_at, data.rental_end_at
         )
 
         # Collect deposit
@@ -203,12 +203,12 @@ class BookingService:
 
         # Lock availability
         await self.availability_repo.create_block(
-            data.asset_id, data.rental_start_at, data.rental_end_at
+            data.property_id, data.rental_start_at, data.rental_end_at
         )
 
         # Persist rental application
         rental application = Rental Application(
-            asset_id=data.asset_id,
+            property_id=data.property_id,
             customer_user_id=customer_id,
             rental_start_at=data.rental_start_at,
             rental_end_at=data.rental_end_at,
@@ -339,8 +339,8 @@ class Rental Application(Base):
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
     booking_number: Mapped[str] = mapped_column(String(30), unique=True, index=True)
-    asset_id: Mapped[uuid.UUID] = mapped_column(
-        UUID(as_uuid=True), ForeignKey("assets.id"), index=True
+    property_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("properties.id"), index=True
     )
     customer_user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id"), index=True
@@ -413,7 +413,7 @@ class TestBookingService:
         )
 
         data = BookingCreate(
-            asset_id=uuid4(),
+            property_id=uuid4(),
             rental_start_at=datetime.utcnow() + timedelta(days=1),
             rental_end_at=datetime.utcnow() + timedelta(days=4),
             payment_method_id="pm_test",
@@ -428,7 +428,7 @@ class TestBookingService:
         booking_service.availability_repo.is_available.return_value = False
 
         data = BookingCreate(
-            asset_id=uuid4(),
+            property_id=uuid4(),
             rental_start_at=datetime.utcnow() + timedelta(days=1),
             rental_end_at=datetime.utcnow() + timedelta(days=4),
             payment_method_id="pm_test",
@@ -441,7 +441,7 @@ class TestBookingService:
 
 ## Pricing Engine Implementation Notes
 
-The pricing engine applies the following algorithm for every `calculatePrice(assetId, start, end)` call:
+The pricing engine applies the following algorithm for every `calculatePrice(propertyId, start, end)` call:
 
 1. Load all pricing rules for the property
 2. Compute the total duration in hours
@@ -465,7 +465,7 @@ from decimal import Decimal
 
 
 class BookingCreate(BaseModel):
-    asset_id: UUID4
+    property_id: UUID4
     rental_start_at: datetime
     rental_end_at: datetime
     payment_method_id: str
