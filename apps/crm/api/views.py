@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from ..models import Lead, Showing, RentalApplication
-from .serializers import LeadSerializer, ShowingSerializer, RentalApplicationSerializer
+from ..models import Lead, Showing, RentalApplication, LeadFollowUp
+from .serializers import LeadSerializer, ShowingSerializer, RentalApplicationSerializer, LeadFollowUpSerializer
 from apps.iam.api.permissions import IsOrgManager
 
 class LeadViewSet(viewsets.ModelViewSet):
@@ -35,3 +35,13 @@ class RentalApplicationViewSet(viewsets.ModelViewSet):
         if active_org:
             return RentalApplication.objects.filter(lead__organization=active_org)
         return RentalApplication.objects.none()
+
+
+class LeadFollowUpViewSet(viewsets.ModelViewSet):
+    serializer_class = LeadFollowUpSerializer
+    permission_classes = [IsOrgManager]
+
+    def get_queryset(self):
+        if hasattr(self.request, 'active_organization'):
+            return LeadFollowUp.objects.filter(lead__organization=self.request.active_organization)
+        return LeadFollowUp.objects.none()

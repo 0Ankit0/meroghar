@@ -1,8 +1,12 @@
+"""Requirement coverage: OPS-05."""
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.operations.models import Vendor
+from apps.housing.models import Property, Unit
+from apps.finance.models import Expense
 
 class OperationsApiTest(APITestCase):
     def setUp(self):
@@ -15,6 +19,8 @@ class OperationsApiTest(APITestCase):
         session = self.client.session
         session['active_org_id'] = str(self.organization.id)
         session.save()
+        self.property = Property.objects.create(name="Ops Property", organization=self.organization)
+        self.unit = Unit.objects.create(property=self.property, unit_number="OPS-1", market_rent=1200)
 
     def test_vendor_api_list(self):
         Vendor.objects.create(

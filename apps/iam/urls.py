@@ -3,6 +3,7 @@ from .views import user as user_views
 from .views import organization as org_views
 from .views import group as group_views
 from .views import auth as auth_views
+from .views import invitation as invitation_views
 
 app_name = "iam"
 
@@ -27,4 +28,7 @@ urlpatterns = [
     path("groups/add/", group_views.OrganizationGroupCreateView.as_view(), name="group_add"),
     path("groups/<uuid:pk>/edit/", group_views.OrganizationGroupUpdateView.as_view(), name="group_edit"),
     path("groups/<uuid:pk>/delete/", group_views.OrganizationGroupDeleteView.as_view(), name="group_delete"),
+    path("invitations/", invitation_views.InvitationListView.as_view(), name="invitation_list"),
+    path("invitations/add/", invitation_views.InvitationCreateView.as_view(), name="invitation_add"),
+    path("invitations/<str:token>/accept/", invitation_views.InvitationAcceptView.as_view(), name="invitation_accept"),
 ]

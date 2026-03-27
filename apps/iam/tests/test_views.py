@@ -1,3 +1,5 @@
+"""Requirement coverage: IAM-02, IAM-03."""
+
 from django.test import TestCase, Client
 from django.urls import reverse
 from apps.iam.models import User, Organization, OrganizationMembership

@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from apps.housing.models import PropertyInspection, InventoryItem, Property, Unit, Tenant, Lease
-from .serializers import PropertyInspectionSerializer, InventoryItemSerializer, PropertySerializer, UnitSerializer, TenantSerializer, LeaseSerializer
+from apps.housing.models import PropertyInspection, InventoryItem, Property, Unit, Tenant, Lease, LeaseRenewal
+from .serializers import PropertyInspectionSerializer, InventoryItemSerializer, PropertySerializer, UnitSerializer, TenantSerializer, LeaseSerializer, LeaseRenewalSerializer
 from apps.iam.api.permissions import IsOrgManager, IsOrgTenant
 
 class PropertyInspectionViewSet(viewsets.ModelViewSet):

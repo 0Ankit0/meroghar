@@ -1,9 +1,12 @@
+"""Requirement coverage: HOU-04, HOU-05."""
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from apps.iam.models import User, Organization, OrganizationMembership
-from apps.housing.models import Property, Unit, PropertyInspection, InventoryItem
+from apps.housing.models import Property, Unit, PropertyInspection, InventoryItem, Tenant, Lease, LeaseRenewal
 from datetime import date
+from datetime import timedelta
 
 class HousingApiTest(APITestCase):
     def setUp(self):

@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Invitations{% endblock %}
+{% block content %}
+<h1 class="text-xl font-semibold mb-4">Organization Invitations</h1>
+<a href="{% url 'iam:invitation_add' %}" class="text-blue-600">Send invitation</a>
+<ul class="mt-4 space-y-2">
+{% for invitation in invitations %}
+<li>{{ invitation.email }} - {{ invitation.role }} - {{ invitation.status }}</li>
+{% empty %}
+<li>No invitations.</li>
+{% endfor %}
+</ul>
+{% endblock %}

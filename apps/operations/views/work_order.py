@@ -16,7 +16,7 @@ class WorkOrderListView(LoginRequiredMixin, ListView):
 
 class WorkOrderCreateView(LoginRequiredMixin, CreateView):
     model = WorkOrder
-    fields = ['unit', 'requester', 'title', 'description', 'priority']
+    fields = ['unit', 'requester', 'title', 'description', 'priority', 'preferred_service_type', 'actual_hours']
     template_name = "operations/work_order_form.html"
     success_url = reverse_lazy('operations:work_order_list')
 
@@ -51,7 +51,18 @@ class WorkOrderDetailView(LoginRequiredMixin, DetailView):
 
 class WorkOrderUpdateView(LoginRequiredMixin, UpdateView):
     model = WorkOrder
-    fields = ['unit', 'requester', 'title', 'description', 'priority', 'status', 'assigned_to']
+    fields = [
+        'unit',
+        'requester',
+        'title',
+        'description',
+        'priority',
+        'preferred_service_type',
+        'status',
+        'assigned_to',
+        'assigned_vendor',
+        'actual_hours',
+    ]
     template_name = "operations/work_order_form.html"
     success_url = reverse_lazy('operations:work_order_list')
     

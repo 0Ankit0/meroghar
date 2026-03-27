@@ -1,9 +1,11 @@
+"""Requirement coverage: IAM-01, IAM-02."""
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from rest_framework.test import APITestCase
 
-from apps.iam.models import Organization, User
+from apps.iam.models import Organization, User, OrganizationInvitation, OrganizationMembership
 
 
 class IamApiTest(APITestCase):
@@ -141,3 +143,30 @@ class IamApiTest(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertFalse(Token.objects.filter(key=token.key).exists())
+
+    def test_accept_invitation_creates_membership(self):
+        invitee = User.objects.create_user(
+            username="invitee",
+            email="invitee@example.com",
+            password="password",
+            role="STAFF",
+        )
+        invitation = OrganizationInvitation.objects.create(
+            organization=self.organization,
+            email=invitee.email,
+            role='STAFF',
+            invited_by=self.user,
+        )
+        token = Token.objects.create(user=invitee)
+        self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')
+
+        url = reverse('api-accept-invitation', kwargs={'token': invitation.token})
+        response = self.client.post(url, {}, format='json')
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertTrue(
+            OrganizationMembership.objects.filter(
+                organization=self.organization,
+                user=invitee,
+                role='STAFF',
+            ).exists()
+        )

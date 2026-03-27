@@ -1,3 +1,5 @@
+"""Requirement coverage: FIN-01, FIN-02, FIN-05."""
+
 from django.test import TestCase
 from apps.iam.models import User, Organization, OrganizationMembership
 from apps.housing.models import Property, Unit, Lease, Tenant

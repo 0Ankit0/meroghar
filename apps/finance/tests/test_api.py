@@ -1,3 +1,5 @@
+"""Requirement coverage: FIN-05."""
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
@@ -7,14 +9,15 @@ from apps.finance.models import Expense, Invoice
 from django.utils import timezone
 from datetime import timedelta
 from datetime import date
+from datetime import timedelta
 
 class FinanceApiTest(APITestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Finance API Org", slug="fin-api-org")
-        self.user = User.objects.create_user(username="api_fin", password="password")
+        self.user = User.objects.create_user(username="api_fin", password="password", role='MANAGER')
         OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="api_fin", password="password")
-        
+
         session = self.client.session
         session['active_org_id'] = str(self.organization.id)
         session.save()

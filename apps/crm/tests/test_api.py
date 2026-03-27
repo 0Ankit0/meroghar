@@ -1,8 +1,13 @@
+"""Requirement coverage: CRM-01."""
+
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
 from apps.iam.models import User, Organization, OrganizationMembership
-from apps.crm.models import Lead
+from apps.crm.models import Lead, Showing
+from apps.housing.models import Property, Unit
+from django.utils import timezone
+from datetime import timedelta
 
 class CrmApiTest(APITestCase):
     def setUp(self):
@@ -16,6 +21,8 @@ class CrmApiTest(APITestCase):
         session = self.client.session
         session['active_org_id'] = str(self.organization.id)
         session.save()
+        self.property = Property.objects.create(name="CRM Property", organization=self.organization)
+        self.unit = Unit.objects.create(property=self.property, unit_number="C-1")
         
     def test_lead_api_list(self):
         Lead.objects.create(first_name="API", last_name="Lead", organization=self.organization)
