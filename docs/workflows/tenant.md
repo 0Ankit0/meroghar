@@ -55,7 +55,7 @@ sequenceDiagram
 **Description**: Updating contact or personal info.
 
 ### Endpoint
-`POST /housing/tenants/<uuid:pk>/edit/`
+`POST /housing/tenants/<id>/edit/`
 
 ### System Diagram
 
@@ -65,7 +65,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /housing/tenants/<uuid:pk>/edit/
+    Manager->>System: POST /housing/tenants/<id>/edit/
     System->>DB: UPDATE Tenant
     DB-->>System: Updated
     System-->>Manager: Redirect
@@ -76,7 +76,7 @@ sequenceDiagram
 **Description**: Viewing full profile, leases, and payment history.
 
 ### Endpoint
-`GET /housing/tenants/<uuid:pk>/`
+`GET /housing/tenants/<id>/`
 
 ### System Diagram
 
@@ -86,7 +86,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: GET /housing/tenants/<uuid:pk>/
+    Manager->>System: GET /housing/tenants/<id>/
     System->>DB: Fetch Tenant
     System->>DB: Fetch Related Leases
     System->>DB: Fetch Related Payments

@@ -28,7 +28,7 @@ sequenceDiagram
 **Description**: Change active context.
 
 ### Endpoint
-`POST /iam/organizations/switch/<uuid:pk>/`
+`POST /iam/organizations/switch/<org_id>/`
 
 ### System Diagram
 
@@ -38,7 +38,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant Session as Session
 
-    User->>System: POST /iam/organizations/switch/<uuid:pk>/
+    User->>System: POST /iam/organizations/switch/<id>/
     System->>Session: KEY active_org_id = <id>
     System-->>User: Redirect
 ```

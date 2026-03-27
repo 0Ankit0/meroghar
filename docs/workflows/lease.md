@@ -57,7 +57,7 @@ sequenceDiagram
 **Description**: Extending dates or changing rent.
 
 ### Endpoint
-`POST /housing/leases/<uuid:pk>/edit/`
+`POST /housing/leases/<id>/edit/`
 
 ### System Diagram
 
@@ -67,7 +67,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /housing/leases/<uuid:pk>/edit/
+    Manager->>System: POST /housing/leases/<id>/edit/
     System->>DB: UPDATE Lease
     DB-->>System: Success
     System-->>Manager: Redirect
@@ -78,7 +78,7 @@ sequenceDiagram
 **Description**: Ending a lease early or deleting record.
 
 ### Endpoint
-`POST /housing/leases/<uuid:pk>/delete/`
+`POST /housing/leases/<id>/delete/`
 
 ### System Diagram
 
@@ -88,7 +88,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /housing/leases/<uuid:pk>/delete/
+    Manager->>System: POST /housing/leases/<id>/delete/
     System->>DB: DELETE Lease
     System->>DB: UPDATE Unit Status (Vacant)
     DB-->>System: Success

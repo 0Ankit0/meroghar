@@ -50,7 +50,7 @@ sequenceDiagram
 **Description**: Correcting an invoice.
 
 ### Endpoint
-`POST /finance/invoices/<uuid:pk>/edit/`
+`POST /finance/invoices/<id>/edit/`
 
 ### System Diagram
 
@@ -60,7 +60,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /finance/invoices/<uuid:pk>/edit/
+    Manager->>System: POST /finance/invoices/<id>/edit/
     System->>DB: UPDATE Invoice
     DB-->>System: Success
     System-->>Manager: Redirect

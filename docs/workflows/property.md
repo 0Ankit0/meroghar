@@ -64,7 +64,7 @@ sequenceDiagram
 **Description**: Modifying an existing property's details.
 
 ### Endpoint
-`POST /housing/properties/<uuid:pk>/edit/`
+`POST /housing/properties/<id>/edit/`
 
 ### Logic
 1.  User requests edit form.
@@ -80,12 +80,12 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: GET /housing/properties/<uuid:pk>/edit/
+    User->>System: GET /housing/properties/<id>/edit/
     System->>DB: Fetch Property (Ensure Org Match)
     DB-->>System: Property Data
     System-->>User: Render Form (Pre-filled)
 
-    User->>System: POST /housing/properties/<uuid:pk>/edit/ (Updated Data)
+    User->>System: POST /housing/properties/<id>/edit/ (Updated Data)
     System->>DB: UPDATE Property
     DB-->>System: Success
     System-->>User: Redirect to List
@@ -96,7 +96,7 @@ sequenceDiagram
 **Description**: Removing a property from the system.
 
 ### Endpoint
-`POST /housing/properties/<uuid:pk>/delete/`
+`POST /housing/properties/<id>/delete/`
 
 ### Logic
 1.  User requests delete confirmation.
@@ -112,7 +112,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /housing/properties/<uuid:pk>/delete/ (Confirm)
+    User->>System: POST /housing/properties/<id>/delete/ (Confirm)
     System->>DB: DELETE Property WHERE id=<id> AND organization=active
     DB-->>System: Deleted
     System-->>User: Redirect to List

@@ -50,7 +50,7 @@ sequenceDiagram
 **Description**: Modify members or permissions.
 
 ### Endpoint
-`POST /iam/groups/<uuid:pk>/edit/`
+`POST /iam/groups/<id>/edit/`
 
 ### System Diagram
 
@@ -60,7 +60,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Admin->>System: POST /iam/groups/<uuid:pk>/edit/
+    Admin->>System: POST /iam/groups/<id>/edit/
     System->>DB: UPDATE OrganizationGroup
     System->>DB: Sync M2M Relations
     DB-->>System: Success
@@ -72,7 +72,7 @@ sequenceDiagram
 **Description**: Remove a group.
 
 ### Endpoint
-`POST /iam/groups/<uuid:pk>/delete/`
+`POST /iam/groups/<id>/delete/`
 
 ### System Diagram
 
@@ -82,7 +82,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Admin->>System: POST /iam/groups/<uuid:pk>/delete/
+    Admin->>System: POST /iam/groups/<id>/delete/
     System->>DB: DELETE OrganizationGroup
     DB-->>System: Deleted
     System-->>Admin: Redirect

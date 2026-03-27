@@ -8,7 +8,7 @@ Workflows related to the `Payment` model.
 
 ### Part 1: Initiation
 
-**Endpoint**: `POST /finance/payments/initiate/<uuid:invoice_id>/`
+**Endpoint**: `POST /finance/payments/initiate/<invoice_id>/`
 
 1.  Tenant clicks "Pay with Khalti".
 2.  System creates `Payment` (INITIATED).

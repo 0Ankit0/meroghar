@@ -49,7 +49,7 @@ sequenceDiagram
 **Description**: Update status (e.g. In Progress, Completed).
 
 ### Endpoint
-`POST /operations/maintenance/<uuid:pk>/edit/`
+`POST /operations/maintenance/<id>/edit/`
 
 ### System Diagram
 
@@ -59,7 +59,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    Manager->>System: POST /operations/maintenance/<uuid:pk>/edit/ (Status: Completed)
+    Manager->>System: POST /operations/maintenance/<id>/edit/ (Status: Completed)
     System->>DB: UPDATE WorkOrder
     DB-->>System: Success
     System-->>Manager: Redirect

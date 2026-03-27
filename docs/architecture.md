@@ -47,28 +47,29 @@ We use a split settings layout and a dedicated `apps/` folder:
 
 ```text
 meroghar/
-├── apps/               # Business Logic Modules
-│   ├── core/           # Middleware, dashboard, shared utilities
-│   ├── iam/            # Users, organizations, groups, memberships
-│   ├── housing/        # Properties, units, tenants, leases, inspections, inventory
-│   ├── finance/        # Invoices, payments, expenses
-│   ├── operations/     # Work orders, vendors, documents, notifications
-│   ├── crm/            # Leads, showings, applications
-│   ├── reporting/      # Financial, occupancy, maintenance reports
-│   └── theme/          # Frontend theme assets and dev command helpers
-├── config/             # Project Configuration
-│   ├── settings/       # Split settings (base, dev, prod)
-│   ├── urls.py         # Main routing
+├── apps/                   # Business Logic Modules
+│   ├── core/               # Shared dashboard, utilities, foundational services
+│   ├── housing/            # Properties, Units, Tenants, Leases, inspections
+│   ├── finance/            # Invoices, Payments, Expenses
+│   ├── operations/         # Work orders, Vendors, Documents, Notifications
+│   ├── crm/                # Leads, Showings, Applications
+│   ├── iam/                # Users, Organizations, Groups, access control
+│   └── reporting/          # Occupancy, financial, and maintenance reports
+├── config/                 # Project Configuration
+│   ├── settings/           # Split settings (base, dev, prod)
+│   ├── urls.py             # Main web routing
+│   ├── api_urls.py         # Main API routing
 │   └── wsgi.py
-├── templates/          # Base templates
-├── static/             # Static assets
+├── docs/                   # Product and architecture documentation
+├── templates/              # Base templates
+├── static/                 # Static assets
 └── manage.py
 ```
 
-## Documentation Source of Truth
+## Route Source of Truth
 
-Routing and endpoint authority should always be verified against:
+Route truth lives in:
 
-- `config/urls.py`
-- `config/api_urls.py`
-- `apps/*/urls.py`
+- `config/urls.py` for top-level web URL namespaces.
+- `config/api_urls.py` for top-level API URL namespaces.
+- Each app's `urls.py` (for example, `apps/housing/urls.py`, `apps/finance/urls.py`) for app-local route definitions.

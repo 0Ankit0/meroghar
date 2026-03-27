@@ -49,7 +49,7 @@ sequenceDiagram
 **Description**: Edit unit details (rent, status, etc.).
 
 ### Endpoint
-`POST /housing/units/<uuid:pk>/edit/`
+`POST /housing/units/<id>/edit/`
 
 ### System Diagram
 
@@ -59,7 +59,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /housing/units/<uuid:pk>/edit/
+    User->>System: POST /housing/units/<id>/edit/
     System->>DB: UPDATE Unit
     DB-->>System: Success
     System-->>User: Redirect to List
@@ -70,7 +70,7 @@ sequenceDiagram
 **Description**: Remove a unit. Usually restricted if active lease exists.
 
 ### Endpoint
-`POST /housing/units/<uuid:pk>/delete/`
+`POST /housing/units/<id>/delete/`
 
 ### System Diagram
 
@@ -80,7 +80,7 @@ sequenceDiagram
     participant System as MeroGhar System
     participant DB as Database
 
-    User->>System: POST /housing/units/<uuid:pk>/delete/
+    User->>System: POST /housing/units/<id>/delete/
     System->>DB: DELETE Unit
     DB-->>System: Deleted
     System-->>User: Redirect to List
