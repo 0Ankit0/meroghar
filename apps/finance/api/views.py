@@ -8,8 +8,9 @@ class ExpenseViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Expense.objects.filter(organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Expense.objects.filter(organization=active_org)
         return Expense.objects.none()
 
     def perform_create(self, serializer):
@@ -22,9 +23,10 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
     def get_queryset(self):
         user = self.request.user
         queryset = Invoice.objects.none()
+        active_org = getattr(self.request, 'active_organization', None)
         
-        if hasattr(self.request, 'active_organization'):
-            queryset = Invoice.objects.filter(organization=self.request.active_organization)
+        if active_org:
+            queryset = Invoice.objects.filter(organization=active_org)
             
         # Tenant Restriction
         if user.role == 'TENANT':
@@ -40,9 +42,10 @@ class PaymentViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         user = self.request.user
         queryset = Payment.objects.none()
+        active_org = getattr(self.request, 'active_organization', None)
         
-        if hasattr(self.request, 'active_organization'):
-            queryset = Payment.objects.filter(organization=self.request.active_organization)
+        if active_org:
+            queryset = Payment.objects.filter(organization=active_org)
             
         # Tenant Restriction - View their own payments
         if user.role == 'TENANT':

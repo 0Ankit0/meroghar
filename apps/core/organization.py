@@ -20,13 +20,18 @@ def resolve_active_organization(request, user) -> Optional[Organization]:
     if not user or not user.is_authenticated:
         return None
 
+    request.organization_header_invalid = False
+    request.organization_header_value = None
+
     header_org_id = request.META.get(ORGANIZATION_HEADER)
     if header_org_id:
+        request.organization_header_value = header_org_id
         try:
             org = user.organizations.get(id=header_org_id)
             request.session["active_org_id"] = str(org.id)
             return org
         except (Organization.DoesNotExist, ValueError, TypeError):
+            request.organization_header_invalid = True
             return None
 
     session_org_id = request.session.get("active_org_id")
@@ -40,4 +45,3 @@ def resolve_active_organization(request, user) -> Optional[Organization]:
     if fallback_org:
         request.session["active_org_id"] = str(fallback_org.id)
     return fallback_org
-

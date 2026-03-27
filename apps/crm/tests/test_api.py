@@ -7,6 +7,7 @@ from apps.crm.models import Lead
 class CrmApiTest(APITestCase):
     def setUp(self):
         self.organization = Organization.objects.create(name="Test API Org", slug="test-api-org")
+        self.other_org = Organization.objects.create(name="CRM Other Org", slug="crm-other-org")
         self.user = User.objects.create_user(username="api_user", password="password", role="ADMIN")
         OrganizationMembership.objects.create(organization=self.organization, user=self.user, role='OWNER')
         self.client.login(username="api_user", password="password")
@@ -38,3 +39,13 @@ class CrmApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lead.objects.count(), 1)
         self.assertEqual(Lead.objects.get().email, 'api@example.com')
+
+    def test_lead_detail_denies_cross_org_access(self):
+        other_lead = Lead.objects.create(
+            first_name="Other",
+            last_name="Lead",
+            organization=self.other_org,
+        )
+        url = reverse('api-lead-detail', args=[other_lead.id])
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

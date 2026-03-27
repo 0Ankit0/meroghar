@@ -105,6 +105,22 @@ class IamApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data['active_organization']['id'], str(self.organization_2.id))
 
+    def test_x_organization_id_header_forbidden_for_non_member(self):
+        token = Token.objects.create(user=self.user)
+        self.client.credentials(
+            HTTP_AUTHORIZATION=f'Token {token.key}',
+            HTTP_X_ORGANIZATION_ID=str(self.other_org.id),
+        )
+
+        url = reverse('api-iam-profile')
+        response = self.client.get(url)
+
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(
+            response.data['detail'],
+            'You are not a member of the organization provided in X-Organization-ID.',
+        )
+
     def test_refresh_rotates_token(self):
         token = Token.objects.create(user=self.user)
         self.client.credentials(HTTP_AUTHORIZATION=f'Token {token.key}')

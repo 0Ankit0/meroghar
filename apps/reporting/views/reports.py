@@ -13,7 +13,9 @@ class FinancialReportView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        org = self.request.user.organization
+        org = self.request.active_organization
+        if not org:
+            return context
         now = timezone.now()
         
         # Filters
@@ -96,7 +98,9 @@ class OccupancyReportView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        org = self.request.user.organization
+        org = self.request.active_organization
+        if not org:
+            return context
         property_id = self.request.GET.get('property')
         
         # Base QuerySet
@@ -137,7 +141,9 @@ class MaintenanceReportView(LoginRequiredMixin, TemplateView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        org = self.request.user.organization
+        org = self.request.active_organization
+        if not org:
+            return context
         property_id = self.request.GET.get('property')
         
         # Determine query path based on app structure 

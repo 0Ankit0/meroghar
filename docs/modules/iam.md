@@ -144,8 +144,13 @@ Base prefix: `/api/iam/`
 Authenticated API requests can send `X-Organization-ID: <org_uuid>`.
 
 - If the user belongs to that organization, it becomes the active organization context.
-- If the user does not belong to the provided org, no active organization is set from that header.
-- Session-based fallback remains enabled for web flows and session-auth API clients.
+- If the user does **not** belong to the provided org (or sends an invalid org ID), API requests return `403 Forbidden` with:
+  ```json
+  {
+    "detail": "You are not a member of the organization provided in X-Organization-ID."
+  }
+  ```
+- If no header is provided, session-based fallback remains enabled for web flows and session-auth API clients.
 
 ### Role behavior
 

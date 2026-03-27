@@ -8,8 +8,9 @@ class LeadViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Lead.objects.filter(organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Lead.objects.filter(organization=active_org)
         return Lead.objects.none()
 
     def perform_create(self, serializer):
@@ -20,8 +21,9 @@ class ShowingViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Showing.objects.filter(lead__organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Showing.objects.filter(lead__organization=active_org)
         return Showing.objects.none()
 
 class RentalApplicationViewSet(viewsets.ModelViewSet):
@@ -29,6 +31,7 @@ class RentalApplicationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return RentalApplication.objects.filter(lead__organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return RentalApplication.objects.filter(lead__organization=active_org)
         return RentalApplication.objects.none()

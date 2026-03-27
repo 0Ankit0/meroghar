@@ -10,7 +10,14 @@ from ..services.khalti import KhaltiService
 
 class InitiatePaymentView(LoginRequiredMixin, View):
     def post(self, request, invoice_id):
-        invoice = get_object_or_404(Invoice, id=invoice_id)
+        if not request.active_organization:
+            messages.error(request, "No active organization selected.")
+            return redirect('finance:invoice_list')
+
+        invoice = get_object_or_404(
+            Invoice.objects.filter(organization=request.active_organization),
+            id=invoice_id,
+        )
         
         # Create a payment record
         payment = Payment.objects.create(
@@ -65,7 +72,10 @@ class VerifyPaymentView(LoginRequiredMixin, View):
             with transaction.atomic():
                 # Find payment with lock
                 try:
-                     payment = Payment.objects.select_for_update().get(transaction_id=pidx)
+                     payment_qs = Payment.objects.select_for_update()
+                     if request.active_organization:
+                         payment_qs = payment_qs.filter(organization=request.active_organization)
+                     payment = payment_qs.get(transaction_id=pidx)
                 except Payment.DoesNotExist:
                      # If not found by transaction_id, try by purchase_order_id (ID) if valid
                      # But Khalti doc says pidx is key.

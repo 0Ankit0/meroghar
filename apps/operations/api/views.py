@@ -8,8 +8,9 @@ class VendorViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Vendor.objects.filter(organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Vendor.objects.filter(organization=active_org)
         return Vendor.objects.none()
 
     def perform_create(self, serializer):

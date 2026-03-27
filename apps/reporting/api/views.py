@@ -12,6 +12,7 @@ class MobileDashboardView(APIView):
     
     def get(self, request):
         user = request.user
+        active_org = getattr(request, 'active_organization', None)
         data = {
             'balance_due': 0,
             'open_requests': 0,
@@ -19,19 +20,31 @@ class MobileDashboardView(APIView):
             'next_due_date': None
         }
         
-        if user.role == 'TENANT':
+        if user.role == 'TENANT' and active_org:
             # Balance Linked to Tenant User
-            invoices = Invoice.objects.filter(lease__tenant__user=user, status__in=['SENT', 'PARTIALLY_PAID', 'OVERDUE'])
+            invoices = Invoice.objects.filter(
+                organization=active_org,
+                lease__tenant__user=user,
+                status__in=['SENT', 'PARTIALLY_PAID', 'OVERDUE'],
+            )
             total_due = sum(inv.balance_due for inv in invoices)
             
             # Next Due Date (Earliest unpaid invoice)
             next_invoice = invoices.order_by('due_date').first()
             
             # Open Requests
-            open_requests = WorkOrder.objects.filter(requester__user=user, status__in=['OPEN', 'IN_PROGRESS']).count()
+            open_requests = WorkOrder.objects.filter(
+                organization=active_org,
+                requester__user=user,
+                status__in=['OPEN', 'IN_PROGRESS'],
+            ).count()
             
             # Lease Status
-            lease = Lease.objects.filter(tenant__user=user, status='ACTIVE').first()
+            lease = Lease.objects.filter(
+                organization=active_org,
+                tenant__user=user,
+                status='ACTIVE',
+            ).first()
             
             data.update({
                 'balance_due': total_due,

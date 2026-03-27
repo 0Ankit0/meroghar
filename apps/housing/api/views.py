@@ -8,8 +8,9 @@ class PropertyInspectionViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return PropertyInspection.objects.filter(unit__property__organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return PropertyInspection.objects.filter(unit__property__organization=active_org)
         return PropertyInspection.objects.none()
 
 class InventoryItemViewSet(viewsets.ModelViewSet):
@@ -17,8 +18,9 @@ class InventoryItemViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return InventoryItem.objects.filter(unit__property__organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return InventoryItem.objects.filter(unit__property__organization=active_org)
         return InventoryItem.objects.none()
 
     def perform_create(self, serializer):
@@ -29,8 +31,9 @@ class PropertyViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Property.objects.filter(organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Property.objects.filter(organization=active_org)
         return Property.objects.none()
 
     def perform_create(self, serializer):
@@ -41,8 +44,9 @@ class UnitViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgManager]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Unit.objects.filter(property__organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Unit.objects.filter(property__organization=active_org)
         return Unit.objects.none()
 
 class TenantViewSet(viewsets.ModelViewSet):
@@ -50,8 +54,9 @@ class TenantViewSet(viewsets.ModelViewSet):
     permission_classes = [IsOrgTenant]
 
     def get_queryset(self):
-        if hasattr(self.request, 'active_organization'):
-            return Tenant.objects.filter(organization=self.request.active_organization)
+        active_org = getattr(self.request, 'active_organization', None)
+        if active_org:
+            return Tenant.objects.filter(organization=active_org)
         return Tenant.objects.none()
 
     def perform_create(self, serializer):
@@ -73,4 +78,3 @@ class LeaseViewSet(viewsets.ModelViewSet):
             queryset = queryset.filter(tenant__user=user)
 
         return queryset
-
