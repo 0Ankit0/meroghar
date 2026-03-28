@@ -54,6 +54,9 @@ infra-down:
 health-check:
 	python3 scripts/check_template_health.py
 
+deploy-readiness:
+	python3 scripts/check_deploy_readiness.py
+
 lint: backend-lint frontend-lint mobile-lint
 
 test: backend-test frontend-test mobile-test
