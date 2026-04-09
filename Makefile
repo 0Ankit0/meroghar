@@ -9,6 +9,12 @@ docs:
 
 docs-check: docs
 
+phase1-baseline:
+	./scripts/run_phase1_baseline.sh
+
+phase2-requirements-lock:
+	./scripts/run_phase2_requirements_lock.sh
+
 backend-lint:
 	cd backend && uv run ruff check src tests
 

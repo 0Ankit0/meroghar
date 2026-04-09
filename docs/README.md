@@ -11,6 +11,7 @@
 - `infrastructure/` — environments, networking, deployment, and CI/CD.
 - `edge-cases/` — failure modes and operational concerns specific to property rental.
 - `implementation/` — build, rollout, and testing playbooks.
+- `implementation/dependency-ordered-execution-plan.md` — phase-gated plan from bootstrap through production launch.
 - `onboarding/` — helps teams bootstrap a fresh project from the template.
 - `onboarding/project-orientation.md` — explains how the whole project fits together before you start changing it.
 - `implementation/working-principles.md` — explains the design rules the platform follows.
