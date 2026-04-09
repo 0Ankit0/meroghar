@@ -1,5 +1,7 @@
 # User Stories
 
+> **Superseded for MVP planning:** Story prioritization, v1 scope, measurable acceptance criteria, and implementation traceability are consolidated in `docs/requirements/mvp-backlog-matrix.md`.
+
 ## Landlord / Property Owner User Stories
 
 ### Account & Property Portfolio
