@@ -1,5 +1,7 @@
 # Requirements Document
 
+> **Superseded for MVP planning:** For prioritized implementation scope, actor/journey mapping, acceptance criteria, and traceability to code touchpoints, use `docs/requirements/mvp-backlog-matrix.md` as the source of truth.
+
 ## 1. Introduction
 
 ### 1.1 Purpose
