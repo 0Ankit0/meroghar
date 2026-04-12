@@ -153,6 +153,55 @@ flowchart TD
 
 ---
 
+## Monthly Rent and Utility Billing Flow
+
+```mermaid
+flowchart TD
+    A([Billing Cycle Starts]) --> B[Generate Monthly Rent Invoice]
+    B --> C[Schedule Reminder Notifications]
+    C --> D{Utility Bills Added?}
+    D -- Yes --> E[Owner/Manager Uploads Bill Image and Details]
+    E --> F[Configure Tenant Split - Single or Multi-Tenant]
+    F --> G{Split Valid?}
+    G -- No --> F
+    G -- Yes --> H[Create Tenant Bill-Share Payables]
+    D -- No --> I[Rent Invoice Ready]
+    H --> I
+    I --> J[Tenant Receives Payable Notifications]
+    J --> K{Tenant Pays?}
+    K -- Full --> L[Mark Payable as PAID + Send Receipt]
+    K -- Partial --> M[Mark PARTIALLY_PAID + Keep Balance Open]
+    K -- No by Due Date --> N[Mark OVERDUE + Apply Late Fee Policy]
+    M --> O[Send Remaining Balance Reminder]
+    O --> K
+    N --> P[Escalate to Owner/Manager]
+    P --> K
+    L --> Q([Cycle Closed])
+```
+
+---
+
+## Preventive Operations Workflow
+
+```mermaid
+flowchart TD
+    A([Owner/Manager Defines Template]) --> B[Task Type + Checklist + Frequency + SLA]
+    B --> C[System Creates Recurring Task]
+    C --> D[Assignee Receives Reminder]
+    D --> E{Task Completed Before SLA?}
+    E -- Yes --> F[Submit Notes + Photos + Expense Evidence]
+    F --> G[Owner/Manager Reviews]
+    G --> H{Accepted?}
+    H -- Yes --> I[Task Closed + Audit Trail Updated]
+    H -- No --> J[Returned for Rework]
+    J --> D
+    E -- No --> K[Escalation Notification Triggered]
+    K --> L[Owner/Manager Reassigns or Extends SLA]
+    L --> D
+```
+
+---
+
 ## Cancellation and Refund Flow
 
 ```mermaid

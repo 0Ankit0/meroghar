@@ -164,7 +164,7 @@ Detailed descriptions of primary use cases in MeroGhar, specific to house, flat,
 |-----------|--------|
 | **Use Case ID** | UC-006 |
 | **Name** | Maintenance Request Lifecycle |
-| **Actor** | Landlord (logs/assigns/approves), Property Manager (executes) |
+| **Actor** | Tenant (logs), Landlord (assigns/approves), Property Manager (executes) |
 | **Description** | Full lifecycle of a property maintenance request from logging to resolution |
 | **Preconditions** | Landlord is authenticated; property exists |
 | **Postconditions** | Maintenance completed and approved; property returned to available; costs logged |
@@ -210,3 +210,86 @@ Detailed descriptions of primary use cases in MeroGhar, specific to house, flat,
 8. Tenant may accept or dispute within the configured window
 9. On acceptance (or after the dispute window): System processes the refund to the tenant's original payment method
 10. System records the settlement and generates a deposit statement
+
+---
+
+## UC-008: Monthly Rent Collection and Reminder Cycle
+
+| Attribute | Detail |
+|-----------|--------|
+| **Use Case ID** | UC-008 |
+| **Name** | Monthly Rent Collection and Reminder Cycle |
+| **Actor** | System (automated), Tenant (pays), Landlord/Property Manager (monitors) |
+| **Description** | Automated monthly rent cycle with reminders, payment tracking, and overdue escalation |
+| **Preconditions** | Tenancy is ACTIVE with monthly billing enabled |
+| **Postconditions** | Monthly invoice is PAID or marked OVERDUE with escalation timeline |
+
+**Main Flow:**
+1. System creates monthly rent invoice on configured billing date
+2. System sends reminder notifications to tenant based on configured cadence (e.g., 7, 3, and 1 day before due date)
+3. Tenant reviews invoice details and initiates payment
+4. Payment gateway confirms transaction via webhook
+5. System marks invoice as PAID and generates receipt
+6. System notifies tenant and landlord/property manager of successful payment
+7. Ledger and dashboard metrics update immediately
+
+**Alternative Flows:**
+- *A1 – Partial payment received*: System marks invoice PARTIALLY_PAID and keeps remaining balance active
+- *A2 – Due date missed*: System marks invoice OVERDUE, applies late-fee policy, and notifies tenant + owner/manager
+- *A3 – Payment failure*: System records failure reason and prompts tenant to retry with another method
+
+---
+
+## UC-009: Utility Bill Upload, Split, and Collection
+
+| Attribute | Detail |
+|-----------|--------|
+| **Use Case ID** | UC-009 |
+| **Name** | Utility Bill Upload, Split, and Collection |
+| **Actor** | Landlord/Property Manager (uploads and allocates), Tenant (pays) |
+| **Description** | Owner/manager uploads utility bill photos and assigns payable amounts to one or multiple tenants |
+| **Preconditions** | Property has one or more active tenants and billing permissions are available |
+| **Postconditions** | Tenant-level payable entries generated from bill split and tracked through payment completion |
+
+**Main Flow:**
+1. Owner/manager opens the property billing workspace and selects "Add Utility Bill"
+2. Owner/manager uploads bill photo/document and enters bill details (period, due date, total amount, notes)
+3. System stores attachment and validates required metadata
+4. Owner/manager chooses split mode:
+   - Single tenant assignment (100% to one tenant), or
+   - Multi-tenant split (equal, percentage-based, or custom fixed amount)
+5. System validates that assigned totals match the expected payable amount
+6. System generates tenant-level bill-share items and links the bill image
+7. Tenants receive notifications with payable amount, due date, and bill evidence
+8. Tenant opens payable item, reviews split basis + bill image, and completes payment
+9. System updates bill status (UNPAID → PARTIALLY_PAID/PAID) and notifies owner/manager
+
+**Alternative Flows:**
+- *A1 – Split mismatch*: System blocks save and requests correction before publishing
+- *A2 – Tenant raises dispute*: System opens bill dispute thread and pauses escalation until resolution
+- *A3 – Owner subsidy*: Owner/manager marks a portion as owner-paid and invoices only tenant-share amount
+
+---
+
+## UC-010: Preventive Operations and Property Upkeep Workflow
+
+| Attribute | Detail |
+|-----------|--------|
+| **Use Case ID** | UC-010 |
+| **Name** | Preventive Operations and Property Upkeep Workflow |
+| **Actor** | Landlord/Property Manager (plans), Staff/Contractor (executes) |
+| **Description** | Recurring operational workflows required to run rental properties, including inspections, meter readings, and compliance checks |
+| **Preconditions** | Property is active and operations templates are configured |
+| **Postconditions** | Task completed with evidence and audit trail available for reporting |
+
+**Main Flow:**
+1. Owner/manager configures recurring workflow template (task type, checklist, frequency, SLA, assignee)
+2. System auto-creates tasks for due cycle
+3. Assignee receives reminder notifications before due date
+4. Assignee performs task and submits checklist results with notes/photos
+5. Owner/manager reviews completion and closes task
+6. System logs completion history and updates property operations dashboard
+
+**Alternative Flows:**
+- *A1 – SLA missed*: System escalates overdue task to owner/manager
+- *A2 – Failed check item*: System creates follow-up maintenance request and links evidence

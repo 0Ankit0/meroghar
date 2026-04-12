@@ -165,11 +165,18 @@ The system will support:
 - Invoices shall include base rental fee, applicable taxes, and any additional charges
 - System shall support prorated billing for partial periods
 
+#### FR-PI-001A: Monthly Rent Schedule Management
+- System shall support a recurring monthly billing schedule for long-term tenancies
+- Landlords shall configure due date rules (e.g., 1st of each month, grace period, and late-fee start date)
+- System shall auto-generate month-wise rent ledger entries for the full tenancy period
+- System shall support partial-month move-in or move-out proration and clearly mark prorated invoices
+
 #### FR-PI-002: Payment Collection
 - Tenants shall pay via the platform (card, bank transfer, wallet, buy-now-pay-later)
 - System shall integrate multiple payment gateways
 - System shall collect security deposits as a separate hold or charge
 - System shall send payment confirmation receipts
+- System shall support partial payment handling where enabled by landlord policy, with remaining balance tracking
 
 #### FR-PI-003: Additional Charges
 - Landlords shall add post-tenancy charges (damage, late payment, cleaning)
@@ -185,6 +192,21 @@ The system will support:
 - System shall detect late rent payments and auto-calculate overdue fees per the property's configured late-payment policy
 - System shall notify both the tenant and landlord of a detected overdue payment
 - System shall apply the overdue fee to the tenant's outstanding balance
+
+#### FR-PI-007: Utility Bill Sharing and Split Collection
+- Landlords and property managers shall upload utility bills (electricity, water, internet, waste, society fees) with bill photo/document evidence
+- System shall extract/store bill metadata (billing period, due date, total amount, notes, and attachments)
+- Owner/manager shall assign the payable amount to one tenant (single-occupancy) or split across multiple tenants (fixed amount or percentage)
+- System shall validate split totals to ensure allocated payable amount equals the bill total (or configurable owner-subsidized amount)
+- System shall generate bill-share line items on tenant invoices and expose per-tenant payable history with attachment preview
+- Tenants shall see bill image, split basis, and payable amount before payment
+- System shall support bill-level dispute comments and resolution notes
+
+#### FR-PI-008: Payment Notifications and Reminders
+- System shall send pre-due reminders for monthly rent and bill-share payables (configurable cadence such as T-7, T-3, T-1 day)
+- System shall send real-time confirmation notifications on payment success/failure, with receipt links
+- System shall send escalation notifications for overdue balances to tenant, owner/manager, and optional backup contacts
+- System shall support reminder suppression once full payment is received
 
 #### FR-PI-006: Payout to Landlords
 - System shall calculate net payouts after platform commission deduction
@@ -220,11 +242,15 @@ The system will support:
 - Landlords, property managers, and tenants shall log maintenance requests for properties (damage, repairs, servicing)
 - System shall assign a unique request ID and notify relevant staff
 - System shall track the property's maintenance status without blocking availability unless critical
+- System shall support issue categorization (urgent safety, plumbing, electrical, appliance, structural, cleanliness) and severity scoring
+- Tenants shall be able to attach photos/videos and preferred visit time windows when creating a request
 
 #### FR-MS-002: Maintenance Assignment
 - Landlords shall assign requests to internal staff or external contractors
 - System shall track assignment acceptance and task status updates
 - Landlords shall approve completed maintenance before marking the property as serviced
+- System shall notify tenant of assignment, expected visit date, and completion updates
+- System shall maintain full request timeline including assignment, status changes, evidence, and sign-off
 
 #### FR-MS-003: Maintenance Scheduling
 - Landlords shall schedule preventive servicing (plumbing checks, electrical safety inspections, pest control)
@@ -234,6 +260,12 @@ The system will support:
 #### FR-MS-004: Maintenance Costs
 - Landlords shall log costs (labour, parts, contractor fees) against maintenance requests
 - Costs shall be included in property expense reports and financial summaries
+
+#### FR-MS-005: Preventive and Operational Workflows
+- System shall support recurring property operations workflows (routine inspection, meter reading, cleaning, compliance checks)
+- Owner/manager shall define workflow checklists, frequency, assignee, and completion SLA
+- System shall notify assignees before due time and escalate overdue tasks to owner/manager
+- System shall store completion evidence (photos, notes, invoices) for audit and reporting
 
 ---
 

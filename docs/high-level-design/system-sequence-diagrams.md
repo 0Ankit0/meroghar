@@ -131,6 +131,41 @@ sequenceDiagram
 
 ---
 
+## Owner Uploads Utility Bill and Publishes Tenant Splits
+
+```mermaid
+sequenceDiagram
+    actor Manager as Owner/Property Manager
+    participant Platform as MeroGhar
+    actor TenantA as Tenant A
+    actor TenantB as Tenant B
+
+    Manager->>Platform: POST /properties/{propertyId}/utility-bills { period, dueDate, totalAmount }
+    Platform-->>Manager: 201 { billId, status: DRAFT }
+
+    Manager->>Platform: POST /utility-bills/{billId}/attachments { image/pdf }
+    Platform-->>Manager: 201 Attachment stored
+
+    alt Single tenant occupancy
+        Manager->>Platform: POST /utility-bills/{billId}/splits { tenantA: 100% }
+    else Multiple tenants
+        Manager->>Platform: POST /utility-bills/{billId}/splits { tenantA: 60%, tenantB: 40% }
+    end
+    Platform->>Platform: Validate allocation total equals payable amount
+    Platform-->>Manager: 200 Split validated
+
+    Manager->>Platform: POST /utility-bills/{billId}/publish
+    Platform--)TenantA: Notification: bill-share payable created
+    Platform--)TenantB: Notification: bill-share payable created
+
+    TenantA->>Platform: POST /bill-shares/{id}/pay
+    TenantB->>Platform: POST /bill-shares/{id}/pay
+    Platform->>Platform: Update bill settlement status and ledger
+    Platform--)Manager: Notification: bill settlement progress updated
+```
+
+---
+
 ## Move-Out and Security Deposit Settlement
 
 ```mermaid
