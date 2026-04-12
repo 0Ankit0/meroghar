@@ -268,6 +268,66 @@ erDiagram
         decimal tax_amount
     }
 
+    invoice_reminders {
+        int id PK
+        int invoice_id FK
+        varchar reminder_type
+        datetime scheduled_for
+        datetime sent_at
+        varchar status
+        jsonb channel_status_json
+    }
+
+    utility_bills {
+        int id PK
+        int property_id FK
+        int created_by_user_id FK
+        varchar bill_type
+        varchar billing_period_label
+        date period_start
+        date period_end
+        date due_date
+        decimal total_amount
+        decimal owner_subsidy_amount
+        varchar status
+        text notes
+        datetime created_at
+        datetime published_at
+    }
+
+    utility_bill_attachments {
+        int id PK
+        int utility_bill_id FK
+        varchar file_url
+        varchar file_type
+        varchar checksum
+        datetime uploaded_at
+    }
+
+    utility_bill_splits {
+        int id PK
+        int utility_bill_id FK
+        int tenant_user_id FK
+        varchar split_method
+        decimal split_percent
+        decimal assigned_amount
+        decimal paid_amount
+        varchar status
+        datetime due_at
+        datetime paid_at
+    }
+
+    utility_bill_disputes {
+        int id PK
+        int utility_bill_split_id FK
+        int opened_by_user_id FK
+        varchar status
+        text reason
+        text resolution_notes
+        datetime opened_at
+        datetime resolved_at
+    }
+
     additional_charges {
         int id PK
         int booking_id FK
@@ -399,6 +459,20 @@ erDiagram
         datetime last_completed_at
     }
 
+    operations_tasks {
+        int id PK
+        int property_id FK
+        int template_service_id FK
+        int assigned_to_user_id FK
+        varchar task_type
+        varchar status
+        datetime due_at
+        datetime started_at
+        datetime completed_at
+        datetime escalated_at
+        text completion_notes
+    }
+
     reviews {
         int id PK
         int booking_id FK
@@ -464,6 +538,7 @@ erDiagram
     security_deposits ||--o{ deposit_deductions : has
 
     invoices ||--o{ invoice_line_items : contains
+    invoices ||--o{ invoice_reminders : schedules
     invoices ||--o{ payments : paid_by
 
     payments ||--o{ refunds : generates
@@ -472,6 +547,11 @@ erDiagram
     condition_assessments ||--o{ assessment_photos : has
 
     maintenance_requests ||--o{ maintenance_costs : has
+    preventive_services ||--o{ operations_tasks : generates
+    properties ||--o{ utility_bills : has
+    utility_bills ||--o{ utility_bill_attachments : has
+    utility_bills ||--o{ utility_bill_splits : allocates
+    utility_bill_splits ||--o{ utility_bill_disputes : disputed_by
 
     users ||--o{ notifications : receives
     users ||--o{ audit_logs : generates
@@ -487,6 +567,9 @@ erDiagram
 | Pricing rules | Separate table supports multiple rate tiers, peak windows, and per-quantity discounts per property |
 | Availability | `availability_blocks` are written on rental application and maintenance; calendar queries use date overlap checks |
 | Payments | `reference_type` + `reference_id` polymorphic pattern covers invoices, deposits, and additional charges |
+| Utility billing | `utility_bills` + `utility_bill_splits` support owner/manager bill upload, tenant payable allocation, and settlement tracking |
+| Reminders | `invoice_reminders` tracks scheduled and sent reminders across channels with delivery status for audits |
 | Assessments | Pre/post comparison done at application layer using two `condition_assessments` records per rental application |
+| Operations tasks | `preventive_services` templates generate `operations_tasks` instances with SLA and escalation timestamps |
 | Notifications | Persisted in DB for WebSocket fanout and in-app notification inbox |
 | Audit logs | Immutable append-only log for all user actions on financial and agreement entities |

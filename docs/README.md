@@ -36,9 +36,11 @@ MeroGhar enables:
 - Multi-device notification registry across Web Push, FCM, and OneSignal.
 - Property listing management with amenity attributes (bedrooms, bathrooms, floor area, furnishing status, parking, balcony).
 - Rental application and lease agreement lifecycle management.
+- Monthly rent collection workflows with configurable reminders, overdue handling, and receipts.
+- Utility bill sharing with bill-image upload and tenant-level payable split assignment (single-tenant or multi-tenant).
 - Move-in/move-out property inspection workflows with photo evidence.
 - Security deposit tracking and automated refund workflows.
-- Maintenance request management with status tracking.
+- Maintenance request and preventive operations workflows with assignment, SLA tracking, and evidence logging.
 - Shared backend, web, and mobile runtime capability discovery, including public general settings.
 - CI, environment, and release documentation for production deployment.
 

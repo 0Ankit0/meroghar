@@ -141,7 +141,9 @@ REST API design for MeroGhar. All endpoints are versioned under `/api/v1`. Authe
 | GET | `/invoices` | Landlord / Tenant | List invoices (scoped by role) |
 | GET | `/invoices/{invoiceId}` | Landlord / Tenant | Get invoice details with line items |
 | POST | `/invoices/{invoiceId}/pay` | Tenant | Pay an invoice |
+| POST | `/invoices/{invoiceId}/partial-pay` | Tenant | Make a partial payment when enabled |
 | GET | `/invoices/{invoiceId}/receipt` | Tenant | Download payment receipt |
+| GET | `/bookings/{bookingId}/rent-ledger` | Landlord / Tenant | Get monthly rent schedule and invoice status timeline |
 | POST | `/bookings/{bookingId}/additional-charges` | Landlord | Add a post-rental additional charge |
 | POST | `/additional-charges/{chargeId}/dispute` | Tenant | Dispute an additional charge |
 | GET | `/payouts` | Landlord | List landlord payouts |
@@ -170,17 +172,34 @@ REST API design for MeroGhar. All endpoints are versioned under `/api/v1`. Authe
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/maintenance-requests` | Landlord / Staff | List maintenance requests |
-| GET | `/maintenance-requests/{requestId}` | Landlord / Staff | Get request details |
-| POST | `/maintenance-requests` | Landlord | Log a new maintenance request |
-| PUT | `/maintenance-requests/{requestId}/assign` | Landlord | Assign to a staff member |
-| PUT | `/maintenance-requests/{requestId}/status` | Staff | Update task status |
-| POST | `/maintenance-requests/{requestId}/complete` | Staff | Submit completion with notes and photos |
-| POST | `/maintenance-requests/{requestId}/approve` | Landlord | Approve completed maintenance |
-| POST | `/maintenance-requests/{requestId}/reopen` | Landlord | Reopen the request |
-| POST | `/maintenance-requests/{requestId}/cost` | Landlord | Log maintenance cost |
-| GET | `/properties/{propertyId}/preventive-services` | Landlord | List preventive service tasks |
-| POST | `/properties/{propertyId}/preventive-services` | Landlord | Schedule a preventive service task |
+| GET | `/maintenance-requests` | Landlord / Staff / Tenant | List maintenance requests |
+| GET | `/maintenance-requests/{requestId}` | Landlord / Staff / Tenant | Get request details |
+| POST | `/maintenance-requests` | Landlord / Staff / Tenant | Log a new maintenance request |
+| POST | `/maintenance-requests/{requestId}/attachments` | Landlord / Staff / Tenant | Upload photos/videos for request evidence |
+| PUT | `/maintenance-requests/{requestId}/assign` | Landlord / Property Manager | Assign to a staff member |
+| PUT | `/maintenance-requests/{requestId}/status` | Staff / Property Manager | Update task status |
+| POST | `/maintenance-requests/{requestId}/complete` | Staff / Property Manager | Submit completion with notes and photos |
+| POST | `/maintenance-requests/{requestId}/approve` | Landlord / Property Manager | Approve completed maintenance |
+| POST | `/maintenance-requests/{requestId}/reopen` | Landlord / Property Manager | Reopen the request |
+| POST | `/maintenance-requests/{requestId}/cost` | Landlord / Property Manager | Log maintenance cost |
+| GET | `/properties/{propertyId}/preventive-services` | Landlord / Property Manager | List preventive service tasks |
+| POST | `/properties/{propertyId}/preventive-services` | Landlord / Property Manager | Schedule a preventive service task |
+
+---
+
+## Utility Billing & Split Endpoints
+
+| Method | Endpoint | Auth | Description |
+|--------|----------|------|-------------|
+| GET | `/properties/{propertyId}/utility-bills` | Landlord / Property Manager | List bills for property |
+| POST | `/properties/{propertyId}/utility-bills` | Landlord / Property Manager | Create utility bill with period, due date, and total |
+| POST | `/utility-bills/{billId}/attachments` | Landlord / Property Manager | Upload bill image/PDF evidence |
+| POST | `/utility-bills/{billId}/splits` | Landlord / Property Manager | Configure per-tenant split (single/equal/percentage/fixed) |
+| POST | `/utility-bills/{billId}/publish` | Landlord / Property Manager | Publish payable split entries to tenants |
+| GET | `/tenants/me/bill-shares` | Tenant | List payable utility bill shares |
+| POST | `/bill-shares/{billShareId}/pay` | Tenant | Pay assigned bill-share amount |
+| POST | `/bill-shares/{billShareId}/dispute` | Tenant | Raise dispute on bill-share |
+| GET | `/utility-bills/{billId}/history` | Landlord / Property Manager / Tenant | View bill status and settlement timeline |
 
 ---
 
