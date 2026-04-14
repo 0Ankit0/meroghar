@@ -48,4 +48,13 @@ class ApiEndpoints {
   static const String paymentProviders = '/payments/providers/';
   static const String paymentInitiate = '/payments/initiate/';
   static const String paymentVerify = '/payments/verify/';
+
+  // Listings
+  static const String categories = '/categories';
+  static String categoryById(String id) => '/categories/$id';
+  static const String assets = '/assets';
+  static String propertyById(String id) => '/properties/$id';
+  static String propertyAvailability(String id) =>
+      '/properties/$id/availability';
+  static String propertyPrice(String id) => '/properties/$id/price';
 }

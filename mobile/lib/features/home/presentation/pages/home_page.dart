@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import '../../../../core/constants/app_constants.dart';
+import '../../../auth/presentation/providers/auth_provider.dart';
+import '../../../listings/listing_access.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
 
-class HomeTab extends StatelessWidget {
+class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final roles = ref.watch(authNotifierProvider).valueOrNull?.user?.roles ??
+        const <String>[];
+    final showManageListings = canManageListings(roles);
+
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
       body: ListView(
@@ -22,11 +29,19 @@ class HomeTab extends StatelessWidget {
           ),
           const SizedBox(height: 12),
           _QuickAccessCard(
+            icon: Icons.travel_explore_outlined,
+            title: 'Search Listings',
+            subtitle: 'Browse homes, check availability, and preview quotes',
+            color: Colors.deepPurple,
+            onTap: () => context.go(AppConstants.listingsRoute),
+          ),
+          const SizedBox(height: 8),
+          _QuickAccessCard(
             icon: Icons.payment,
             title: 'Payments',
             subtitle: 'Khalti · eSewa · Pay & view history',
             color: Colors.indigo,
-            onTap: () => context.go('/home/payments'),
+            onTap: () => context.go(AppConstants.paymentsRoute),
           ),
           const SizedBox(height: 8),
           _QuickAccessCard(
@@ -34,8 +49,19 @@ class HomeTab extends StatelessWidget {
             title: 'Active Sessions',
             subtitle: 'View and revoke active tokens',
             color: Colors.teal,
-            onTap: () => context.go('/home/settings/tokens'),
+            onTap: () => context.go(AppConstants.tokensRoute),
           ),
+          if (showManageListings) ...[
+            const SizedBox(height: 8),
+            _QuickAccessCard(
+              icon: Icons.add_home_work_outlined,
+              title: 'Create Draft Listing',
+              subtitle:
+                  'Start a landlord draft with category and pricing basics',
+              color: Colors.orange,
+              onTap: () => context.go(AppConstants.manageListingsRoute),
+            ),
+          ],
         ],
       ),
     );

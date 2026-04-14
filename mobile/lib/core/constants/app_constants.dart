@@ -16,6 +16,11 @@ class AppConstants {
   static const String profileRoute = '/home/profile';
   static const String tokensRoute = '/home/settings/tokens';
   static const String paymentsRoute = '/home/payments';
+  static const String listingsRoute = '/home/listings';
+  static const String manageListingsRoute = '/home/listings/manage';
+
+  static String listingDetailRoute(String listingId) =>
+      '$listingsRoute/$listingId';
 
   // Social auth — the backend redirects here after OAuth; the WebView intercepts it
   static const String socialAuthCallbackPrefix = '/auth-callback';

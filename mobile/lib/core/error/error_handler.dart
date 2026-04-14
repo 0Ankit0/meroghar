@@ -14,6 +14,12 @@ class ErrorHandler {
           final data = error.response?.data;
           String message = 'An error occurred.';
           if (data is Map) {
+            final errorMap = data['error'];
+            if (errorMap is Map) {
+              message = errorMap['message']?.toString() ??
+                  errorMap['detail']?.toString() ??
+                  message;
+            }
             message = data['detail']?.toString() ??
                 data['message']?.toString() ??
                 message;

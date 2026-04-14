@@ -7,6 +7,7 @@ import {
   Bell,
   Settings,
   Building2,
+  Building,
   User,
   CreditCard,
   Key,
@@ -20,6 +21,7 @@ import { useAuthStore } from '@/store/auth-store';
 const mainNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Profile', href: '/profile', icon: User },
+  { name: 'Listings', href: '/listings', icon: Building, feature: 'listings' },
   { name: 'Tenants', href: '/tenants', icon: Building2, feature: 'multitenancy' },
   { name: 'Payments', href: '/finances', icon: CreditCard, feature: 'finance' },
   { name: 'Notifications', href: '/notifications', icon: Bell, feature: 'notifications' },
@@ -32,10 +34,16 @@ export function Sidebar() {
   const pathname = usePathname();
   const { data: capabilities } = useSystemCapabilities();
   const user = useAuthStore((state) => state.user);
-  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'Project Template';
+  const appName = process.env.NEXT_PUBLIC_APP_NAME ?? 'MeroGhar';
+  const canManageListings =
+    Boolean(user?.is_superuser) ||
+    !user?.roles?.length ||
+    user.roles.some((role) => /landlord|owner|admin/i.test(role));
 
   const visibleNavigation = mainNavigation.filter(
-    (item) => !item.feature || capabilities?.modules[item.feature] !== false
+    (item) =>
+      (!item.feature || capabilities?.modules[item.feature] !== false) &&
+      (item.href !== '/listings' || canManageListings)
   );
   const showAdminSwitch = Boolean(user?.is_superuser);
 

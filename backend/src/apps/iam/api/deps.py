@@ -25,11 +25,14 @@ async def get_db() -> AsyncGenerator[AsyncSession, None]:
     async for session in get_session():
         yield session
 
-async def get_current_user(
+
+async def _resolve_current_user(
     request: Request,
     credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(_bearer_scheme)],
-    db: Annotated[AsyncSession, Depends(get_db)]
-    ) -> User:
+    db: Annotated[AsyncSession, Depends(get_db)],
+    *,
+    require_token: bool,
+) -> User | None:
     # Prefer the Authorization: Bearer header (captured by HTTPBearer above),
     # fall back to the access_token cookie for browser-based clients.
     token: Optional[str] = credentials.credentials if credentials else None
@@ -37,11 +40,13 @@ async def get_current_user(
         token = request.cookies.get(settings.ACCESS_TOKEN_COOKIE)
 
     if not token:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",        
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+        if require_token:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Not authenticated",
+                headers={"WWW-Authenticate": "Bearer"},
+            )
+        return None
     
     try:
         payload = jwt.decode(
@@ -100,10 +105,38 @@ async def get_current_user(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="User is inactive"
         )
-
+    
     request.state.current_user_id = user.id
     set_log_context(user_id=user.id)
     return user
+
+
+async def get_current_user(
+    request: Request,
+    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(_bearer_scheme)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> User:
+    user = await _resolve_current_user(
+        request,
+        credentials,
+        db,
+        require_token=True,
+    )
+    assert user is not None
+    return user
+
+
+async def get_current_user_optional(
+    request: Request,
+    credentials: Annotated[Optional[HTTPAuthorizationCredentials], Depends(_bearer_scheme)],
+    db: Annotated[AsyncSession, Depends(get_db)],
+) -> User | None:
+    return await _resolve_current_user(
+        request,
+        credentials,
+        db,
+        require_token=False,
+    )
 
 async def get_current_active_superuser(
     current_user: User = Depends(get_current_user)
