@@ -1,6 +1,6 @@
 # Template Release Checklist
 
-Use this checklist when you are turning the boilerplate into a real project and want one last pass before treating it as your team’s base.
+Use this checklist when you are preparing the repository for release and want one last consistency pass across identity, feature scope, and operational readiness.
 
 ## Identity
 
@@ -32,6 +32,7 @@ Use this checklist when you are turning the boilerplate into a real project and 
 
 ## Reading Path
 
-- Read [docs/onboarding/project-orientation.md](docs/onboarding/project-orientation.md)
-- Read [docs/onboarding/template-finalization-checklist.md](docs/onboarding/template-finalization-checklist.md)
+- Read [docs/README.md](docs/README.md)
+- Read [docs/requirements/mvp-backlog-matrix.md](docs/requirements/mvp-backlog-matrix.md)
+- Read [docs/implementation/dependency-ordered-execution-plan.md](docs/implementation/dependency-ordered-execution-plan.md)
 - Read [docs/infrastructure/production-hardening-checklist.md](docs/infrastructure/production-hardening-checklist.md)

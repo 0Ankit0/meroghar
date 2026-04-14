@@ -254,6 +254,9 @@ class _NotificationsTab extends ConsumerWidget {
       final service = PushRegistrationService(repository);
       await service.sync(
         config: config,
+        providerPriority: [
+          if (config.provider != null && config.provider!.isNotEmpty) config.provider!,
+        ],
         existingDevices: devices,
         userId: user.id,
       );
@@ -652,7 +655,7 @@ class _RuntimeSettingsCard extends StatelessWidget {
   final AsyncValue<List<GeneralSetting>> settingsAsync;
 
   static const Map<String, String> _labels = {
-    'PROJECT_NAME': 'Project',
+    'PROJECT_NAME': 'Project Name',
     'FEATURE_AUTH': 'Auth',
     'FEATURE_MULTITENANCY': 'Multitenancy',
     'FEATURE_NOTIFICATIONS': 'Notifications',

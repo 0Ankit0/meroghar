@@ -14,7 +14,7 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final themeMode = ref.watch(themeModeProvider);
-    final appName = dotenv.env['PROJECT_NAME'] ?? 'Project Template';
+    final appName = dotenv.env['PROJECT_NAME'] ?? 'MeroGhar';
 
     return MaterialApp.router(
       title: appName,

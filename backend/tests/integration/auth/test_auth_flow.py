@@ -3,7 +3,7 @@ from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlmodel import select
 
-from src.apps.iam.models.user import User
+from src.apps.iam.models.user import User, UserProfile
 
 
 class TestCompleteAuthenticationFlow:
@@ -43,9 +43,13 @@ class TestCompleteAuthenticationFlow:
         assert user.is_active is True
         
         # Verify profile was created
-        assert user.profile is not None
-        assert user.profile.first_name == "Life"
-        assert user.profile.last_name == "Cycle"
+        profile_result = await db_session.execute(
+            select(UserProfile).where(UserProfile.user_id == user.id)
+        )
+        profile = profile_result.scalars().first()
+        assert profile is not None
+        assert profile.first_name == "Life"
+        assert profile.last_name == "Cycle"
         
         # Step 2: Login with credentials
         login_response = await client.post(

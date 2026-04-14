@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Fastapi Template',
-  description: 'Modern Fastapi Template platform',
+  title: 'MeroGhar',
+  description: 'Modern property rental platform for landlords, tenants, and property managers.',
 };
 
 export default function RootLayout({

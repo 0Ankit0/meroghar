@@ -1,6 +1,6 @@
-# FastAPI Template
+# MeroGhar
 
-A reusable full-stack template with FastAPI, Next.js, and Flutter, built around feature flags, pluggable providers, and reusable project documentation.
+A full-stack property rental platform built with FastAPI, Next.js, and Flutter, with feature flags, pluggable providers, and capability-driven clients.
 
 The project is designed so that most customization starts with configuration and capability discovery, not code forks. The backend is the source of truth for enabled modules, active providers, public runtime settings, and operational behavior.
 
@@ -16,13 +16,13 @@ The project is designed so that most customization starts with configuration and
 
 ## Quick Start
 
-1. Review [docs/README.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/README.md).
-2. Run `make setup`.
-3. Read [project-orientation.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/onboarding/project-orientation.md), [configuration-management.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/onboarding/configuration-management.md), [template-finalization-checklist.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/docs/onboarding/template-finalization-checklist.md), and [TEMPLATE_RELEASE_CHECKLIST.md](/Users/ankit/Projects/Python/fastapi/fastapi_template/TEMPLATE_RELEASE_CHECKLIST.md).
+1. Review [docs/README.md](docs/README.md).
+2. Read [docs/requirements/requirements.md](docs/requirements/requirements.md), [docs/requirements/mvp-backlog-matrix.md](docs/requirements/mvp-backlog-matrix.md), [docs/implementation/dependency-ordered-execution-plan.md](docs/implementation/dependency-ordered-execution-plan.md), and [TEMPLATE_RELEASE_CHECKLIST.md](TEMPLATE_RELEASE_CHECKLIST.md).
+3. Run `make setup`.
 4. Start local dependencies with `make infra-up`.
 5. Run migrations with `make backend-migrate`.
 6. Start the apps with `make backend-dev`, `make frontend-dev`, and `make mobile-dev`.
-7. Verify the starter with `make health-check` and `make ci`.
+7. Verify the baseline with `make health-check` and `make ci`.
 
 ## Validation
 

@@ -12,12 +12,9 @@
 - `edge-cases/` — failure modes and operational concerns specific to property rental.
 - `implementation/` — build, rollout, and testing playbooks.
 - `implementation/dependency-ordered-execution-plan.md` — phase-gated plan from bootstrap through production launch.
-- `onboarding/` — helps teams bootstrap a fresh project from the template.
-- `onboarding/project-orientation.md` — explains how the whole project fits together before you start changing it.
 - `implementation/working-principles.md` — explains the design rules the platform follows.
-- `onboarding/configuration-management.md` — explains how configuration moves through backend, web, and mobile.
-- `onboarding/modifying-the-template.md` — safe process for future modifications.
-- `onboarding/template-finalization-checklist.md` — handoff checklist for turning the starter into a production platform.
+- `requirements/mvp-backlog-matrix.md` — prioritized engineering scope and traceability for the documented features.
+- `implementation/implementation-playbook.md` — operator checklist for bring-up and verification.
 - `infrastructure/production-hardening-checklist.md` — deployment reviews that belong to each downstream project.
 
 ## Platform Overview
@@ -47,18 +44,15 @@ MeroGhar enables:
 ## Getting Started
 
 1. Read [requirements/requirements.md](requirements/requirements.md).
-2. Read [onboarding/project-orientation.md](onboarding/project-orientation.md).
-3. Follow [onboarding/local-setup.md](onboarding/local-setup.md).
-4. Understand config flow with [onboarding/configuration-management.md](onboarding/configuration-management.md).
-5. Follow [onboarding/template-finalization-checklist.md](onboarding/template-finalization-checklist.md) before you start deleting or renaming features.
-6. Configure providers using [onboarding/provider-configuration.md](onboarding/provider-configuration.md).
-7. Choose enabled modules and environment profile from [infrastructure/environment-configuration.md](infrastructure/environment-configuration.md).
-8. Understand authorization flow with [implementation/casbin-rbac.md](implementation/casbin-rbac.md).
-9. Validate docs with `python3 scripts/validate_documentation.py`.
+2. Read [requirements/mvp-backlog-matrix.md](requirements/mvp-backlog-matrix.md).
+3. Read [implementation/dependency-ordered-execution-plan.md](implementation/dependency-ordered-execution-plan.md).
+4. Use [implementation/implementation-playbook.md](implementation/implementation-playbook.md) and [infrastructure/environment-configuration.md](infrastructure/environment-configuration.md) to shape runtime setup.
+5. Understand authorization flow with [implementation/casbin-rbac.md](implementation/casbin-rbac.md).
+6. Validate docs with `python3 scripts/validate_documentation.py`.
 
 ## Documentation Status
 
-- Phase coverage: requirements, analysis, design, infrastructure, edge cases, implementation, onboarding.
+- Phase coverage: requirements, analysis, design, infrastructure, edge cases, implementation.
 - Diagram coverage: Mermaid-based system, process, architecture, and deployment views (all house-rental specific).
 - Validation coverage: enforced by `scripts/validate_documentation.py`.
 - Current status: MeroGhar platform documentation — fully converted from generic rental template to house/property rental domain.

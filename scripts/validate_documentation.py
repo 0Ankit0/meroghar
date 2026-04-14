@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate template documentation completeness and minimum quality."""
+"""Validate project documentation completeness and minimum quality."""
 
 from __future__ import annotations
 
@@ -73,35 +73,9 @@ REQUIRED_FILES = {
         "test-strategy.md",
         "release-checklist.md",
     ],
-    "onboarding": [
-        "local-setup.md",
-        "provider-configuration.md",
-        "configuration-management.md",
-        "environment-profiles.md",
-        "deployment.md",
-        "project-orientation.md",
-        "start-a-new-project.md",
-        "modifying-the-template.md",
-        "template-finalization-checklist.md",
-    ],
 }
 
 REQUIRED_DOC_HEADINGS = {
-    "docs/onboarding/project-orientation.md": [
-        "What This Template Is",
-        "The Configuration Flow",
-        "Recommended Reading Order",
-    ],
-    "docs/onboarding/local-setup.md": [
-        "Bootstrap Workflow",
-        "Run The Applications",
-        "Validate The Starter",
-    ],
-    "docs/onboarding/template-finalization-checklist.md": [
-        "Before You Rename Anything",
-        "Configuration Review",
-        "Production Readiness Review",
-    ],
     "docs/infrastructure/production-hardening-checklist.md": [
         "Secrets",
         "Network and Proxy Trust",
