@@ -21,5 +21,5 @@ class AvailabilityBlock(SQLModel, table=True):
     start_at: datetime = Field(index=True)
     end_at: datetime = Field(index=True)
     reason: str = Field(default="", max_length=500)
-    booking_id: int | None = Field(default=None)
+    booking_id: int | None = Field(default=None, foreign_key="bookings.id", index=True)
     maintenance_request_id: int | None = Field(default=None)

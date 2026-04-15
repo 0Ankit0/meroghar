@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   Sparkles,
 } from 'lucide-react';
+import { BookingRequestForm } from '@/components/bookings/booking-request-form';
 import { Button, Input, Skeleton } from '@/components/ui';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useProperty, usePropertyAvailability, usePropertyPriceQuote } from '@/hooks/use-properties';
@@ -360,9 +361,27 @@ export default function PropertyDetailPage({
                   </span>
                 </div>
                 <div className="rounded-2xl border border-blue-100 bg-blue-50 px-4 py-3 text-sm text-blue-700">
-                  Rental applications ship in the next slice. This page focuses on discovery, pricing,
-                  and availability.
+                  After you submit a stay request, you can track approval, agreement, and return
+                  workflow updates from the bookings dashboard.
                 </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-xl">Request this stay</CardTitle>
+                <CardDescription>
+                  Submit a booking request with the currently quoted dates and payment method.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BookingRequestForm
+                  propertyId={property.id}
+                  propertyName={property.name}
+                  startAt={quoteWindow.start}
+                  endAt={quoteWindow.end}
+                  quote={quote}
+                />
               </CardContent>
             </Card>
           </div>

@@ -1,12 +1,17 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
+import '../../../../core/constants/app_constants.dart';
 import '../../../../core/error/error_handler.dart';
+import '../../../applications/data/models/create_booking_request.dart';
+import '../../../applications/presentation/providers/booking_provider.dart';
 import '../../data/models/listing_availability.dart';
 import '../../data/models/listing_detail.dart';
 import '../../data/models/listing_search.dart';
 import '../../data/models/pricing_quote.dart';
+import '../../../payments/presentation/providers/payment_provider.dart';
 import '../providers/listing_provider.dart';
 
 class ListingDetailPage extends ConsumerStatefulWidget {
@@ -156,10 +161,10 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _SectionCard(
-                      title: 'Quote for selected period',
-                      child: _PricingQuotePanel(
-                        quoteAsync: quoteAsync,
+                     _SectionCard(
+                       title: 'Quote for selected period',
+                       child: _PricingQuotePanel(
+                         quoteAsync: quoteAsync,
                         selectedPeriod: selectedPeriod,
                         onRetry: () => ref.invalidate(
                           listingPricingQuoteProvider((
@@ -167,6 +172,16 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                             period: selectedPeriod,
                           )),
                         ),
+                       ),
+                     ),
+                    const SizedBox(height: 16),
+                    _SectionCard(
+                      title: 'Request this stay',
+                      child: _ApplicationRequestPanel(
+                        listingId: widget.listingId,
+                        listingTitle: detail.title,
+                        selectedPeriod: selectedPeriod,
+                        quoteAsync: quoteAsync,
                       ),
                     ),
                     if (detail.attributes.isNotEmpty ||
@@ -177,24 +192,6 @@ class _ListingDetailPageState extends ConsumerState<ListingDetailPage> {
                         child: _DetailsWrap(detail: detail),
                       ),
                     ],
-                    const SizedBox(height: 16),
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16),
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Icon(Icons.info_outline),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'Mobile application and lease flows are intentionally kept for a later slice. This page focuses on discovery, live availability, and pricing clarity.',
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -759,6 +756,266 @@ class _InlineError extends StatelessWidget {
       ],
     );
   }
+}
+
+class _ApplicationRequestPanel extends ConsumerStatefulWidget {
+  final String listingId;
+  final String listingTitle;
+  final ListingDateRange selectedPeriod;
+  final AsyncValue<PricingQuote?> quoteAsync;
+
+  const _ApplicationRequestPanel({
+    required this.listingId,
+    required this.listingTitle,
+    required this.selectedPeriod,
+    required this.quoteAsync,
+  });
+
+  @override
+  ConsumerState<_ApplicationRequestPanel> createState() =>
+      _ApplicationRequestPanelState();
+}
+
+class _ApplicationRequestPanelState
+    extends ConsumerState<_ApplicationRequestPanel> {
+  final _specialRequestsController = TextEditingController();
+  String? _selectedPaymentProvider;
+  bool _submitting = false;
+
+  @override
+  void dispose() {
+    _specialRequestsController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submitApplication({
+    required PricingQuote quote,
+    required String paymentMethodId,
+  }) async {
+    if (!widget.selectedPeriod.isComplete) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Select dates before requesting this stay.'),
+        ),
+      );
+      return;
+    }
+
+    setState(() => _submitting = true);
+    try {
+      final booking = await ref.read(bookingRepositoryProvider).createBooking(
+            CreateBookingRequest(
+              propertyId: widget.listingId,
+              rentalStartAt: widget.selectedPeriod.start!,
+              rentalEndAt: widget.selectedPeriod.end!,
+              specialRequests: _specialRequestsController.text.trim(),
+              paymentMethodId: paymentMethodId,
+              idempotencyKey:
+                  'mobile-${widget.listingId}-${DateTime.now().millisecondsSinceEpoch}',
+            ),
+          );
+      ref.invalidate(bookingsProvider);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Application submitted for ${widget.listingTitle}.',
+          ),
+        ),
+      );
+      context.push(AppConstants.applicationDetailRoute(booking.id));
+    } catch (error) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(ErrorHandler.handle(error).message),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() => _submitting = false);
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final canSubmit = ref.watch(canSubmitApplicationsProvider);
+    final paymentProvidersAsync = ref.watch(paymentProvidersProvider);
+
+    if (!canSubmit) {
+      return const Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.info_outline),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Stay requests and lease signing on mobile are designed for tenant accounts. Manager and landlord workflows stay on the website.',
+            ),
+          ),
+        ],
+      );
+    }
+
+    if (!widget.selectedPeriod.isComplete) {
+      return const Text(
+        'Choose your stay dates above to unlock the booking request form.',
+      );
+    }
+
+    return widget.quoteAsync.when(
+      loading: () => const Padding(
+        padding: EdgeInsets.symmetric(vertical: 8),
+        child: Center(child: CircularProgressIndicator.adaptive()),
+      ),
+      error: (error, _) => _InlineError(
+        message: ErrorHandler.handle(error).message,
+        onRetry: () {
+          ref.invalidate(
+            listingPricingQuoteProvider((
+              listingId: widget.listingId,
+              period: widget.selectedPeriod,
+            )),
+          );
+        },
+      ),
+      data: (quote) {
+        if (quote == null) {
+          return const Text(
+            'A pricing quote is required before you can submit an application.',
+          );
+        }
+
+        return paymentProvidersAsync.when(
+          loading: () => const Padding(
+            padding: EdgeInsets.symmetric(vertical: 8),
+            child: Center(child: CircularProgressIndicator.adaptive()),
+          ),
+          error: (error, _) => Text(
+            ErrorHandler.handle(error).message,
+            style: TextStyle(color: Theme.of(context).colorScheme.error),
+          ),
+          data: (providers) {
+            final availableProviders = providers.isNotEmpty
+                ? providers
+                : const <String>['manual_review'];
+            final selectedProvider =
+                availableProviders.contains(_selectedPaymentProvider) &&
+                        _selectedPaymentProvider != null
+                    ? _selectedPaymentProvider!
+                    : availableProviders.first;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${widget.selectedPeriod.label} · ${widget.selectedPeriod.totalDays} day${widget.selectedPeriod.totalDays == 1 ? '' : 's'}',
+                ),
+                const SizedBox(height: 12),
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    children: [
+                      _AmountRow(
+                        label: 'Due now',
+                        amount: quote.totalDueNow,
+                        currency: quote.currency,
+                        emphasize: true,
+                      ),
+                      if (quote.depositAmount != 0) ...[
+                        const SizedBox(height: 8),
+                        _AmountRow(
+                          label: 'Security deposit',
+                          amount: quote.depositAmount,
+                          currency: quote.currency,
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DropdownButtonFormField<String>(
+                  key: ValueKey(selectedProvider),
+                  initialValue: selectedProvider,
+                  decoration: const InputDecoration(
+                    labelText: 'Payment method',
+                    border: OutlineInputBorder(),
+                    prefixIcon: Icon(Icons.account_balance_wallet_outlined),
+                  ),
+                  items: availableProviders
+                      .map(
+                        (provider) => DropdownMenuItem<String>(
+                          value: provider,
+                          child: Text(_humanizeProvider(provider)),
+                        ),
+                      )
+                      .toList(),
+                  onChanged: _submitting
+                      ? null
+                      : (value) =>
+                          setState(() => _selectedPaymentProvider = value),
+                ),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _specialRequestsController,
+                  minLines: 3,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Special requests',
+                    hintText:
+                        'Move-in notes, furnishing requests, or other context',
+                    border: OutlineInputBorder(),
+                    alignLabelWithHint: true,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                FilledButton.icon(
+                  onPressed: _submitting
+                      ? null
+                      : () => _submitApplication(
+                            quote: quote,
+                            paymentMethodId: selectedProvider,
+                          ),
+                  icon: _submitting
+                      ? const SizedBox(
+                          height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(Icons.send_outlined),
+                  label: Text(
+                    'Submit request · ${_formatCurrency(quote.totalDueNow, quote.currency)}',
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _humanizeProvider(String value) {
+    return value
+        .replaceAll(RegExp(r'[_-]+'), ' ')
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map((part) => '${part[0].toUpperCase()}${part.substring(1)}')
+        .join(' ');
+  }
+}
+
+String _formatCurrency(double amount, String currency) {
+  final rounded = amount % 1 == 0 ? amount.toStringAsFixed(0) : amount.toStringAsFixed(2);
+  return '$currency $rounded';
 }
 
 class _AmountRow extends StatelessWidget {

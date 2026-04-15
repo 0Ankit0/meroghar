@@ -20,6 +20,7 @@ from src.apps.listings.api import listings_router
 from src.apps.search.api import search_router
 from src.apps.pricing.api import pricing_router
 from src.apps.availability.api import availability_router
+from src.apps.bookings.api import bookings_router
 from src.db.session import engine, init_db
 from src.apps.iam.casbin_enforcer import CasbinEnforcer
 from src.apps.websocket.api import ws_router
@@ -142,6 +143,7 @@ app.include_router(search_router, prefix=settings.API_V1_STR)
 app.include_router(listings_router, prefix=settings.API_V1_STR)
 app.include_router(pricing_router, prefix=settings.API_V1_STR)
 app.include_router(availability_router, prefix=settings.API_V1_STR)
+app.include_router(bookings_router, prefix=settings.API_V1_STR)
 if settings.FEATURE_WEBSOCKETS:
     app.include_router(ws_router, prefix=settings.API_V1_STR)
 if settings.FEATURE_NOTIFICATIONS:

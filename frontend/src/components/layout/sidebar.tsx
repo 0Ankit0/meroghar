@@ -8,6 +8,7 @@ import {
   Settings,
   Building2,
   Building,
+  ClipboardList,
   User,
   CreditCard,
   Key,
@@ -16,12 +17,14 @@ import {
 } from 'lucide-react';
 import { OrgSwitcher } from './org-switcher';
 import { useSystemCapabilities } from '@/hooks/use-system';
+import { hasBookingViewAccess } from '@/lib/bookings';
 import { useAuthStore } from '@/store/auth-store';
 
 const mainNavigation = [
   { name: 'Dashboard', href: '/dashboard', icon: Home },
   { name: 'Profile', href: '/profile', icon: User },
   { name: 'Listings', href: '/listings', icon: Building, feature: 'listings' },
+  { name: 'Bookings', href: '/bookings', icon: ClipboardList },
   { name: 'Tenants', href: '/tenants', icon: Building2, feature: 'multitenancy' },
   { name: 'Payments', href: '/finances', icon: CreditCard, feature: 'finance' },
   { name: 'Notifications', href: '/notifications', icon: Bell, feature: 'notifications' },
@@ -39,11 +42,13 @@ export function Sidebar() {
     Boolean(user?.is_superuser) ||
     !user?.roles?.length ||
     user.roles.some((role) => /landlord|owner|admin/i.test(role));
+  const canViewBookings = hasBookingViewAccess(user?.roles, user?.is_superuser);
 
   const visibleNavigation = mainNavigation.filter(
     (item) =>
       (!item.feature || capabilities?.modules[item.feature] !== false) &&
-      (item.href !== '/listings' || canManageListings)
+      (item.href !== '/listings' || canManageListings) &&
+      (item.href !== '/bookings' || canViewBookings)
   );
   const showAdminSwitch = Boolean(user?.is_superuser);
 

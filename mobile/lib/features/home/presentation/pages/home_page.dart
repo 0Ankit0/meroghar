@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/constants/app_constants.dart';
+import '../../../applications/application_access.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../listings/listing_access.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
@@ -14,6 +15,7 @@ class HomeTab extends ConsumerWidget {
     final roles = ref.watch(authNotifierProvider).valueOrNull?.user?.roles ??
         const <String>[];
     final showManageListings = canManageListings(roles);
+    final showApplications = canViewApplications(roles);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
@@ -35,6 +37,16 @@ class HomeTab extends ConsumerWidget {
             color: Colors.deepPurple,
             onTap: () => context.go(AppConstants.listingsRoute),
           ),
+          if (showApplications) ...[
+            const SizedBox(height: 8),
+            _QuickAccessCard(
+              icon: Icons.assignment_outlined,
+              title: 'My Applications',
+              subtitle: 'Track approvals, lease signing, and move-out updates',
+              color: Colors.blue,
+              onTap: () => context.go(AppConstants.applicationsRoute),
+            ),
+          ],
           const SizedBox(height: 8),
           _QuickAccessCard(
             icon: Icons.payment,

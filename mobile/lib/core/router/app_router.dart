@@ -6,7 +6,11 @@ import '../../features/auth/presentation/pages/forgot_password_page.dart';
 import '../../features/auth/presentation/pages/otp_verify_page.dart';
 import '../../features/auth/presentation/pages/reset_password_page.dart';
 import '../../features/auth/presentation/providers/auth_provider.dart';
+import '../../features/applications/application_access.dart';
+import '../../features/applications/presentation/pages/applications_page.dart';
+import '../../features/applications/presentation/pages/booking_detail_page.dart';
 import '../../features/home/presentation/pages/home_page.dart';
+import '../../features/lease/presentation/pages/lease_agreement_page.dart';
 import '../../features/listings/listing_access.dart';
 import '../../features/listings/presentation/pages/listing_detail_page.dart';
 import '../../features/listings/presentation/pages/listing_search_page.dart';
@@ -48,6 +52,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       if (location == AppConstants.manageListingsRoute &&
           !canManageListings(roles)) {
         return AppConstants.listingsRoute;
+      }
+      if (location.startsWith(AppConstants.applicationsRoute) &&
+          !canViewApplications(roles)) {
+        return AppConstants.homeRoute;
       }
       return null;
     },
@@ -108,6 +116,27 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                         builder: (context, state) => ListingDetailPage(
                           listingId: state.pathParameters['listingId'] ?? '',
                         ),
+                      ),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'applications',
+                    builder: (context, state) => const ApplicationsPage(),
+                    routes: [
+                      GoRoute(
+                        path: ':bookingId',
+                        builder: (context, state) => BookingDetailPage(
+                          bookingId: state.pathParameters['bookingId'] ?? '',
+                        ),
+                        routes: [
+                          GoRoute(
+                            path: 'lease',
+                            builder: (context, state) => LeaseAgreementPage(
+                              bookingId:
+                                  state.pathParameters['bookingId'] ?? '',
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),

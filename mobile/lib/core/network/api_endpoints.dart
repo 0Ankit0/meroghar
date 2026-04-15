@@ -57,4 +57,18 @@ class ApiEndpoints {
   static String propertyAvailability(String id) =>
       '/properties/$id/availability';
   static String propertyPrice(String id) => '/properties/$id/price';
+
+  // Applications / bookings
+  static const String bookings = '/bookings';
+  static String bookingById(String id) => '/bookings/$id';
+  static String bookingConfirm(String id) => '/bookings/$id/confirm';
+  static String bookingDecline(String id) => '/bookings/$id/decline';
+  static String bookingCancel(String id) => '/bookings/$id/cancel';
+  static String bookingReturn(String id) => '/bookings/$id/return';
+  static String bookingEvents(String id) => '/bookings/$id/events';
+  static String bookingAgreement(String id) => '/bookings/$id/agreement';
+  static String bookingAgreementSend(String id) =>
+      '/bookings/$id/agreement/send';
+  static String bookingAgreementCountersign(String id) =>
+      '/bookings/$id/agreement/countersign';
 }
