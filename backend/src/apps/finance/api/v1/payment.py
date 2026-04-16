@@ -148,6 +148,9 @@ async def verify_payment(
     provider_svc = _get_provider(request_body.provider)
     try:
         result = await provider_svc.verify_payment(request_body, db)
+        from src.apps.invoicing.services.invoices import reconcile_payment_transaction
+
+        await reconcile_payment_transaction(db, result.transaction_id)
         from src.apps.finance.models.payment import PaymentStatus
         event = (
             PaymentEvents.PAYMENT_COMPLETED

@@ -42,6 +42,8 @@ async def init_db():
     import src.apps.pricing.models  # noqa: F401
     import src.apps.availability.models  # noqa: F401
     import src.apps.bookings.models  # noqa: F401
+    import src.apps.invoicing.models  # noqa: F401
+    import src.apps.utility_billing.models  # noqa: F401
     import src.apps.websocket.models  # noqa: F401
     import src.apps.observability.models  # noqa: F401
 

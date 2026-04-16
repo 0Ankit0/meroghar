@@ -4,22 +4,15 @@ import 'package:webview_flutter/webview_flutter.dart';
 import '../../data/models/payment.dart';
 import '../providers/payment_provider.dart';
 
-/// Callback result passed back when payment completes or fails.
 class PaymentResult {
   final bool success;
   final String message;
   final VerifyPaymentResponse? response;
 
-  const PaymentResult({required this.success, required this.message, this.response});
+  const PaymentResult(
+      {required this.success, required this.message, this.response});
 }
 
-/// Full-screen WebView for both Khalti and eSewa payments.
-///
-/// Khalti: loads the [paymentUrl] directly.
-/// eSewa: builds an HTML auto-submit form from [esewaFormFields] and [esewaFormAction].
-///
-/// Intercepts navigation to [callbackUrlPrefix] and extracts query params
-/// to verify the payment via the backend.
 class PaymentWebViewPage extends ConsumerStatefulWidget {
   final PaymentProvider provider;
   final String? paymentUrl;
@@ -50,27 +43,45 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
     super.initState();
     _controller = WebViewController()
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setNavigationDelegate(NavigationDelegate(
-        onPageStarted: (_) => setState(() => _loading = true),
-        onPageFinished: (_) => setState(() => _loading = false),
-        onNavigationRequest: _onNavRequest,
-      ));
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onPageStarted: (_) => setState(() => _loading = true),
+          onPageFinished: (_) => setState(() => _loading = false),
+          onNavigationRequest: _onNavRequest,
+        ),
+      );
 
     if (widget.provider == PaymentProvider.esewa) {
       _loadEsewaForm();
-    } else {
-      _controller.loadRequest(Uri.parse(widget.paymentUrl!));
+      return;
     }
+
+    final paymentUrl = widget.paymentUrl;
+    if (paymentUrl == null || paymentUrl.trim().isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        Navigator.of(context).pop(
+          const PaymentResult(
+            success: false,
+            message: 'Payment URL is unavailable for this checkout.',
+          ),
+        );
+      });
+      return;
+    }
+
+    _controller.loadRequest(Uri.parse(paymentUrl));
   }
 
-  /// Builds an HTML page with a hidden form and auto-submits it for eSewa.
   void _loadEsewaForm() {
     final action = widget.esewaFormAction ??
         'https://rc-epay.esewa.com.np/api/epay/main/v2/form';
     final fields = widget.esewaFormFields ?? {};
     final inputs = fields.entries
-        .map((e) =>
-            '<input type="hidden" name="${e.key}" value="${e.value}" />')
+        .map(
+          (entry) =>
+              '<input type="hidden" name="${entry.key}" value="${entry.value}" />',
+        )
         .join('\n');
 
     final html = '''
@@ -106,23 +117,8 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
     final repo = ref.read(paymentRepositoryProvider);
 
     try {
-      VerifyPaymentRequest verifyReq;
-      if (widget.provider == PaymentProvider.khalti) {
-        final pidx = uri.queryParameters['pidx'];
-        verifyReq = VerifyPaymentRequest(
-          provider: PaymentProvider.khalti,
-          pidx: pidx,
-        );
-      } else {
-        // eSewa sends base64-encoded `data` param
-        final data = uri.queryParameters['data'];
-        verifyReq = VerifyPaymentRequest(
-          provider: PaymentProvider.esewa,
-          data: data,
-        );
-      }
-
-      final result = await repo.verifyPayment(verifyReq);
+      final verifyRequest = _buildVerifyRequest(uri);
+      final result = await repo.verifyPayment(verifyRequest);
       if (!mounted) return;
       Navigator.of(context).pop(
         PaymentResult(
@@ -133,11 +129,37 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
           response: result,
         ),
       );
-    } catch (e) {
+    } catch (error) {
       if (!mounted) return;
       Navigator.of(context).pop(
-        PaymentResult(success: false, message: e.toString()),
+        PaymentResult(success: false, message: error.toString()),
       );
+    }
+  }
+
+  VerifyPaymentRequest _buildVerifyRequest(Uri uri) {
+    switch (widget.provider) {
+      case PaymentProvider.khalti:
+        return VerifyPaymentRequest(
+          provider: PaymentProvider.khalti,
+          pidx: uri.queryParameters['pidx'],
+        );
+      case PaymentProvider.esewa:
+        return VerifyPaymentRequest(
+          provider: PaymentProvider.esewa,
+          data: uri.queryParameters['data'],
+        );
+      case PaymentProvider.stripe:
+        return VerifyPaymentRequest(
+          provider: PaymentProvider.stripe,
+          pidx: uri.queryParameters['session_id'],
+        );
+      case PaymentProvider.paypal:
+        return VerifyPaymentRequest(
+          provider: PaymentProvider.paypal,
+          pidx: uri.queryParameters['paymentId'],
+          oid: uri.queryParameters['PayerID'],
+        );
     }
   }
 
@@ -145,7 +167,7 @@ class _PaymentWebViewPageState extends ConsumerState<PaymentWebViewPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('${widget.provider.displayName} Payment'),
+        title: Text('${widget.provider.displayName} checkout'),
         leading: IconButton(
           icon: const Icon(Icons.close),
           onPressed: () => Navigator.of(context).pop(

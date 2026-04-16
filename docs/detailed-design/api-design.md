@@ -146,6 +146,7 @@ REST API design for MeroGhar. All endpoints are versioned under `/api/v1`. Authe
 | GET | `/bookings/{bookingId}/rent-ledger` | Landlord / Tenant | Get monthly rent schedule and invoice status timeline |
 | POST | `/bookings/{bookingId}/additional-charges` | Landlord | Add a post-rental additional charge |
 | POST | `/additional-charges/{chargeId}/dispute` | Tenant | Dispute an additional charge |
+| POST | `/additional-charges/{chargeId}/resolve` | Landlord / Admin | Accept, partially accept, or waive a disputed charge |
 | GET | `/payouts` | Landlord | List landlord payouts |
 | GET | `/payouts/{payoutId}` | Landlord | Get payout details |
 | POST | `/webhooks/payment` | Internal | Payment gateway webhook receiver |
@@ -191,15 +192,16 @@ REST API design for MeroGhar. All endpoints are versioned under `/api/v1`. Authe
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| GET | `/properties/{propertyId}/utility-bills` | Landlord / Property Manager | List bills for property |
-| POST | `/properties/{propertyId}/utility-bills` | Landlord / Property Manager | Create utility bill with period, due date, and total |
-| POST | `/utility-bills/{billId}/attachments` | Landlord / Property Manager | Upload bill image/PDF evidence |
-| POST | `/utility-bills/{billId}/splits` | Landlord / Property Manager | Configure per-tenant split (single/equal/percentage/fixed) |
-| POST | `/utility-bills/{billId}/publish` | Landlord / Property Manager | Publish payable split entries to tenants |
+| GET | `/properties/{propertyId}/utility-bills` | Landlord / Admin | List bills for property |
+| POST | `/properties/{propertyId}/utility-bills` | Landlord / Admin | Create utility bill with period, due date, and total |
+| POST | `/utility-bills/{billId}/attachments` | Landlord / Admin | Upload bill image/PDF evidence |
+| POST | `/utility-bills/{billId}/splits` | Landlord / Admin | Configure per-tenant split (single/equal/percentage/fixed) |
+| POST | `/utility-bills/{billId}/publish` | Landlord / Admin | Publish payable split entries to tenants |
 | GET | `/tenants/me/bill-shares` | Tenant | List payable utility bill shares |
 | POST | `/bill-shares/{billShareId}/pay` | Tenant | Pay assigned bill-share amount |
 | POST | `/bill-shares/{billShareId}/dispute` | Tenant | Raise dispute on bill-share |
-| GET | `/utility-bills/{billId}/history` | Landlord / Property Manager / Tenant | View bill status and settlement timeline |
+| POST | `/bill-shares/{billShareId}/resolve-dispute` | Landlord / Admin | Resolve or waive a tenant bill-share dispute |
+| GET | `/utility-bills/{billId}/history` | Landlord / Admin / Tenant | View bill status and settlement timeline |
 
 ---
 

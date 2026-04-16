@@ -48,6 +48,17 @@ class ApiEndpoints {
   static const String paymentProviders = '/payments/providers/';
   static const String paymentInitiate = '/payments/initiate/';
   static const String paymentVerify = '/payments/verify/';
+  static const String invoices = '/invoices';
+  static String invoiceById(String id) => '/invoices/$id';
+  static String invoicePay(String id) => '/invoices/$id/pay';
+  static String invoicePartialPay(String id) => '/invoices/$id/partial-pay';
+  static String invoiceReceipt(String id) => '/invoices/$id/receipt';
+  static String bookingRentLedger(String id) => '/bookings/$id/rent-ledger';
+  static String additionalChargeDispute(String id) => '/additional-charges/$id/dispute';
+  static const String tenantBillShares = '/tenants/me/bill-shares';
+  static String billSharePay(String id) => '/bill-shares/$id/pay';
+  static String billShareDispute(String id) => '/bill-shares/$id/dispute';
+  static String utilityBillHistory(String id) => '/utility-bills/$id/history';
 
   // Listings
   static const String categories = '/categories';

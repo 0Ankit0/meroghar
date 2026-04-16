@@ -1,3 +1,25 @@
+import '../../../../core/utils/json_parsing.dart';
+
+String _normalizePaymentToken(String value) {
+  return value
+      .trim()
+      .toLowerCase()
+      .replaceAll(RegExp(r'[.\s-]+'), '_')
+      .replaceAll(RegExp(r'_+'), '_');
+}
+
+String _readId(Map<String, dynamic> json, Iterable<String> keys) {
+  final stringValue = readString(json, keys);
+  if (stringValue != null) return stringValue;
+  final intValue = readInt(json, keys);
+  return intValue?.toString() ?? '';
+}
+
+Map<String, dynamic>? _readOptionalMap(dynamic value) {
+  final map = asJsonMap(value);
+  return map.isEmpty ? null : map;
+}
+
 enum PaymentProvider {
   khalti,
   esewa,
@@ -5,8 +27,9 @@ enum PaymentProvider {
   paypal;
 
   static PaymentProvider fromString(String v) {
+    final normalized = _normalizePaymentToken(v);
     return PaymentProvider.values.firstWhere(
-      (e) => e.name == v.toLowerCase(),
+      (e) => e.name == normalized,
       orElse: () => PaymentProvider.khalti,
     );
   }
@@ -34,10 +57,31 @@ enum PaymentStatus {
   cancelled;
 
   static PaymentStatus fromString(String v) {
-    return PaymentStatus.values.firstWhere(
-      (e) => e.name == v.toLowerCase(),
-      orElse: () => PaymentStatus.pending,
-    );
+    switch (_normalizePaymentToken(v)) {
+      case 'initiated':
+      case 'created':
+        return PaymentStatus.initiated;
+      case 'completed':
+      case 'complete':
+      case 'approved':
+      case 'paid':
+        return PaymentStatus.completed;
+      case 'failed':
+      case 'error':
+      case 'expired':
+        return PaymentStatus.failed;
+      case 'refunded':
+      case 'full_refund':
+        return PaymentStatus.refunded;
+      case 'cancelled':
+      case 'canceled':
+      case 'user_cancelled':
+      case 'user_canceled':
+        return PaymentStatus.cancelled;
+      case 'pending':
+      default:
+        return PaymentStatus.pending;
+    }
   }
 }
 
@@ -81,7 +125,7 @@ class InitiatePaymentRequest {
 }
 
 class InitiatePaymentResponse {
-  final int transactionId;
+  final String transactionId;
   final PaymentProvider provider;
   final PaymentStatus status;
   final String? paymentUrl;
@@ -99,12 +143,15 @@ class InitiatePaymentResponse {
 
   factory InitiatePaymentResponse.fromJson(Map<String, dynamic> json) {
     return InitiatePaymentResponse(
-      transactionId: json['transaction_id'] as int,
-      provider: PaymentProvider.fromString(json['provider'] as String? ?? 'khalti'),
-      status: PaymentStatus.fromString(json['status'] as String? ?? 'pending'),
-      paymentUrl: json['payment_url'] as String?,
-      providerPidx: json['provider_pidx'] as String?,
-      extra: json['extra'] as Map<String, dynamic>?,
+      transactionId: _readId(json, const ['transaction_id', 'transactionId']),
+      provider: PaymentProvider.fromString(
+          readString(json, const ['provider']) ?? 'khalti'),
+      status: PaymentStatus.fromString(
+        readString(json, const ['status']) ?? 'pending',
+      ),
+      paymentUrl: readString(json, const ['payment_url', 'paymentUrl']),
+      providerPidx: readString(json, const ['provider_pidx', 'providerPidx']),
+      extra: _readOptionalMap(json['extra']),
     );
   }
 }
@@ -115,7 +162,7 @@ class VerifyPaymentRequest {
   final String? oid;
   final String? refId;
   final String? data;
-  final int? transactionId;
+  final String? transactionId;
 
   const VerifyPaymentRequest({
     required this.provider,
@@ -138,7 +185,7 @@ class VerifyPaymentRequest {
 }
 
 class VerifyPaymentResponse {
-  final int transactionId;
+  final String transactionId;
   final PaymentProvider provider;
   final PaymentStatus status;
   final int? amount;
@@ -156,18 +203,24 @@ class VerifyPaymentResponse {
 
   factory VerifyPaymentResponse.fromJson(Map<String, dynamic> json) {
     return VerifyPaymentResponse(
-      transactionId: json['transaction_id'] as int,
-      provider: PaymentProvider.fromString(json['provider'] as String? ?? 'khalti'),
-      status: PaymentStatus.fromString(json['status'] as String? ?? 'pending'),
-      amount: json['amount'] as int?,
-      providerTransactionId: json['provider_transaction_id'] as String?,
-      extra: json['extra'] as Map<String, dynamic>?,
+      transactionId: _readId(json, const ['transaction_id', 'transactionId']),
+      provider: PaymentProvider.fromString(
+          readString(json, const ['provider']) ?? 'khalti'),
+      status: PaymentStatus.fromString(
+        readString(json, const ['status']) ?? 'pending',
+      ),
+      amount: readInt(json, const ['amount']),
+      providerTransactionId: readString(
+        json,
+        const ['provider_transaction_id', 'providerTransactionId'],
+      ),
+      extra: _readOptionalMap(json['extra']),
     );
   }
 }
 
 class PaymentTransaction {
-  final int id;
+  final String id;
   final PaymentProvider provider;
   final PaymentStatus status;
   final int amount;
@@ -197,18 +250,35 @@ class PaymentTransaction {
 
   factory PaymentTransaction.fromJson(Map<String, dynamic> json) {
     return PaymentTransaction(
-      id: json['id'] as int,
-      provider: PaymentProvider.fromString(json['provider'] as String? ?? 'khalti'),
-      status: PaymentStatus.fromString(json['status'] as String? ?? 'pending'),
-      amount: json['amount'] as int? ?? 0,
-      currency: json['currency'] as String? ?? 'NPR',
-      purchaseOrderId: json['purchase_order_id'] as String? ?? '',
-      purchaseOrderName: json['purchase_order_name'] as String? ?? '',
-      providerTransactionId: json['provider_transaction_id'] as String?,
-      providerPidx: json['provider_pidx'] as String?,
-      returnUrl: json['return_url'] as String? ?? '',
-      websiteUrl: json['website_url'] as String? ?? '',
-      failureReason: json['failure_reason'] as String?,
+      id: _readId(json, const ['id', 'transaction_id', 'transactionId']),
+      provider: PaymentProvider.fromString(
+          readString(json, const ['provider']) ?? 'khalti'),
+      status: PaymentStatus.fromString(
+        readString(json, const ['status']) ?? 'pending',
+      ),
+      amount: readInt(json, const ['amount']) ?? 0,
+      currency: readString(json, const ['currency']) ?? 'NPR',
+      purchaseOrderId: readString(
+            json,
+            const ['purchase_order_id', 'purchaseOrderId'],
+          ) ??
+          '',
+      purchaseOrderName: readString(
+            json,
+            const ['purchase_order_name', 'purchaseOrderName'],
+          ) ??
+          '',
+      providerTransactionId: readString(
+        json,
+        const ['provider_transaction_id', 'providerTransactionId'],
+      ),
+      providerPidx: readString(json, const ['provider_pidx', 'providerPidx']),
+      returnUrl: readString(json, const ['return_url', 'returnUrl']) ?? '',
+      websiteUrl: readString(json, const ['website_url', 'websiteUrl']) ?? '',
+      failureReason: readString(
+        json,
+        const ['failure_reason', 'failureReason'],
+      ),
     );
   }
 }

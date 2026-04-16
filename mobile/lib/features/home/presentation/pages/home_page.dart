@@ -6,6 +6,7 @@ import '../../../applications/application_access.dart';
 import '../../../auth/presentation/providers/auth_provider.dart';
 import '../../../listings/listing_access.dart';
 import '../../../notifications/presentation/providers/notification_provider.dart';
+import '../../../payments/payment_access.dart';
 
 class HomeTab extends ConsumerWidget {
   const HomeTab({super.key});
@@ -16,6 +17,7 @@ class HomeTab extends ConsumerWidget {
         const <String>[];
     final showManageListings = canManageListings(roles);
     final showApplications = canViewApplications(roles);
+    final showBilling = canViewTenantBilling(roles);
 
     return Scaffold(
       appBar: AppBar(title: const Text('Home')),
@@ -47,14 +49,16 @@ class HomeTab extends ConsumerWidget {
               onTap: () => context.go(AppConstants.applicationsRoute),
             ),
           ],
-          const SizedBox(height: 8),
-          _QuickAccessCard(
-            icon: Icons.payment,
-            title: 'Payments',
-            subtitle: 'Khalti · eSewa · Pay & view history',
-            color: Colors.indigo,
-            onTap: () => context.go(AppConstants.paymentsRoute),
-          ),
+          if (showBilling) ...[
+            const SizedBox(height: 8),
+            _QuickAccessCard(
+              icon: Icons.receipt_long_outlined,
+              title: 'Billing',
+              subtitle: 'Rent invoices, utility shares, receipts, and history',
+              color: Colors.indigo,
+              onTap: () => context.go(AppConstants.paymentsRoute),
+            ),
+          ],
           const SizedBox(height: 8),
           _QuickAccessCard(
             icon: Icons.devices,

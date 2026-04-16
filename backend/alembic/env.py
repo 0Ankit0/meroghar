@@ -19,6 +19,8 @@ from src.apps.listings.models import *  # noqa: F403,F401
 from src.apps.pricing.models import *  # noqa: F403,F401
 from src.apps.availability.models import *  # noqa: F403,F401
 from src.apps.bookings.models import *  # noqa: F403,F401
+from src.apps.invoicing.models import *  # noqa: F403,F401
+from src.apps.utility_billing.models import *  # noqa: F403,F401
 from src.apps.multitenancy.models import *  # noqa: F403,F401
 from src.apps.notification.models import *  # noqa: F403,F401
 
